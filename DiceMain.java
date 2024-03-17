@@ -1,194 +1,100 @@
 import java.util.Scanner;
+import java.lang.Exception;
 public class DiceMain
 {
-	
 	public static void main(String[] args) 
 	{
-		
-			double roundBot=0;
-			Player ton = new Player();
-			Player player1 = new Player();
-			Player player2 = new Player();
-			Player player3 = new Player();
-			Player player4 = new Player();
-			
-			Scanner askCheat = new Scanner(System.in);
-			System.out.println("type 1 to open cheat mode, other number for normal mode");
-			ton.cheat = askCheat.nextInt();
-			player1.cheat = ton.cheat;
-			player2.cheat = ton.cheat;
-			player3.cheat = ton.cheat;
-			player4.cheat = ton.cheat;
-			
-			Scanner askNum = new Scanner(System.in);
-			Scanner askName = new Scanner(System.in);
-			
-			String tonUserName;
-			System.out.println("type 1 to let bot play character #1");
-			int bot0play = askNum.nextInt();
-			if(bot0play==1)
-			{
-				tonUserName="bot0";
-				ton.bot=1;
-				ton.cheat=1;
-			}
-			else
-			{
+		Scanner ask = new Scanner(System.in);
+		System.out.println("Type the number of players");
+		int numPlayer = ask.nextInt();
+		while (numPlayer <= 0) {
+			numPlayer = ask.nextInt();
+		}
+		Player[] players = new Player[numPlayer];
+		int[] ranks = new int[numPlayer];
+		String[] usernames = new String[numPlayer];
+		boolean[] isBot = new boolean[numPlayer];
+		int botCount = 0;
+		for (int i = 0; i < numPlayer; i++) {
+			players[i] = new Player();
+			System.out.println("type 1 to let bot play character #" + (i + 1));
+			isBot[i] = ask.nextInt() == 1;
+			ask.nextLine(); // Consume the leftover newline character
+			if (isBot[i]) {
+				usernames[i] = "bot " + ++botCount;
+				players[i].bot = true;
+				players[i].cheat = true;
+			} else {
 				System.out.println("enter player name:");
-				tonUserName = askName.nextLine();
+				usernames[i] = ask.nextLine(); // Now waits for actual input
 			}
-			
-			String p1UserName;
-			System.out.println("type 1 to let bot play character #2");
-			int bot1play = askNum.nextInt();
-			if(bot1play==1)
-			{
-				p1UserName="bot1";
-				player1.bot=1;
-				player1.cheat=1;
+		}
+		for (int a = 1; a <= 13; a++) {
+			for (int i = 0; i < numPlayer; i++) {
+				System.out.print(usernames[i] + "'s turn ");
+				for (int j = 0; j < 3; j++)
+				{
+					players[i].rolldice();
+					players[i].chooseScore();
+				}
+				players[i].resetfornextround();
 			}
-			else
-			{
-				System.out.println("enter player name:");
-				p1UserName = askName.nextLine();
+			System.out.println("------------------------------------------");
+			System.out.println("END OF ROUND (" + a + ")");
+			for (int i = 0; i < numPlayer; i++) {
+				System.out.print("-----------------------\n" + usernames[i] + "'s score ");
+				players[i].checkScoreCard();
+				if (players[i].life == 2) {
+					a = 99;
+				}
 			}
-			
-			String p2UserName;
-			System.out.println("type 1 to let bot play character #3");
-			int bot2play = askNum.nextInt();
-			if(bot2play==1)
-			{
-				p2UserName="bot2";
-				player2.bot=1;
-				player2.cheat=1;
-			}
-			else
-			{
-				System.out.println("enter player name:");
-				p2UserName = askName.nextLine();
-			}
-			
-			String p3UserName;
-			System.out.println("type 1 to let bot play character #4");
-			int bot3play = askNum.nextInt();
-			if(bot3play==1)
-			{
-				p3UserName="bot3";
-				player3.bot=1;
-				player3.cheat=1;
-			}
-			else
-			{
-				System.out.println("enter player name:");
-				p3UserName = askName.nextLine();
-			}
-
-			String p4UserName;
-			System.out.println("type 1 to let bot play character #5");
-			int bot4play = askNum.nextInt();
-			if(bot4play==1)
-			{
-				p4UserName="bot4";
-				player4.bot=1;
-				player4.cheat=1;
-			}
-			else
-			{
-				System.out.println("enter player name:");
-				p4UserName = askName.nextLine();
-			}
-			
-			int j=1;
-			while(j<=13)
-			{
-					System.out.print(tonUserName);System.out.print("'s turn ");
-					for (int i=0;i<3;i++)
-					{
-						ton.rolldice();
-						ton.chooseScore();
+            java.util.Arrays.fill(ranks, 1);
+			for (int i = 0; i < numPlayer; i++) {
+				for (int j = 0; j < numPlayer; j++) {
+					if (players[j].totalscore > players[i].totalscore) {
+						ranks[i]++;
 					}
-					ton.resetfornextround();
-
-					System.out.print(p1UserName);System.out.print("'s turn ");
-					for (int i=0;i<3;i++)
-					{
-						player1.rolldice();
-						player1.chooseScore();
-					}
-					player1.resetfornextround();
-				
-					System.out.print(p2UserName);System.out.print("'s turn ");
-					for (int i=0;i<3;i++)
-					{
-						player2.rolldice();
-						player2.chooseScore();
-					}
-					player2.resetfornextround();
-				
-					System.out.print(p3UserName);System.out.print("'s turn ");
-					for (int i=0;i<3;i++)
-					{
-						player3.rolldice();
-						player3.chooseScore();
-					}
-					player3.resetfornextround();
-				
-					System.out.print(p4UserName);System.out.print("'s turn ");
-					for (int i=0;i<3;i++)
-					{
-						player4.rolldice();
-						player4.chooseScore();
-					}
-					player4.resetfornextround();
-				
-				System.out.println("------------------------------------------");
-				System.out.print("END OF ROUND (");System.out.print(j);System.out.println(")");
-				System.out.println("-----------------------");System.out.print(tonUserName);System.out.print("'s score ");    ton.checkScoreCard();        if(ton.life==2){j=9999;}
-				System.out.println("-----------------------");System.out.print(p1UserName); System.out.print("'s score ");    player1.checkScoreCard();    if(player1.life==2){j=9999;} 
-				System.out.println("-----------------------");System.out.print(p2UserName); System.out.print("'s score ");    player2.checkScoreCard();    if(player2.life==2){j=9999;}
-				System.out.println("-----------------------");System.out.print(p3UserName); System.out.print("'s score ");    player3.checkScoreCard();    if(player3.life==2){j=9999;}
-				System.out.println("-----------------------");System.out.print(p4UserName); System.out.print("'s score ");    player4.checkScoreCard();    if(player4.life==2){j=9999;}
-				int tonRank=1; int p1Rank=1; int p2Rank=1; int p3Rank=1; int p4Rank=1;
-				if(ton.totalscore>ton.totalscore) {tonRank++;}
-				if(player1.totalscore>ton.totalscore) {tonRank++;}
-				if(player2.totalscore>ton.totalscore) {tonRank++;}
-				if(player3.totalscore>ton.totalscore) {tonRank++;}
-				if(player4.totalscore>ton.totalscore) {tonRank++;}
-				
-				if(ton.totalscore>player1.totalscore) {p1Rank++;}
-				if(player1.totalscore>player1.totalscore) {p1Rank++;}
-				if(player2.totalscore>player1.totalscore) {p1Rank++;}
-				if(player3.totalscore>player1.totalscore) {p1Rank++;}
-				if(player4.totalscore>player1.totalscore) {p1Rank++;}
-				
-				if(ton.totalscore>player2.totalscore) {p2Rank++;}
-				if(player1.totalscore>player2.totalscore) {p2Rank++;}
-				if(player2.totalscore>player2.totalscore) {p2Rank++;}
-				if(player3.totalscore>player2.totalscore) {p2Rank++;}
-				if(player4.totalscore>player2.totalscore) {p2Rank++;}
-				
-				if(ton.totalscore>player3.totalscore) {p3Rank++;}
-				if(player1.totalscore>player3.totalscore) {p3Rank++;}
-				if(player2.totalscore>player3.totalscore) {p3Rank++;}
-				if(player3.totalscore>player3.totalscore) {p3Rank++;}
-				if(player4.totalscore>player3.totalscore) {p3Rank++;}
-				
-				if(ton.totalscore>player4.totalscore) {p4Rank++;}
-				if(player1.totalscore>player4.totalscore) {p4Rank++;}
-				if(player2.totalscore>player4.totalscore) {p4Rank++;}
-				if(player3.totalscore>player4.totalscore) {p4Rank++;}
-				if(player4.totalscore>player4.totalscore) {p4Rank++;}
-				
-				System.out.print(tonUserName);System.out.print("'s RANK: ");System.out.println(tonRank);
-				System.out.print(p1UserName);System.out.print("'s RANK: ");System.out.println(p1Rank);
-				System.out.print(p2UserName);System.out.print("'s RANK: ");System.out.println(p2Rank);
-				System.out.print(p3UserName);System.out.print("'s RANK: ");System.out.println(p3Rank);
-				System.out.print(p4UserName);System.out.print("'s RANK: ");System.out.println(p4Rank);
-				//only for experiment - test the bot's ability
-				j++;
-				
+				}
 			}
-			
-			System.out.println("GOOD GAME, WELL PLAYED!");
+			for (int rank = 1; rank <= numPlayer; rank++) {
+				for (int i = 0; i < numPlayer; i++) {
+					if (ranks[i] == rank) {
+						System.out.println("RANK " + rank + ": " + usernames[i] + ": SCORE = " + players[i].totalscore);
+					}
+				}
+			}
+		}
+		int[] scoreInRange = new int[30];
+		//scoreInRange[0] = No. of player scoring 0-19
+		for (int rank = 1; rank <= numPlayer; rank++) {
+			for (int i = 0; i < numPlayer; i++) {
+				if (ranks[i] == rank) {
+					scoreInRange[players[i].totalscore / 20]++;
+				}
+			}
+		}
+		String fig = "(I)";
+		int figSize = 1;
+		if (numPlayer > 300) {
+			fig = "(X)";
+			figSize = 10;
+		}
+		if (numPlayer > 3000) {
+			fig = "(C)";
+			figSize = 100;
+		}
+		if (numPlayer > 30000) {
+			fig = "(M)";
+			figSize = 1000;
+		}
+		for (int i = 4; i <= 16; i++) {
+			System.out.print("score" + 20 * i + "-" + (20 * i + 19) + "  ");
+			for (int j = 0; j < scoreInRange[i] / figSize; j++) {
+				System.out.print(fig);
+			}
+			System.out.print("\n");
+		}
+		System.out.println("GOOD GAME, WELL PLAYED!");
+		ask.close();
 	}
 }
