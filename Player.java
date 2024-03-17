@@ -1,6 +1,5 @@
 import java.util.Scanner;
-public class Player
-{
+public class Player {
 	public int rollDecision; //decide to take point in which way or re-roll which dice
 	public boolean haveChoice = false; //to skip play when no play available
 	public int totalscore=0; //total score during the game
@@ -12,15 +11,13 @@ public class Player
 	public int yaht=1; public int toak=1; public int foak=1; public int fh=1; public int lgstr=1; public int smstr=1;
 	public int chan=1; public int ace=1; public int two=1; public int three=1; public int four=1; public int five=1; public int six=1;
 	double maxProb=0; double []simulProb= new double[31]; public int botDeci=15; public int gotbonus=0;
-	
 	public int pntsToak=0; public int pntsFoak=0; public int pntsChan=0; public int bonus=0; public int yahtBo=0;
 	public int pnts1=0; public int pnts2=0; public int pnts3=0; public int pnts4=0; public int pnts5=0; public int pnts6=0; 
-	
+	public int[] pntsBasic = {0, 0, 0, 0, 0, 0};
 	public int valA = 0; public int valB = 0; public int valC = 0; public int valD = 0; public int valE = 0; public int []arrVal= new int[5];
 	public int count1=0; public int count2=0; public int count3=0; public int count4=0; public int count5=0; public int count6=0;
 	Dice a = new Dice(6); Dice b = new Dice(6); Dice c = new Dice(6); Dice d = new Dice(6); Dice e = new Dice(6);
 	public int userChoose;
-	
 	public double maxofArray(double[] arr)
 	{
 		double max=0;
@@ -30,7 +27,22 @@ public class Player
 		}
 		return max;
 	}
-	
+	public int maxOfArr(int[] arr) {
+		int max = 0;
+		for (int i: arr) {
+			if (i > max) {
+				max = i;
+			}
+		}
+		return max;
+	}
+	public int sumOfArr(int[] arr) {
+		int sum = 0;
+		for (int i: arr) {
+			sum += i;
+		}
+		return sum;
+	}
 	public int maxofSix(int a, int b, int c, int d, int e, int f)
 	{
 		int max=0;
@@ -42,7 +54,6 @@ public class Player
 		if(f>max) {max=f;}
 		return max;
 	}
-	///////////////////////////////////////////////////////////////////
 	public double probLgStr(int a,int b,int c,int d,int e,int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
@@ -135,7 +146,6 @@ public class Player
 		
 		return prob;
 	}
-	
 	public double probFOAK(int a,int b,int c,int d,int e, int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
@@ -206,7 +216,6 @@ public class Player
 		}
 		return prob;
 	}
-	
 	public double probYaht(int a,int b,int c,int d,int e, int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
@@ -246,7 +255,6 @@ public class Player
 		}
 		return prob;
 	}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	public double probTOAK(int a,int b,int c,int d,int e, int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
@@ -325,7 +333,6 @@ public class Player
 		
 		return prob;
 	}
-	
 	public double probFH(int a,int b,int c,int d,int e, int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
@@ -395,7 +402,6 @@ public class Player
 		}
 		return prob;
 	}
-	
 	public double probSmStr(int a,int b,int c,int d,int e,int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
@@ -552,23 +558,15 @@ public class Player
 		return prob;
 	}
 	public void checkScoreCard() {
-		if(pnts1+pnts2+pnts3+pnts4+pnts5+pnts6>=63&&gotbonus==0) {
+		if (sumOfArr(pntsBasic) >= 63 && gotbonus == 0) {
 			bonus=35;
 			totalscore+=35;
 			gotbonus++;
 		}
-		System.out.println("");System.out.println("______________");
-		System.out.print("|  1s  |  ");System.out.print(pnts1);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|  2s  |  ");System.out.print(pnts2);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|  3s  |  ");System.out.print(pnts3);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|  4s  |  ");System.out.print(pnts4);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|  5s  |  ");System.out.print(pnts5);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|  6s  |  ");System.out.print(pnts6);System.out.println("  |");
+		System.out.print("\n");
+		for (int i = 0; i < 6; i++) {
+			System.out.print("______________\n|  " + (i + 1) + "s  |  "+ pntsBasic[i] + "  |\n");
+		}
 		System.out.println("______________");
 		System.out.print("|Bonus |  ");System.out.print(bonus);System.out.println("  |");
 		System.out.println("______________");
@@ -1092,42 +1090,42 @@ public class Player
 					roll_left=-1;
 				}
 				if(count1>0&&ace>0&&userChoose==1) {
-					pnts1=1*count1;
+					pntsBasic[0]=1*count1;
 					score+=1*count1;
 					ace--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
 				if(count2>0&&two>0&&userChoose==2) {
-					pnts2=2*count2;
+					pntsBasic[1]=2*count2;
 					score+=2*count2;
 					two--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
 				if(count3>0&&three>0&&userChoose==3) {
-					pnts3=3*count3;
+					pntsBasic[2]=3*count3;
 					score+=3*count3;
 					three--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
 				if(count4>0&&four>0&&userChoose==4) {
-					pnts4=4*count4;
+					pntsBasic[3]=4*count4;
 					score+=4*count4;
 					four--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
 				if(count5>0&&five>0&&userChoose==5) {
-					pnts5=5*count5;
+					pntsBasic[4]=5*count5;
 					score+=5*count5;
 					five--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
 				if(count6>0&&six>0&&userChoose==6) {
-					pnts6=6*count6;
+					pntsBasic[5]=6*count6;
 					score+=6*count6;
 					six--;
 					System.out.print("Score: "); System.out.println(score);
