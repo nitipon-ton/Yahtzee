@@ -9,11 +9,10 @@ public class Player {
 	public boolean bot = false; //auto move for bot when bot = true
 	public boolean cheat = false;
 	private int yaht = 1;
-	private int[] isAvailAdv = {1, 1, 1, 1, 1};
-	private int toak = 1; private int foak = 1; private int fh = 1; private int lgstr = 1; private int smstr = 1;
-	private int chan=1;
-	private boolean isAvailBasic[] = {true, true, true, true, true, true};
-	double maxProb = 0; double[] simulProb= new double[31]; public int botDeci = 15;
+	private int[] isAvailAdv = {1, 1, 1, 1, 1}; //toak foak fh smstr lgstr
+	private boolean chanAvail = true;
+	private boolean[] isAvailBasic = {true, true, true, true, true, true};
+	double maxProb = 0; double[] simulProb = new double[31]; public int botDeci = 15;
 	public boolean gotbonus = false;
 	public int pntsToak=0;
 	public int pntsFoak=0;
@@ -25,12 +24,12 @@ public class Player {
 	public int[] faceCounter = new int[6];
 	Dice dice = new Dice(6);
 	public int userChoose;
-	public double maxofArray(double[] arr)
-	{
+	public double maxofArray(double[] arr) {
 		double max=0;
-		for(int i=0;i<arr.length;i++)
-		{
-			if(arr[i]>max) {max=arr[i];}
+		for (double d: arr) {
+			if (d > max) {
+				max = d;
+			}
 		}
 		return max;
 	}
@@ -62,87 +61,52 @@ public class Player {
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
-		for(int i=0;i<=4;i++)
-		{
-			for(int j=0;j<=5;j++)
-			{
-				if(arr[i]==j+1)
-				{
+		for(int i=0;i<=4;i++) {
+			for(int j=0;j<=5;j++) {
+				if(arr[i]==j+1) {
 					count[j]++; //count[0] = count number of 1
 				}
 			}
 		}
-		
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		
-		if(numberofReroll==5)
-		{
+		if(numberofReroll==5) {
 			prob=40.0/1296.0;
-		}
-		else if(numberofReroll==4)
-		{
-			if(sum==1|sum==6)
-			{
+		} else if(numberofReroll==4) {
+			if (sum == 1 || sum == 6) {
 				prob=4.0/216.0;
-			}
-			else
-			{
+			} else {
 				prob=8.0/216.0;
 			}
-		}
-		else if(numberofReroll==3)
-		{
-			if(diffpair==2)
-			{
-				if(sumofsquare==37)
-				{
+		} else if(numberofReroll==3) {
+			if(diffpair==2) {
+				if(sumofsquare==37) {
 					prob=0.0;
-				}
-				else if(sumofsquare==5||sumofsquare==10||sumofsquare==17||sumofsquare==26||sumofsquare==40||sumofsquare==45||sumofsquare==52||sumofsquare==61)
-				{
+				} else if(sumofsquare==5||sumofsquare==10||sumofsquare==17||sumofsquare==26||sumofsquare==40||sumofsquare==45||sumofsquare==52||sumofsquare==61) {
 					prob=6.0/216.0;
-				}
-				else
-				{
+				} else {
 					prob=12.0/216.0;
 				}
-			}
-			else
-			{
+			} else {
 				prob=0;
 			}
-		}
-		else if(numberofReroll==2)
-		{
-			if(count[0]*count[5]>0)
-			{
+		} else if(numberofReroll==2) {
+			if(count[0]*count[5]>0) {
 				prob=0.0;
-			}
-			else if(diffpair<6)
-			{
+			} else if(diffpair<6) {
 				prob=0.0;
-			}
-			else if(count[0]+count[5]==1)
-			{
+			} else if(count[0]+count[5]==1) {
 				prob=2.0/36.0;
-			}
-			else
-			{
+			} else {
 				prob=4.0/36.0;
 			}
 		}
-		
 		return prob;
 	}
 	public double probFOAK(int[] a, int userSimChoose) {
@@ -156,59 +120,39 @@ public class Player {
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		if(numberofReroll==5||numberofReroll==4)
-		{
+		if(numberofReroll==5||numberofReroll==4) {
 			prob=26.0/1296.0;
 		}
-		if(numberofReroll==3)
-		{
-			if(sum*sum==2*sumofsquare)
-			{
+		if(numberofReroll==3) {
+			if(sum*sum==2*sumofsquare) {
 				prob=16.0/216.0;
-			}
-			else
-			{
+			} else {
 				prob=2.0/216.0;
 			}
 		}
-		if(numberofReroll==2)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==2) {
+			if(diffpair==0) {
 				prob=11.0/36.0;
-			}
-			else if(diffpair==4)
-			{
+			} else if(diffpair==4) {
 				prob=1.0/36.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=0.0;
 			}
 		}
-		if(numberofReroll==1)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==1) {
+			if(diffpair==0) {
 				prob=1.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=1.0/6.0;
-			}
-			else if(diffpair>6)
-			{
+			} else if(diffpair>6) {
 				prob=0;
 			}
 		}
@@ -225,13 +169,10 @@ public class Player {
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
@@ -362,148 +303,91 @@ public class Player {
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
-		for(int i=0;i<=4;i++)
-		{
-			for(int j=0;j<=5;j++)
-			{
-				if(arr[i]==j+1)
-				{
+		for(int i=0;i<=4;i++) {
+			for(int j=0;j<=5;j++) {
+				if(arr[i]==j+1) {
 					count[j]++; //count[0] = count number of 1
 				}
 			}
 		}
-		
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i]; sumofsquareofCount+=count[0]*count[0];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		
-		if(numberofReroll==5)
-		{
+		if(numberofReroll==5) {
 			prob=200.0/1296.0;
-		}
-		else if(numberofReroll==4)
-		{
-			if(sum==1||sum==6)
-			{
+		} else if(numberofReroll==4) {
+			if(sum==1||sum==6) {
 				prob=132.0/1296.0;
-			}
-			else if(sum==2||sum==5)
-			{
+			} else if(sum==2||sum==5) {
 				prob=192.0/1296.0;
-			}
-			else
-			{
+			} else {
 				prob=276.0/1296.0;
 			}
-		}
-		else if(numberofReroll==3)
-		{
-			if(sumofsquare==2||sumofsquare==72)
-			{
+		} else if(numberofReroll==3) {
+			if(sumofsquare==2||sumofsquare==72) {
 				prob=6.0/216.0;
-			}
-			else if(sumofsquare==8||sumofsquare==50||sumofsquare==40||sumofsquare==26||sumofsquare==37)
-			{
+			} else if(sumofsquare==8||sumofsquare==50||sumofsquare==40||sumofsquare==26||sumofsquare==37) {
 				prob=12.0/216.0;
-			}
-			else if(sumofsquare==18||sumofsquare==32)
-			{
+			} else if(sumofsquare==18||sumofsquare==32) {
 				prob=18.0/216.0;
-			}
-			else if(sumofsquare==61||sumofsquare==5||sumofsquare==29)
-			{
+			} else if(sumofsquare==61||sumofsquare==5||sumofsquare==29) {
 				prob=30.0/216.0;
-			}
-			else if(sumofsquare==52||sumofsquare==10||sumofsquare==45||sumofsquare==17)
-			{
+			} else if(sumofsquare==52||sumofsquare==10||sumofsquare==45||sumofsquare==17) {
 				prob=36.0/216.0;
-			}
-			else if(sumofsquare==41||sumofsquare==13||sumofsquare==34||sumofsquare==20)
-			{
+			} else if(sumofsquare==41||sumofsquare==13||sumofsquare==34||sumofsquare==20) {
 				prob=54.0/216.0;
-			}
-			else if(sumofsquare==25)
-			{
+			} else if(sumofsquare==25) {
 				prob=78.0/216.0;
 			}
-		}
-		else if(numberofReroll==2)
-		{
-			if(diffpair==0)
-			{
+		} else if(numberofReroll==2) {
+			if(diffpair==0) {
 				prob=0.0;
-			}
-			else if(diffpair==4)
-			{
-				if(count[0]>0&&count[4]==0&&count[5]==0) //count[0] counts the number of 1 (not included those that are intended to re-roll)
-				{
+			} else if(diffpair==4) {
+				//count[0] counts the number of 1 (not included those we want to re-roll)
+				if(count[0]>0&&count[4]==0&&count[5]==0) {
 					prob=2.0/36.0;
-				}
-				else if(count[5]>0&&count[1]==0&&count[0]==0)
-				{
+				} else if(count[5]>0&&count[1]==0&&count[0]==0) {
 					prob=2.0/36.0;
-				}
-				else if(count[3]*count[4]>0||count[3]*count[4]>0||count[1]*count[3]>0||count[2]*count[4]>0)
-				{
+				} else if(count[3]*count[4]>0||count[3]*count[4]>0||count[1]*count[3]>0||count[2]*count[4]>0) {
 					prob=4.0/36.0;
-				}
-				else if(count[1]*count[4]>0)
-				{
+				} else if(count[1]*count[4]>0) {
 					prob=2.0/36.0;
-				}
-				else if(count[2]*count[3]>0)
-				{
+				} else if(count[2]*count[3]>0) {
 					prob=6.0/36.0;
-				}
-				else
-				{
+				} else {
 					prob=0.0;
 				}
-			}
-			else if(sumofsquare==14||sumofsquare==77||sumofsquare==21||sumofsquare==70||sumofsquare==38||sumofsquare==45||sumofsquare==38||sumofsquare==45)
-			{
+			} else if(sumofsquare==14||sumofsquare==77||sumofsquare==21||sumofsquare==70||sumofsquare==38||sumofsquare==45||sumofsquare==38||sumofsquare==45) {
 				prob=11.0/36.0;
-			}
-			else if(sumofsquare==35||sumofsquare==42||sumofsquare==49||sumofsquare==56||sumofsquare==46||sumofsquare==53)
-			{
+			} else if(sumofsquare==35||sumofsquare==42||sumofsquare==49||sumofsquare==56||sumofsquare==46||sumofsquare==53) {
 				prob=4.0/36.0;
-			}
-			else if(sumofsquare==26||sumofsquare==61)
-			{
+			} else if(sumofsquare==26||sumofsquare==61) {
 				prob=13.0/36.0;
-			}
-			else if(sumofsquare==30||sumofsquare==65||sumofsquare==41||sumofsquare==62)
-			{
+			} else if(sumofsquare==30||sumofsquare==65||sumofsquare==41||sumofsquare==62) {
 				prob=2.0/36.0;
-			}
-			else if(sumofsquare==29||sumofsquare==50)
-			{
+			} else if(sumofsquare==29||sumofsquare==50) {
 				prob=20.0/36.0;
 			}
 		} else if(numberofReroll==1) {
 			for(int i=1;i<=6;i++) {
 				for (int j=0;j<=4;j++) {
-					if(arr[j]==0) {
-						arr[j]=i;
-						count[i-1]++;
+					if(arr[j] == 0) {
+						arr[j] = i;
+						count[i - 1]++;
 						if(count[0]*count[1]*count[2]*count[3]+count[1]*count[2]*count[3]*count[4]+count[2]*count[3]*count[4]*count[5]>0) {
 							forbash++;
 						}
-						count[i-1]--;
-						arr[j]=0;
+						count[i - 1]--;
+						arr[j] = 0;
 					}
 				}
 			}
-			prob=forbash/6.0;
+			prob = forbash / 6.0;
 		}
 		return prob;
 	}
@@ -523,7 +407,7 @@ public class Player {
 		if (yaht <= 0) {
 			pntsYaht = 50;
 		}
-		int[] pnts = {pntsToak, pntsFoak, 25 * (1 - fh), 30 * (1 - smstr), 40 * (1 - lgstr), pntsYaht, pntsChan, yahtBo};
+		int[] pnts = {pntsToak, pntsFoak, 25 * (1 - isAvailAdv[2]), 30 * (1 - isAvailAdv[3]), 40 * (1 - isAvailAdv[4]), pntsYaht, pntsChan, yahtBo};
 		for (int i = 0; i < 8; i++) {
 			System.out.println("|" + titles[i] + "|  " + pnts[i] + "  |\n______________");
 		}
@@ -534,7 +418,7 @@ public class Player {
 				break;
 			}
 		}
-		if(toak + foak + fh + lgstr + smstr + chan == 0 && basicDone && yaht <= 0) {
+		if(sumOfArr(isAvailAdv) == 0 && !chanAvail && basicDone && yaht <= 0) {
 			System.out.println("SCORE CARD COMPLETED\nTotal score = " + totalscore + "\n");
 			life = 2;
 		} else {
@@ -554,7 +438,7 @@ public class Player {
 			System.out.print("(gone) --> ");
 		}
 	}
-	public void rolldice() {
+	public void rollDice() {
 		if(life==1) {
 			if(roll_left==-1) {
 				roll_left=-2;
@@ -597,18 +481,18 @@ public class Player {
 				System.out.print("  No More Re-Roll Left!!!");
 			}
 			System.out.print("\nScoring(s) available this game: ");
-			if(toak==1) {System.out.print("3ofAK   ");}
-			if(foak==1) {System.out.print("4ofAK   ");}
-			if(fh==1) {System.out.print("FullHS   ");}
-			if(smstr==1) {System.out.print("SmStrg   ");}
-			if(lgstr==1) {System.out.print("LgStrg   ");}
+			if(isAvailAdv[0]==1) {System.out.print("3ofAK   ");}
+			if(isAvailAdv[1]==1) {System.out.print("4ofAK   ");}
+			if(isAvailAdv[2]==1) {System.out.print("FullHS   ");}
+			if(isAvailAdv[3]==1) {System.out.print("SmStrg   ");}
+			if(isAvailAdv[4]==1) {System.out.print("LgStrg   ");}
 			System.out.print("Yahtz   ");
 			for (int i = 1; i <=6; i++) {
 				if (isAvailBasic[i - 1]) {
 					System.out.print(i + "s   ");
 				}
 			}
-			if (chan == 1) {
+			if (chanAvail) {
 				System.out.print("Chance   ");
 			}
 			System.out.println("\nScoring(s) available this move");
@@ -627,42 +511,42 @@ public class Player {
 			int maxDup = maxOfArr(faceCounter);
 			if(maxDup == 5) {
 				if(yaht>0) {
-					System.out.print("Yahtz : 50 points ");System.out.println(": type 7 to select");
+					System.out.println("Yahtz : 50 points : type 7 to select");
 					haveChoice = true;
 					if(50>maxPoint)
 					{
-						maxPoint=50;botDeci=7;
+						maxPoint = 50;
+						botDeci = 7;
 					}
 				} else {
-					System.out.print("Yahtz : 100 points ");System.out.println(": type 7 to select");
+					System.out.println("Yahtz : 100 points : type 7 to select");
 					haveChoice = true;
 					if(100>maxPoint) {
-						maxPoint=100;botDeci=7;
+						maxPoint = 100;
+						botDeci = 7;
 					}
 				}
 			}
-			if(maxDup >= 4 && foak > 0) {
-				System.out.print("4ofAK : "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
-				System.out.println(": type 8 to select");
+			if(maxDup >= 4 && isAvailAdv[1] > 0) {
+				System.out.println("4ofAK : " + sumOfArr(arrVal) + " points : type 8 to select");
 				haveChoice = true;
-				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint) {
-					maxPoint=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];botDeci=8;
+				if(sumOfArr(arrVal) > maxPoint) {
+					maxPoint = sumOfArr(arrVal);
+					botDeci = 8;
 				}
 				
 			}
-			if(maxDup >= 3 && toak>0) {
-				System.out.print("3ofAK : "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
-				System.out.println(": type 9 to select");
+			if(maxDup >= 3 && isAvailAdv[0]>0) {
+				System.out.println("3ofAK : " + sumOfArr(arrVal) + " points : type 9 to select");
 				haveChoice = true;
-				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint) {
-					maxPoint=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
-					botDeci=9;
+				if(sumOfArr(arrVal) > maxPoint) {
+					maxPoint = sumOfArr(arrVal);
+					botDeci = 9;
 				}
 				
 			}
-			if(chan>0) {
-				System.out.print("Chance: "); System.out.print(sumOfArr(arrVal)); System.out.print(" points ");
-				System.out.println(": type 11 to select");
+			if(chanAvail) {
+				System.out.println("Chance: " + sumOfArr(arrVal) + " points : type 11 to select");
 				haveChoice = true;
 				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint)
 				{
@@ -670,24 +554,24 @@ public class Player {
 					botDeci=11;
 				}
 			}
-			if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0) {
-				System.out.print("SmStrg: 30 points ");System.out.println(": type 12 to select");
+			if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&isAvailAdv[3]>0) {
+				System.out.println("SmStrg: 30 points : type 12 to select");
 				haveChoice = true;
 				if(30>maxPoint) {
 					maxPoint=30;
 					botDeci=12;
 				}
 			}
-			if(1==faceCounter[1]&&faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&lgstr>0) {
-				System.out.print("LgStrg: 40 points ");System.out.println(": type 13 to select");
+			if(1==faceCounter[1]&&faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&isAvailAdv[4]>0) {
+				System.out.println("LgStrg: 40 points : type 13 to select");
 				haveChoice = true;
 				if(40>maxPoint) {
 					maxPoint=40;
 					botDeci=13;
 				}
 			}
-			if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0) {
-				System.out.print("FullHS: 25 points ");System.out.println(": type 14 to select");
+			if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&isAvailAdv[2]>0) {
+				System.out.println("FullHS: 25 points : type 14 to select");
 				haveChoice = true;
 				if(25>maxPoint) {
 					maxPoint=25;
@@ -720,7 +604,7 @@ public class Player {
 				if(cheat) {
 					System.out.println("SUGGESTION: ");
                     double maxProb = 0;
-                    if(toak>0) {
+                    if(isAvailAdv[0]>0) {
 						System.out.print("max chance 3ofAK ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probTOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -737,7 +621,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if (foak > 0) {
+					if (isAvailAdv[1] > 0) {
 						System.out.print("max chance 4ofAK ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -754,7 +638,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if (fh > 0) {
+					if (isAvailAdv[2] > 0) {
 						System.out.print("max chance FullHS ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -771,7 +655,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if (smstr > 0) {
+					if (isAvailAdv[3] > 0) {
 						System.out.print("max chance SmStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -788,7 +672,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if (lgstr > 0) {
+					if (isAvailAdv[4] > 0) {
 						System.out.print("max chance LgStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -854,18 +738,18 @@ public class Player {
 					int userDecideReroll = 1; //confirm the decision
 					if (cheat) {
 						System.out.println("Yahtzee prob with this re-roll= " + probYaht(arrVal, userSim));
-						if(foak>0){System.out.println("4ofAK prob with this re-roll= " + probFOAK(arrVal, userSim));}
-						if(toak>0){System.out.println("3ofAK prob with this re-roll= " + probTOAK(arrVal, userSim));}
-						if(fh>0){System.out.println("FullHS prob with this re-roll= " + probFH(arrVal, userSim));}
-						if(smstr>0){System.out.println("SmStr prob with this re-roll= " + probSmStr(arrVal, userSim));}
-						if(lgstr>0){System.out.println("LgStr prob with this re-roll= " + probLgStr(arrVal, userSim));}
+						if(isAvailAdv[0]>0){System.out.println("3ofAK prob with this re-roll= " + probTOAK(arrVal, userSim));}
+						if(isAvailAdv[1]>0){System.out.println("4ofAK prob with this re-roll= " + probFOAK(arrVal, userSim));}
+						if(isAvailAdv[2]>0){System.out.println("FullHS prob with this re-roll= " + probFH(arrVal, userSim));}
+						if(isAvailAdv[3]>0){System.out.println("SmStr prob with this re-roll= " + probSmStr(arrVal, userSim));}
+						if(isAvailAdv[4]>0){System.out.println("LgStr prob with this re-roll= " + probLgStr(arrVal, userSim));}
 						System.out.println("type 1 to confirm decision----type other number to change decision");
 						Scanner rerollDecision = new Scanner(System.in);
 						if (!bot) {
 							userDecideReroll = rerollDecision.nextInt();
 						}
 					}
-					if(userDecideReroll==1) {
+					if(userDecideReroll == 1) {
 						userChoose = userSim;
 						isDeciding = false;
 					} else {
@@ -877,47 +761,44 @@ public class Player {
 					userChoose = userSim;
 				}
 			}
-			if (roll_left > 0 && userChoose%10==0 && userChoose > 0) {
-				rollDecision=userChoose;
+			if (roll_left > 0 && userChoose % 10 == 0 && userChoose > 0) {
+				rollDecision = userChoose;
 				roll_left--;
 			} else {
-				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
+				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&isAvailAdv[3]>0&&userChoose==12) {
 					score+=30;
-					smstr--;
+					isAvailAdv[3]--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if (arrVal[0]==arrVal[1]&&arrVal[1]==arrVal[2]&&arrVal[2]==arrVal[3]&&arrVal[3]==arrVal[4] && userChoose==7) {
-					if (yaht>0) {
+					if (yaht > 0) {
 						score+=50;
-						yaht--;
-						System.out.println("Score: " + score);
-						roll_left=-1;
-					} else {
+                    } else {
 						score += 100;
 						yahtBo += 100;
-						yaht--;
-						System.out.println("Score: " + score);
-						roll_left=-1;
-					}
-				}
-				if(maxOfArr(faceCounter) >= 4 && foak > 0 && userChoose == 8) {
+                    }
+                    yaht--;
+                    System.out.println("Score: " + score);
+                    roll_left=-1;
+                }
+				if(maxOfArr(faceCounter) >= 4 && isAvailAdv[1] > 0 && userChoose == 8) {
 					pntsFoak = sumOfArr(arrVal);
 					score += pntsFoak;
-					foak--;
+					isAvailAdv[1]--;
 					System.out.println("Score: " + score);
 					roll_left = -1;
 				}
-				if(maxOfArr(faceCounter) >= 3 && toak > 0 && userChoose == 9) {
+				if(maxOfArr(faceCounter) >= 3 && isAvailAdv[0] > 0 && userChoose == 9) {
 					pntsToak = sumOfArr(arrVal);
 					score += pntsToak;
-					toak--;
+					isAvailAdv[0]--;
 					System.out.println("Score: " + score);
 					roll_left = -1;
 				}
-				if(faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&lgstr>0&&userChoose==13) {
+				if(faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&isAvailAdv[4]>0&&userChoose==13) {
 					score+=40;
-					lgstr--;
+					isAvailAdv[4]--;
 					System.out.println("Score: " + score);
 					roll_left = -1;
 				}
@@ -930,22 +811,22 @@ public class Player {
 						roll_left = -1;
 					}
 				}
-				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
+				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&isAvailAdv[3]>0&&userChoose==12) {
 					score+=30;
-					smstr--;
+					isAvailAdv[3]--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if (chan > 0 && userChoose == 11) {
+				if (chanAvail && userChoose == 11) {
 					pntsChan=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
-					chan--;
+					chanAvail = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if (faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0&&userChoose==14) {
+				if (faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&isAvailAdv[2]>0&&userChoose==14) {
 					score+=25;
-					fh--;
+					isAvailAdv[2]--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}

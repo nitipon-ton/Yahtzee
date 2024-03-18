@@ -1,9 +1,7 @@
 import java.util.Scanner;
 import java.lang.Exception;
-public class DiceMain
-{
-	public static void main(String[] args) 
-	{
+public class DiceMain {
+	public static void main(String[] args) {
 		Scanner ask = new Scanner(System.in);
 		System.out.println("Type the number of players");
 		int numPlayer = ask.nextInt();
@@ -25,6 +23,7 @@ public class DiceMain
 				players[i].bot = true;
 				players[i].cheat = true;
 			} else {
+				players[i].cheat = true;
 				System.out.println("enter player name:");
 				usernames[i] = ask.nextLine(); // Now waits for actual input
 			}
@@ -32,15 +31,13 @@ public class DiceMain
 		for (int a = 1; a <= 13; a++) {
 			for (int i = 0; i < numPlayer; i++) {
 				System.out.print(usernames[i] + "'s turn ");
-				for (int j = 0; j < 3; j++)
-				{
-					players[i].rolldice();
+				for (int j = 0; j < 3; j++) {
+					players[i].rollDice();
 					players[i].chooseScore();
 				}
 				players[i].resetfornextround();
 			}
-			System.out.println("------------------------------------------");
-			System.out.println("END OF ROUND (" + a + ")");
+			System.out.println("------------------------------------------\nEND OF ROUND (" + a + ")");
 			for (int i = 0; i < numPlayer; i++) {
 				System.out.print("-----------------------\n" + usernames[i] + "'s score ");
 				players[i].checkScoreCard();
@@ -64,6 +61,7 @@ public class DiceMain
 				}
 			}
 		}
+		/*
 		int[] scoreInRange = new int[30];
 		//scoreInRange[0] = No. of player scoring 0-19
 		for (int rank = 1; rank <= numPlayer; rank++) {
@@ -94,6 +92,14 @@ public class DiceMain
 			}
 			System.out.print("\n");
 		}
+		*/
+		/*
+		int totScore = 0;
+		for (Player p: players) {
+			totScore += p.totalscore;
+		}
+		System.out.println("The average score is " + totScore / (numPlayer + 0.0));
+		*/
 		System.out.println("GOOD GAME, WELL PLAYED!");
 		ask.close();
 	}
