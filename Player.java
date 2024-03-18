@@ -48,9 +48,13 @@ public class Player {
 		}
 		return sum;
 	}
-	public double probLgStr(int a,int b,int c,int d,int e,int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
+	public double probLgStr(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] count= new int[6];
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
@@ -139,15 +143,17 @@ public class Player {
 		
 		return prob;
 	}
-	public double probFOAK(int a,int b,int c,int d,int e, int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
+	public double probFOAK(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
 		for(int i=0;i<=4;i++)
 		{
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
@@ -159,7 +165,6 @@ public class Player {
 				}
 			}
 		}
-		
 		if(numberofReroll==5||numberofReroll==4)
 		{
 			prob=26.0/1296.0;
@@ -177,7 +182,6 @@ public class Player {
 		}
 		if(numberofReroll==2)
 		{
-			
 			if(diffpair==0)
 			{
 				prob=11.0/36.0;
@@ -208,16 +212,17 @@ public class Player {
 		}
 		return prob;
 	}
-	public double probYaht(int a,int b,int c,int d,int e, int userSimChoose)
-	{
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
+	public double probYaht(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
 		for(int i=0;i<=4;i++)
 		{
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
@@ -229,176 +234,127 @@ public class Player {
 				}
 			}
 		}
-		
-		if(numberofReroll==4||numberofReroll==5)
-		{
+		if(numberofReroll==4||numberofReroll==5) {
 			prob=1.0/1296.0;
-		}
-		else
-		{
-			if(diffpair==0)
-			{
+		} else {
+			if(diffpair==0) {
 				prob=Math.pow(1.0/6.0, numberofReroll);
-			}
-			else
-			{
+			} else {
 				prob=0;
 			}
 		}
 		return prob;
 	}
-	public double probTOAK(int a,int b,int c,int d,int e, int userSimChoose)
-	{
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
+	public double probTOAK(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		
-		if(numberofReroll==5||numberofReroll==4)
-		{
+		if(numberofReroll==5||numberofReroll==4) {
 			prob=46.0/216.0;
 		}
-		if(numberofReroll==3)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==3) {
+			if(diffpair==0) {
 				prob=96.0/216.0;
-			}
-			else if(diffpair==2)
-			{
+			} else if(diffpair==2) {
 				prob=36.0/216.0;
 			}
 		}
-		if(numberofReroll==2)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==2) {
+			if(diffpair==0) {
 				prob=1.0;
-			}
-			else if(diffpair==4)
-			{
+			} else if(diffpair==4) {
 				prob=12.0/36.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=3.0/36.0;
 			}
 		}
-		if(numberofReroll==1)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==1) {
+			if(diffpair==0) {
 				prob=1.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=1.0;
-			}
-			else if(diffpair==8)
-			{
+			} else if(diffpair==8) {
 				prob=2.0/6.0;
-			}
-			else if(diffpair==10)
-			{
+			} else if(diffpair==10) {
 				prob=1.0/6.0;
-			}
-			else if(diffpair==12)
-			{
+			} else if(diffpair==12) {
 				prob=0.0;
 			}
 		}
-		
 		return prob;
 	}
-	public double probFH(int a,int b,int c,int d,int e, int userSimChoose)
-	{
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
+	public double probFH(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,80)%2==1){arr[3]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,160)%2==1){arr[4]=0;numberofReroll++;}
-		
-		for(int i=0;i<=4;i++)
-		{
+		for(int i=0;i<=4;i++) {
 			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++)
-			{
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j])
-				{
+			for(int j=0;j<=4;j++) {
+				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		
-		if(numberofReroll==5||numberofReroll==4)
-		{
+		if(numberofReroll==5||numberofReroll==4) {
 			prob=50.0/1296.0;
 		}
-		if(numberofReroll==3)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==3) {
+			if(diffpair==0) {
 				prob=20.0/216.0;
-			}
-			else if(diffpair==2)
-			{
+			} else if(diffpair==2) {
 				prob=6.0/216.0;
 			}
 		}
-		if(numberofReroll==2)
-		{
-			if(diffpair==0)
-			{
+		if(numberofReroll==2) {
+			if(diffpair==0) {
 				prob=5.0/36.0;
-			}
-			else if(diffpair==4)
-			{
+			} else if(diffpair==4) {
 				prob=3.0/36.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=0.0;
 			}
 		}
-		if(numberofReroll==1)
-		{
-			if(diffpair==0||diffpair==10|diffpair==12)
-			{
+		if(numberofReroll==1) {
+			if(diffpair==0||diffpair==10|diffpair==12) {
 				prob=0.0;
-			}
-			else if(diffpair==6)
-			{
+			} else if(diffpair==6) {
 				prob=1.0/6.0;
-			}
-			else if(diffpair==8)
-			{
+			} else if(diffpair==8) {
 				prob=2.0/6.0;
 			}
 		}
 		return prob;
 	}
-	public double probSmStr(int a,int b,int c,int d,int e,int userSimChoose)
-	{
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
+	public double probSmStr(int[] a, int userSimChoose) {
+		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		int[] arr = new int[5];
+		for (int i = 0; i < 5; i++) {
+			arr[i] = a[i];
+		}
+		int[] count= new int[6];
 		int sumofsquareofCount=0; double forbash=0;
-		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,20)%2==1){arr[1]=0;numberofReroll++;}
 		if(Math.floorDiv(userSimChoose,40)%2==1){arr[2]=0;numberofReroll++;}
@@ -807,7 +763,7 @@ public class Player {
 					if(toak>0) {
 						System.out.print("max chance 3ofAK ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probTOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probTOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -824,7 +780,7 @@ public class Player {
 					if(foak>0) {
 						System.out.print("max chance 4ofAK ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -841,7 +797,7 @@ public class Player {
 					if(fh>0) {
 						System.out.print("max chance FullHS ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFH(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -858,7 +814,7 @@ public class Player {
 					if(smstr>0) {
 						System.out.print("max chance SmStr ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probSmStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -875,7 +831,7 @@ public class Player {
 					if(lgstr>0) {
 						System.out.print("max chance LgStr ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probLgStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -892,7 +848,7 @@ public class Player {
 					if(yaht>0) {
 						System.out.print("max chance Yahtzee ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probYaht(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -908,7 +864,7 @@ public class Player {
 					} else {
 						System.out.print("max chance Yahtzee ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probYaht(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -937,12 +893,12 @@ public class Player {
 				if (userSim%10==0) {
 					int userDecideReroll=1;
 					if(cheat) {
-						{System.out.print("Yahtzee prob with this re-roll= ");System.out.println(probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
-						if(foak>0){System.out.print("4ofAK prob with this re-roll= ");System.out.println(probFOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
-						if(toak>0){System.out.print("3ofAK prob with this re-roll= ");System.out.println(probTOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
-						if(fh>0){System.out.print("FullHS prob with this re-roll= ");System.out.println(probFH(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
-						if(smstr>0){System.out.print("SmStr prob with this re-roll= ");System.out.println(probSmStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
-						if(lgstr>0){System.out.print("LgStr prob with this re-roll= ");System.out.println(probLgStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						{System.out.print("Yahtzee prob with this re-roll= ");System.out.println(probYaht(arrVal, userSim));}
+						if(foak>0){System.out.print("4ofAK prob with this re-roll= ");System.out.println(probFOAK(arrVal, userSim));}
+						if(toak>0){System.out.print("3ofAK prob with this re-roll= ");System.out.println(probTOAK(arrVal, userSim));}
+						if(fh>0){System.out.print("FullHS prob with this re-roll= ");System.out.println(probFH(arrVal, userSim));}
+						if(smstr>0){System.out.print("SmStr prob with this re-roll= ");System.out.println(probSmStr(arrVal, userSim));}
+						if(lgstr>0){System.out.print("LgStr prob with this re-roll= ");System.out.println(probLgStr(arrVal, userSim));}
 						System.out.print("type 1 to confirm decision----");System.out.println("type other number to change decision");
 						Scanner rerollDecision = new Scanner(System.in);
 						if (bot) {
