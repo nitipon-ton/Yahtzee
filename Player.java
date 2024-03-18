@@ -880,43 +880,42 @@ public class Player {
 				///end of cheat code
 			}
 			Scanner kboard = new Scanner(System.in);
-			for(int i=0;i<100;i++) {
+			boolean isDeciding = true;
+			while (isDeciding) {
 				int userSim;
-				if(!bot) {
+				if (!bot) {
 					userSim = kboard.nextInt();
 				} else {
-					userSim=botDeci;
+					userSim = botDeci;
 				}
-				if (userSim%10==0) {
-					int userDecideReroll=1;
-					if(cheat) {
-						{System.out.print("Yahtzee prob with this re-roll= ");System.out.println(probYaht(arrVal, userSim));}
-						if(foak>0){System.out.print("4ofAK prob with this re-roll= ");System.out.println(probFOAK(arrVal, userSim));}
-						if(toak>0){System.out.print("3ofAK prob with this re-roll= ");System.out.println(probTOAK(arrVal, userSim));}
-						if(fh>0){System.out.print("FullHS prob with this re-roll= ");System.out.println(probFH(arrVal, userSim));}
-						if(smstr>0){System.out.print("SmStr prob with this re-roll= ");System.out.println(probSmStr(arrVal, userSim));}
-						if(lgstr>0){System.out.print("LgStr prob with this re-roll= ");System.out.println(probLgStr(arrVal, userSim));}
-						System.out.print("type 1 to confirm decision----");System.out.println("type other number to change decision");
+				if (userSim % 10 == 0) {
+					int userDecideReroll = 1; //confirm the decision
+					if (cheat) {
+						System.out.println("Yahtzee prob with this re-roll= " + probYaht(arrVal, userSim));
+						if(foak>0){System.out.println("4ofAK prob with this re-roll= " + probFOAK(arrVal, userSim));}
+						if(toak>0){System.out.println("3ofAK prob with this re-roll= " + probTOAK(arrVal, userSim));}
+						if(fh>0){System.out.println("FullHS prob with this re-roll= " + probFH(arrVal, userSim));}
+						if(smstr>0){System.out.println("SmStr prob with this re-roll= " + probSmStr(arrVal, userSim));}
+						if(lgstr>0){System.out.println("LgStr prob with this re-roll= " + probLgStr(arrVal, userSim));}
+						System.out.println("type 1 to confirm decision----type other number to change decision");
 						Scanner rerollDecision = new Scanner(System.in);
-						if (bot) {
-							userDecideReroll=1;
-						} else {
+						if (!bot) {
 							userDecideReroll = rerollDecision.nextInt();
 						}
 					}
 					if(userDecideReroll==1) {
-						userChoose=userSim;
-						i=100;
+						userChoose = userSim;
+						isDeciding = false;
 					} else {
 						System.out.println("choose the re-roll again");
-						userChoose=userSim;
+						userChoose = userSim;
 					}
 				} else {
-					i=100;
-					userChoose=userSim;
+					isDeciding = false;
+					userChoose = userSim;
 				}
 			}
-			if(roll_left>0&&userChoose%10==0&&userChoose>0) {
+			if (roll_left > 0 && userChoose%10==0 && userChoose > 0) {
 				rollDecision=userChoose;
 				roll_left--;
 			} else {
@@ -958,74 +957,41 @@ public class Player {
 					score+=40;
 					lgstr--;
 					System.out.println("Score: " + score);
-					roll_left=-1;
+					roll_left = -1;
 				}
-				if(faceCounter[0]>0&&isAvailBasic[0]&&userChoose==1) {
-					pntsBasic[0]=1*faceCounter[0];
-					score+=1*faceCounter[0];
-					isAvailBasic[0] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
+				for (int i = 0; i < 6; i++) {
+					if (faceCounter[i] > 0 && isAvailBasic[i] && userChoose == i + 1) {
+						pntsBasic[i] = (i + 1) * faceCounter[i];
+						score += pntsBasic[i];
+						isAvailBasic[i] = false;
+						System.out.println("Score: " + score);
+						roll_left = -1;
+					}
 				}
-				if(faceCounter[1]>0&&isAvailBasic[1]&&userChoose==2) {
-					pntsBasic[1]=2*faceCounter[1];
-					score+=2*faceCounter[1];
-					isAvailBasic[1] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
-				}
-				if(faceCounter[2]>0&&isAvailBasic[2]&&userChoose==3) {
-					pntsBasic[2]=3*faceCounter[2];
-					score+=3*faceCounter[2];
-					isAvailBasic[2] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
-				}
-				if(faceCounter[3]>0&&isAvailBasic[3]&&userChoose==4) {
-					pntsBasic[3]=4*faceCounter[3];
-					score+=4*faceCounter[3];
-					isAvailBasic[3] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
-				}
-				if(faceCounter[4]>0&&isAvailBasic[4]&&userChoose==5) {
-					pntsBasic[4]=5*faceCounter[4];
-					score+=5*faceCounter[4];
-					isAvailBasic[4] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
-				}
-				if(faceCounter[5]>0&&isAvailBasic[5]&&userChoose==6) {
-					pntsBasic[5]=6*faceCounter[5];
-					score+=6*faceCounter[5];
-					isAvailBasic[5] = false;
-					System.out.println("Score: " + score);
-					roll_left=-1;
-				}
-				if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
+				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
 					score+=30;
 					smstr--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
-				if(chan>0&&userChoose==11) {
+				if (chan > 0 && userChoose == 11) {
 					pntsChan=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					chan--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
-				if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0&&userChoose==14) {
+				if (faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0&&userChoose==14) {
 					score+=25;
 					fh--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
-				if(!haveChoice && roll_left == 0 && userChoose == 15) {
+				if (!haveChoice && roll_left == 0 && userChoose == 15) {
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
-				if(userChoose==99) {
+				if (userChoose==99) {
 					life--;
 				}
 			}
