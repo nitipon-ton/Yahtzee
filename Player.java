@@ -9,7 +9,9 @@ public class Player {
 	public boolean bot = false; //auto move for bot when bot = true
 	public boolean cheat = false;
 	private int yaht = 1;
-	private int toak=1; private int foak=1; private int fh=1; private int lgstr=1; private int smstr=1; private int chan=1;
+	private int[] isAvailAdv = {1, 1, 1, 1, 1};
+	private int toak = 1; private int foak = 1; private int fh = 1; private int lgstr = 1; private int smstr = 1;
+	private int chan=1;
 	private boolean isAvailBasic[] = {true, true, true, true, true, true};
 	double maxProb = 0; double[] simulProb= new double[31]; public int botDeci = 15;
 	public boolean gotbonus = false;
@@ -606,59 +608,23 @@ public class Player {
 					System.out.print(i + "s   ");
 				}
 			}
-			if(chan==1) {System.out.print("Chance   ");}
+			if (chan == 1) {
+				System.out.print("Chance   ");
+			}
 			System.out.println("\nScoring(s) available this move");
 			//code for each type of scoring
-			int maxPoint=0;botDeci=15;
-			if(faceCounter[0] > 0 && isAvailBasic[0]) {
-				System.out.print("Aces  : "); System.out.print(1*faceCounter[0]); System.out.print(" points ");
-				System.out.println(": type 1 to select");
-				haveChoice = true;
-				if(1*faceCounter[0]>maxPoint) {
-					maxPoint=1*faceCounter[0];botDeci=1;
-				}	
-			}
-			if(faceCounter[1] > 0 && isAvailBasic[1]) {
-				System.out.print("Twos  : "); System.out.print(2*faceCounter[1]); System.out.print(" points ");
-				System.out.println(": type 2 to select");
-				haveChoice = true;
-				if(2*faceCounter[1]>maxPoint) {
-					maxPoint=2*faceCounter[1];botDeci=2;
+			int maxPoint = 0; botDeci = 15;
+			for (int i = 1; i <= 6; i++) {
+				if(faceCounter[i - 1] > 0 && isAvailBasic[i - 1]) {
+					System.out.println("  " + i + "s  : " + i * faceCounter[i - 1] + " points : type " + i + " to select");
+					haveChoice = true;
+					if(i * faceCounter[i - 1] > maxPoint) {
+						maxPoint = i * faceCounter[i - 1];
+						botDeci = i;
+					}
 				}
 			}
-			if(faceCounter[2] > 0 && isAvailBasic[2]) {
-				System.out.print("Threes: "); System.out.print(3*faceCounter[2]); System.out.print(" points ");
-				System.out.println(": type 3 to select");
-				haveChoice = true;
-				if(3*faceCounter[2]>maxPoint) {
-					maxPoint=3*faceCounter[2];botDeci=3;
-				}
-			}
-			if(faceCounter[3] > 0 && isAvailBasic[3]) {
-				System.out.print("Fours : "); System.out.print(4*faceCounter[3]); System.out.print(" points ");
-				System.out.println(": type 4 to select");
-				haveChoice = true;
-				if(4*faceCounter[3]>maxPoint) {
-					maxPoint=4*faceCounter[3];botDeci=4;
-				}
-			}
-			if(faceCounter[4] > 0 && isAvailBasic[4]) {
-				System.out.print("Fives : "); System.out.print(5*faceCounter[4]); System.out.print(" points ");
-				System.out.println(": type 5 to select");
-				haveChoice = true;
-				if(5*faceCounter[4]>maxPoint) {
-					maxPoint=5*faceCounter[4];botDeci=5;
-				}
-			}
-			if(faceCounter[5] > 0 && isAvailBasic[5]) {
-				System.out.print("Sixes : "); System.out.print(6*faceCounter[5]); System.out.print(" points ");
-				System.out.println(": type 6 to select");
-				haveChoice = true;
-				if(6*faceCounter[5]>maxPoint) {
-					maxPoint=6*faceCounter[5];botDeci=6;
-				}
-			}
-			int maxDup = maxOfArr(new int[]{faceCounter[0],faceCounter[1],faceCounter[2],faceCounter[3],faceCounter[4],faceCounter[5]});
+			int maxDup = maxOfArr(faceCounter);
 			if(maxDup == 5) {
 				if(yaht>0) {
 					System.out.print("Yahtz : 50 points ");System.out.println(": type 7 to select");
@@ -695,7 +661,7 @@ public class Player {
 				
 			}
 			if(chan>0) {
-				System.out.print("Chance: "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
+				System.out.print("Chance: "); System.out.print(sumOfArr(arrVal)); System.out.print(" points ");
 				System.out.println(": type 11 to select");
 				haveChoice = true;
 				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint)
@@ -728,7 +694,7 @@ public class Player {
 					botDeci=14;
 				}
 			}
-			if((botDeci==15||botDeci==6||botDeci==5||botDeci==4||botDeci==3||botDeci==2||botDeci==1)&&roll_left>=1) {
+			if((botDeci == 15 || (botDeci >= 1 && botDeci <= 6)) && roll_left >= 1) {
 				boolean done = false;
 				for (int j = 5; j >= 0; j--) {
 					if(isAvailBasic[j] && !done) {
@@ -743,14 +709,11 @@ public class Player {
 				}
 			}
 			if(!haveChoice && roll_left == 0) {
-				System.out.print("Skip! : 0 point ");System.out.println(": type 15 to select");
+				System.out.println("Skip! : 0 point : type 15 to select");
 			}
 			System.out.println("type 99 to delete this player");
 			if(roll_left>0) {
-				System.out.println("");
-				System.out.println("FOR REROLL");
-				System.out.println("THIS IS DICE VALUE");
-				System.out.println("A=10_B=20_C=40_D=80_E=160");
+				System.out.println("\nFOR REROLL\nTHIS IS DICE VALUE\nA=10 B=20 C=40 D=80 E=160");
 				System.out.println("Insert the SUM OF DICE VALUE you want TO REROLL");
 				///start of cheat code
 				double maxProbAll=0;
@@ -774,7 +737,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if(foak>0) {
+					if (foak > 0) {
 						System.out.print("max chance 4ofAK ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -791,7 +754,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if(fh>0) {
+					if (fh > 0) {
 						System.out.print("max chance FullHS ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -808,7 +771,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if(smstr>0) {
+					if (smstr > 0) {
 						System.out.print("max chance SmStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -825,7 +788,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if(lgstr>0) {
+					if (lgstr > 0) {
 						System.out.print("max chance LgStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -842,7 +805,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					if(yaht>0) {
+					if (yaht > 0) {
 						System.out.print("max chance Yahtzee ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probYaht(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
@@ -875,7 +838,6 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-						
 				}
 				///end of cheat code
 			}
@@ -971,24 +933,24 @@ public class Player {
 				if (faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
 					score+=30;
 					smstr--;
-					System.out.print("Score: "); System.out.println(score);
+					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if (chan > 0 && userChoose == 11) {
 					pntsChan=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					chan--;
-					System.out.print("Score: "); System.out.println(score);
+					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if (faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0&&userChoose==14) {
 					score+=25;
 					fh--;
-					System.out.print("Score: "); System.out.println(score);
+					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if (!haveChoice && roll_left == 0 && userChoose == 15) {
-					System.out.print("Score: "); System.out.println(score);
+					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if (userChoose==99) {
