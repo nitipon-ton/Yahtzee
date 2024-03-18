@@ -562,28 +562,15 @@ public class Player {
 			System.out.print("______________\n|  " + (i + 1) + "s  |  "+ pntsBasic[i] + "  |\n");
 		}
 		System.out.print("______________\n|Bonus |  " + bonus + "  |\n______________\n______________\n");
-		System.out.print("|3ofAK |  ");System.out.print(pntsToak);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|4ofAK |  ");System.out.print(pntsFoak);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|FullHS|  ");System.out.print(25*(1-fh));System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|SmStr |  ");System.out.print(30*(1-smstr));System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|LgStr |  ");System.out.print(40*(1-lgstr));System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|YahtZ |  ");
-		if(yaht<=0) {
-			System.out.print(50);
-		} else {
-			System.out.print(0);
+		String[] titles = {"3ofAK ", "4ofAK ", "FullHS", "SmStr ", "LgStr ", "YahtZ ", "Chance", "YahtBo"};
+		int pntsYaht = 0;
+		if (yaht <= 0) {
+			pntsYaht = 50;
 		}
-		System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|Chance|  ");System.out.print(pntsChan);System.out.println("  |");
-		System.out.println("______________");
-		System.out.print("|YahtBo|  ");System.out.print(yahtBo);System.out.println("  |");
-		System.out.println("______________");
+		int[] pnts = {pntsToak, pntsFoak, 25 * (1 - fh), 30 * (1 - smstr), 40 * (1 - lgstr), pntsYaht, pntsChan, yahtBo};
+		for (int i = 0; i < 8; i++) {
+			System.out.println("|" + titles[i] + "|  " + pnts[i] + "  |\n______________");
+		}
 		boolean basicDone = true;
 		for (boolean b: isFreeBasic) {
 			if (b) {
@@ -591,18 +578,15 @@ public class Player {
 				break;
 			}
 		}
-		if(toak+foak+fh+lgstr+smstr+chan==0 && basicDone && yaht <= 0) {
-			System.out.println("SCORE CARD COMPLETED");
-			System.out.print("Total score = "); System.out.println(totalscore); System.out.println("");
-			System.out.println("");
-			life=2;
+		if(toak + foak + fh + lgstr + smstr + chan == 0 && basicDone && yaht <= 0) {
+			System.out.println("SCORE CARD COMPLETED\nTotal score = " + totalscore + "\n");
+			life = 2;
 		} else {
-			System.out.print("total score = "); System.out.println(totalscore); System.out.println("");
+			System.out.println("total score = " + totalscore + "\n");
 		}
-		
 	}
 	public void resetfornextround() {
-		if(life==1) {
+		if (life == 1) {
 			totalscore+=score;
 			System.out.println("");
 			score=0;
@@ -659,13 +643,11 @@ public class Player {
 	}
 	public void chooseScore() {
 		if(roll_left>=0&&life==1) {
-			System.out.println("-------------------------------");
-			System.out.print(" DiceA:"); System.out.print(valA);
-			System.out.print(" DiceB:"); System.out.print(valB);
-			System.out.print(" DiceC:"); System.out.print(valC);
-			System.out.print(" DiceD:"); System.out.print(valD);
-			System.out.print(" DiceE:"); System.out.print(valE);
-			if(roll_left==0) {
+			System.out.println("-------------------------------\n A  B  C  D  E");
+			for (int i = 0; i < 5; i++) {
+				System.out.print("[" + arrVal[i] + "]");
+			}
+			if (roll_left == 0) {
 				System.out.print("  No More Re-Roll Left!!!");
 			}
 			System.out.print("\nScoring(s) available this game: ");
@@ -684,7 +666,7 @@ public class Player {
 			System.out.println("\nScoring(s) available this move");
 			//code for each type of scoring
 			int maxPoint=0;botDeci=15;
-			if(count1>0&& isFreeBasic[0]) {
+			if(count1 > 0 && isFreeBasic[0]) {
 				System.out.print("Aces  : "); System.out.print(1*count1); System.out.print(" points ");
 				System.out.println(": type 1 to select");
 				haveChoice = true;
@@ -692,7 +674,7 @@ public class Player {
 					maxPoint=1*count1;botDeci=1;
 				}	
 			}
-			if(count2>0&&isFreeBasic[1]) {
+			if(count2 > 0 && isFreeBasic[1]) {
 				System.out.print("Twos  : "); System.out.print(2*count2); System.out.print(" points ");
 				System.out.println(": type 2 to select");
 				haveChoice = true;
@@ -700,7 +682,7 @@ public class Player {
 					maxPoint=2*count2;botDeci=2;
 				}
 			}
-			if(count3>0&&isFreeBasic[2]) {
+			if(count3 > 0 && isFreeBasic[2]) {
 				System.out.print("Threes: "); System.out.print(3*count3); System.out.print(" points ");
 				System.out.println(": type 3 to select");
 				haveChoice = true;
@@ -708,7 +690,7 @@ public class Player {
 					maxPoint=3*count3;botDeci=3;
 				}
 			}
-			if(count4>0&&isFreeBasic[3]) {
+			if(count4 > 0 && isFreeBasic[3]) {
 				System.out.print("Fours : "); System.out.print(4*count4); System.out.print(" points ");
 				System.out.println(": type 4 to select");
 				haveChoice = true;
@@ -716,7 +698,7 @@ public class Player {
 					maxPoint=4*count4;botDeci=4;
 				}
 			}
-			if(count5>0&&isFreeBasic[4]) {
+			if(count5 > 0 && isFreeBasic[4]) {
 				System.out.print("Fives : "); System.out.print(5*count5); System.out.print(" points ");
 				System.out.println(": type 5 to select");
 				haveChoice = true;
@@ -724,7 +706,7 @@ public class Player {
 					maxPoint=5*count5;botDeci=5;
 				}
 			}
-			if(count6>0&&isFreeBasic[5]) {
+			if(count6 > 0 && isFreeBasic[5]) {
 				System.out.print("Sixes : "); System.out.print(6*count6); System.out.print(" points ");
 				System.out.println(": type 6 to select");
 				haveChoice = true;
