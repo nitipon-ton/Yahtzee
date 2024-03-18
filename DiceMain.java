@@ -23,7 +23,7 @@ public class DiceMain {
 				players[i].bot = true;
 				players[i].cheat = true;
 			} else {
-				players[i].cheat = true;
+				//players[i].cheat = true;
 				System.out.println("enter player name:");
 				usernames[i] = ask.nextLine(); // Now waits for actual input
 			}
@@ -93,13 +93,12 @@ public class DiceMain {
 			System.out.print("\n");
 		}
 		*/
-		/*
 		int totScore = 0;
 		for (Player p: players) {
 			totScore += p.totalscore;
 		}
 		System.out.println("The average score is " + totScore / (numPlayer + 0.0));
-		*/
+
 		System.out.println("GOOD GAME, WELL PLAYED!");
 		ask.close();
 	}
