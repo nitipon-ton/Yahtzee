@@ -20,7 +20,7 @@ public class Player {
 	public int yahtBo=0;
 	public int[] pntsBasic = {0, 0, 0, 0, 0, 0};
 	public int[] arrVal = new int[5];
-	public int count1=0; public int count2=0; public int count3=0; public int count4=0; public int count5=0; public int count6=0;
+	public int[] faceCounter = new int[6];
 	Dice dice = new Dice(6);
 	public int userChoose;
 	public double maxofArray(double[] arr)
@@ -507,8 +507,8 @@ public class Player {
 	}
 	public void checkScoreCard() {
 		if (sumOfArr(pntsBasic) >= 63 && !gotbonus) {
-			bonus=35;
-			totalscore+=35;
+			bonus = 35;
+			totalscore += 35;
 			gotbonus = true;
 		}
 		System.out.print("\n");
@@ -543,11 +543,11 @@ public class Player {
 		if (life == 1) {
 			totalscore+=score;
 			System.out.println("");
-			score=0;
+			score = 0;
 			haveChoice = false;
-			roll_left=3;
+			roll_left = 3;
 			arrVal[0] = 0; arrVal[1] = 0; arrVal[2] = 0;  arrVal[3] = 0; arrVal[4] = 0;
-			count1=0; count2=0; count3=0; count4=0; count5=0; count6=0;
+			faceCounter[0]=0; faceCounter[1]=0; faceCounter[2]=0; faceCounter[3]=0; faceCounter[4]=0; faceCounter[5]=0;
 		} else if (life==0) {
 			System.out.print("(gone) --> ");
 		}
@@ -557,7 +557,7 @@ public class Player {
 			if(roll_left==-1) {
 				roll_left=-2;
 			} else if(roll_left<3&&roll_left>=0) {
-				count1=0; count2=0; count3=0; count4=0; count5=0; count6=0;
+				faceCounter[0]=0; faceCounter[1]=0; faceCounter[2]=0; faceCounter[3]=0; faceCounter[4]=0; faceCounter[5]=0;
 				if(Math.floorDiv(rollDecision,10)%2==1) {
 					arrVal[0] = dice.roll();
 				}
@@ -573,19 +573,15 @@ public class Player {
 				if(Math.floorDiv(rollDecision,160)%2==1) {
 					arrVal[4] = dice.roll();
 				}
-				if(arrVal[0]==1){count1++;}if(arrVal[0]==2){count2++;}if(arrVal[0]==3){count3++;}if(arrVal[0]==4){count4++;}if(arrVal[0]==5){count5++;}if(arrVal[0]==6){count6++;}
-				if(arrVal[1]==1){count1++;}if(arrVal[1]==2){count2++;}if(arrVal[1]==3){count3++;}if(arrVal[1]==4){count4++;}if(arrVal[1]==5){count5++;}if(arrVal[1]==6){count6++;}
-				if(arrVal[2]==1){count1++;}if(arrVal[2]==2){count2++;}if(arrVal[2]==3){count3++;}if(arrVal[2]==4){count4++;}if(arrVal[2]==5){count5++;}if(arrVal[2]==6){count6++;}
-				if(arrVal[3]==1){count1++;}if(arrVal[3]==2){count2++;}if(arrVal[3]==3){count3++;}if(arrVal[3]==4){count4++;}if(arrVal[3]==5){count5++;}if(arrVal[3]==6){count6++;}
-				if(arrVal[4]==1){count1++;}if(arrVal[4]==2){count2++;}if(arrVal[4]==3){count3++;}if(arrVal[4]==4){count4++;}if(arrVal[4]==5){count5++;}if(arrVal[4]==6){count6++;}
-			} else if(roll_left==3) {
-				arrVal[0] = dice.roll(); arrVal[1] = dice.roll(); arrVal[2] = dice.roll(); arrVal[3] = dice.roll(); arrVal[4] = dice.roll();
+				for (int i = 0; i < 5; i++) {
+					faceCounter[arrVal[i] - 1] ++;
+				}
+			} else if(roll_left == 3) {
 				roll_left--;
-				if(arrVal[0]==1){count1++;}if(arrVal[0]==2){count2++;}if(arrVal[0]==3){count3++;}if(arrVal[0]==4){count4++;}if(arrVal[0]==5){count5++;}if(arrVal[0]==6){count6++;}
-				if(arrVal[1]==1){count1++;}if(arrVal[1]==2){count2++;}if(arrVal[1]==3){count3++;}if(arrVal[1]==4){count4++;}if(arrVal[1]==5){count5++;}if(arrVal[1]==6){count6++;}
-				if(arrVal[2]==1){count1++;}if(arrVal[2]==2){count2++;}if(arrVal[2]==3){count3++;}if(arrVal[2]==4){count4++;}if(arrVal[2]==5){count5++;}if(arrVal[2]==6){count6++;}
-				if(arrVal[3]==1){count1++;}if(arrVal[3]==2){count2++;}if(arrVal[3]==3){count3++;}if(arrVal[3]==4){count4++;}if(arrVal[3]==5){count5++;}if(arrVal[3]==6){count6++;}
-				if(arrVal[4]==1){count1++;}if(arrVal[4]==2){count2++;}if(arrVal[4]==3){count3++;}if(arrVal[4]==4){count4++;}if(arrVal[4]==5){count5++;}if(arrVal[4]==6){count6++;}
+				for (int i = 0; i < 5; i++) {
+					arrVal[i] = dice.roll();
+					faceCounter[arrVal[i] - 1] ++;
+				}
 			}
 		}
 	}
@@ -614,55 +610,55 @@ public class Player {
 			System.out.println("\nScoring(s) available this move");
 			//code for each type of scoring
 			int maxPoint=0;botDeci=15;
-			if(count1 > 0 && isFreeBasic[0]) {
-				System.out.print("Aces  : "); System.out.print(1*count1); System.out.print(" points ");
+			if(faceCounter[0] > 0 && isFreeBasic[0]) {
+				System.out.print("Aces  : "); System.out.print(1*faceCounter[0]); System.out.print(" points ");
 				System.out.println(": type 1 to select");
 				haveChoice = true;
-				if(1*count1>maxPoint) {
-					maxPoint=1*count1;botDeci=1;
+				if(1*faceCounter[0]>maxPoint) {
+					maxPoint=1*faceCounter[0];botDeci=1;
 				}	
 			}
-			if(count2 > 0 && isFreeBasic[1]) {
-				System.out.print("Twos  : "); System.out.print(2*count2); System.out.print(" points ");
+			if(faceCounter[1] > 0 && isFreeBasic[1]) {
+				System.out.print("Twos  : "); System.out.print(2*faceCounter[1]); System.out.print(" points ");
 				System.out.println(": type 2 to select");
 				haveChoice = true;
-				if(2*count2>maxPoint) {
-					maxPoint=2*count2;botDeci=2;
+				if(2*faceCounter[1]>maxPoint) {
+					maxPoint=2*faceCounter[1];botDeci=2;
 				}
 			}
-			if(count3 > 0 && isFreeBasic[2]) {
-				System.out.print("Threes: "); System.out.print(3*count3); System.out.print(" points ");
+			if(faceCounter[2] > 0 && isFreeBasic[2]) {
+				System.out.print("Threes: "); System.out.print(3*faceCounter[2]); System.out.print(" points ");
 				System.out.println(": type 3 to select");
 				haveChoice = true;
-				if(3*count3>maxPoint) {
-					maxPoint=3*count3;botDeci=3;
+				if(3*faceCounter[2]>maxPoint) {
+					maxPoint=3*faceCounter[2];botDeci=3;
 				}
 			}
-			if(count4 > 0 && isFreeBasic[3]) {
-				System.out.print("Fours : "); System.out.print(4*count4); System.out.print(" points ");
+			if(faceCounter[3] > 0 && isFreeBasic[3]) {
+				System.out.print("Fours : "); System.out.print(4*faceCounter[3]); System.out.print(" points ");
 				System.out.println(": type 4 to select");
 				haveChoice = true;
-				if(4*count4>maxPoint) {
-					maxPoint=4*count4;botDeci=4;
+				if(4*faceCounter[3]>maxPoint) {
+					maxPoint=4*faceCounter[3];botDeci=4;
 				}
 			}
-			if(count5 > 0 && isFreeBasic[4]) {
-				System.out.print("Fives : "); System.out.print(5*count5); System.out.print(" points ");
+			if(faceCounter[4] > 0 && isFreeBasic[4]) {
+				System.out.print("Fives : "); System.out.print(5*faceCounter[4]); System.out.print(" points ");
 				System.out.println(": type 5 to select");
 				haveChoice = true;
-				if(5*count5>maxPoint) {
-					maxPoint=5*count5;botDeci=5;
+				if(5*faceCounter[4]>maxPoint) {
+					maxPoint=5*faceCounter[4];botDeci=5;
 				}
 			}
-			if(count6 > 0 && isFreeBasic[5]) {
-				System.out.print("Sixes : "); System.out.print(6*count6); System.out.print(" points ");
+			if(faceCounter[5] > 0 && isFreeBasic[5]) {
+				System.out.print("Sixes : "); System.out.print(6*faceCounter[5]); System.out.print(" points ");
 				System.out.println(": type 6 to select");
 				haveChoice = true;
-				if(6*count6>maxPoint) {
-					maxPoint=6*count6;botDeci=6;
+				if(6*faceCounter[5]>maxPoint) {
+					maxPoint=6*faceCounter[5];botDeci=6;
 				}
 			}
-			int maxDup = maxOfArr(new int[]{count1,count2,count3,count4,count5,count6});
+			int maxDup = maxOfArr(new int[]{faceCounter[0],faceCounter[1],faceCounter[2],faceCounter[3],faceCounter[4],faceCounter[5]});
 			if(maxDup == 5) {
 				if(yaht>0) {
 					System.out.print("Yahtz : 50 points ");System.out.println(": type 7 to select");
@@ -708,7 +704,7 @@ public class Player {
 					botDeci=11;
 				}
 			}
-			if(count1*count2*count3*count4+count2*count3*count4*count5+count3*count4*count5*count6>0&&smstr>0) {
+			if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0) {
 				System.out.print("SmStrg: 30 points ");System.out.println(": type 12 to select");
 				haveChoice = true;
 				if(30>maxPoint) {
@@ -716,7 +712,7 @@ public class Player {
 					botDeci=12;
 				}
 			}
-			if(1==count2&&count2==count3&&count3==count4&&count4==count5&&lgstr>0) {
+			if(1==faceCounter[1]&&faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&lgstr>0) {
 				System.out.print("LgStrg: 40 points ");System.out.println(": type 13 to select");
 				haveChoice = true;
 				if(40>maxPoint) {
@@ -724,7 +720,7 @@ public class Player {
 					botDeci=13;
 				}
 			}
-			if(count1*count1+count2*count2+count3*count3+count4*count4+count5*count5+count6*count6==13&&fh>0) {
+			if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0) {
 				System.out.print("FullHS: 25 points ");System.out.println(": type 14 to select");
 				haveChoice = true;
 				if(25>maxPoint) {
@@ -923,7 +919,7 @@ public class Player {
 				rollDecision=userChoose;
 				roll_left--;
 			} else {
-				if(count1*count2*count3*count4+count2*count3*count4*count5+count3*count4*count5*count6>0&&smstr>0&&userChoose==12) {
+				if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
 					score+=30;
 					smstr--;
 					System.out.println("Score: " + score);
@@ -943,69 +939,69 @@ public class Player {
 						roll_left=-1;
 					}
 				}
-				if(Math.max(count6,Math.max(count5,Math.max(count4,Math.max(count3,Math.max(count2,count1)))))>=4&&foak>0&&userChoose==8) {
+				if(Math.max(faceCounter[5],Math.max(faceCounter[4],Math.max(faceCounter[3],Math.max(faceCounter[2],Math.max(faceCounter[1],faceCounter[0])))))>=4&&foak>0&&userChoose==8) {
 					pntsFoak=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					foak--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(Math.max(count6,Math.max(count5,Math.max(count4,Math.max(count3,Math.max(count2,count1)))))>=3&&toak>0&&userChoose==9) {
+				if(Math.max(faceCounter[5],Math.max(faceCounter[4],Math.max(faceCounter[3],Math.max(faceCounter[2],Math.max(faceCounter[1],faceCounter[0])))))>=3&&toak>0&&userChoose==9) {
 					pntsToak=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					toak--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count2==count3&&count3==count4&&count4==count5&&lgstr>0&&userChoose==13) {
+				if(faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&lgstr>0&&userChoose==13) {
 					score+=40;
 					lgstr--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count1>0&&isFreeBasic[0]&&userChoose==1) {
-					pntsBasic[0]=1*count1;
-					score+=1*count1;
+				if(faceCounter[0]>0&&isFreeBasic[0]&&userChoose==1) {
+					pntsBasic[0]=1*faceCounter[0];
+					score+=1*faceCounter[0];
 					isFreeBasic[0] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count2>0&&isFreeBasic[1]&&userChoose==2) {
-					pntsBasic[1]=2*count2;
-					score+=2*count2;
+				if(faceCounter[1]>0&&isFreeBasic[1]&&userChoose==2) {
+					pntsBasic[1]=2*faceCounter[1];
+					score+=2*faceCounter[1];
 					isFreeBasic[1] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count3>0&&isFreeBasic[2]&&userChoose==3) {
-					pntsBasic[2]=3*count3;
-					score+=3*count3;
+				if(faceCounter[2]>0&&isFreeBasic[2]&&userChoose==3) {
+					pntsBasic[2]=3*faceCounter[2];
+					score+=3*faceCounter[2];
 					isFreeBasic[2] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count4>0&&isFreeBasic[3]&&userChoose==4) {
-					pntsBasic[3]=4*count4;
-					score+=4*count4;
+				if(faceCounter[3]>0&&isFreeBasic[3]&&userChoose==4) {
+					pntsBasic[3]=4*faceCounter[3];
+					score+=4*faceCounter[3];
 					isFreeBasic[3] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count5>0&&isFreeBasic[4]&&userChoose==5) {
-					pntsBasic[4]=5*count5;
-					score+=5*count5;
+				if(faceCounter[4]>0&&isFreeBasic[4]&&userChoose==5) {
+					pntsBasic[4]=5*faceCounter[4];
+					score+=5*faceCounter[4];
 					isFreeBasic[4] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count6>0&&isFreeBasic[5]&&userChoose==6) {
-					pntsBasic[5]=6*count6;
-					score+=6*count6;
+				if(faceCounter[5]>0&&isFreeBasic[5]&&userChoose==6) {
+					pntsBasic[5]=6*faceCounter[5];
+					score+=6*faceCounter[5];
 					isFreeBasic[5] = false;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(count1*count2*count3*count4+count2*count3*count4*count5+count3*count4*count5*count6>0&&smstr>0&&userChoose==12) {
+				if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&smstr>0&&userChoose==12) {
 					score+=30;
 					smstr--;
 					System.out.print("Score: "); System.out.println(score);
@@ -1018,7 +1014,7 @@ public class Player {
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
 				}
-				if(count1*count1+count2*count2+count3*count3+count4*count4+count5*count5+count6*count6==13&&fh>0&&userChoose==14) {
+				if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&fh>0&&userChoose==14) {
 					score+=25;
 					fh--;
 					System.out.print("Score: "); System.out.println(score);
