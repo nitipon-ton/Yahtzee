@@ -48,17 +48,6 @@ public class Player {
 		}
 		return sum;
 	}
-	public int maxofSix(int a, int b, int c, int d, int e, int f)
-	{
-		int max=0;
-		if(a>max) {max=a;}
-		if(b>max) {max=b;}
-		if(c>max) {max=c;}
-		if(d>max) {max=d;}
-		if(e>max) {max=e;}
-		if(f>max) {max=f;}
-		return max;
-	}
 	public double probLgStr(int a,int b,int c,int d,int e,int userSimChoose)
 	{
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
@@ -572,10 +561,7 @@ public class Player {
 		for (int i = 0; i < 6; i++) {
 			System.out.print("______________\n|  " + (i + 1) + "s  |  "+ pntsBasic[i] + "  |\n");
 		}
-		System.out.println("______________");
-		System.out.print("|Bonus |  ");System.out.print(bonus);System.out.println("  |");
-		System.out.println("______________");
-		System.out.println("______________");
+		System.out.print("______________\n|Bonus |  " + bonus + "  |\n______________\n______________\n");
 		System.out.print("|3ofAK |  ");System.out.print(pntsToak);System.out.println("  |");
 		System.out.println("______________");
 		System.out.print("|4ofAK |  ");System.out.print(pntsFoak);System.out.println("  |");
@@ -746,7 +732,8 @@ public class Player {
 					maxPoint=6*count6;botDeci=6;
 				}
 			}
-			if(maxofSix(count1,count2,count3,count4,count5,count6)==5) {
+			int maxDup = maxOfArr(new int[]{count1,count2,count3,count4,count5,count6});
+			if(maxDup == 5) {
 				if(yaht>0) {
 					System.out.print("Yahtz : 50 points ");System.out.println(": type 7 to select");
 					haveChoice = true;
@@ -762,7 +749,7 @@ public class Player {
 					}
 				}
 			}
-			if(maxofSix(count1,count2,count3,count4,count5,count6)>=4&&foak>0) {
+			if(maxDup >= 4 && foak > 0) {
 				System.out.print("4ofAK : "); System.out.print(valA+valB+valC+valD+valE); System.out.print(" points ");
 				System.out.println(": type 8 to select");
 				haveChoice = true;
@@ -771,7 +758,7 @@ public class Player {
 				}
 				
 			}
-			if(maxofSix(count1,count2,count3,count4,count5,count6)>=3&&toak>0) {
+			if(maxDup >= 3 && toak>0) {
 				System.out.print("3ofAK : "); System.out.print(valA+valB+valC+valD+valE); System.out.print(" points ");
 				System.out.println(": type 9 to select");
 				haveChoice = true;
