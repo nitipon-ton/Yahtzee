@@ -19,7 +19,7 @@ public class Player {
 	public int bonus=0;
 	public int yahtBo=0;
 	public int[] pntsBasic = {0, 0, 0, 0, 0, 0};
-	public int valA = 0; public int valB = 0; public int valC = 0; public int valD = 0; public int valE = 0; public int []arrVal= new int[5];
+	public int[] arrVal = new int[5];
 	public int count1=0; public int count2=0; public int count3=0; public int count4=0; public int count5=0; public int count6=0;
 	Dice dice = new Dice(6);
 	public int userChoose;
@@ -48,8 +48,7 @@ public class Player {
 		}
 		return sum;
 	}
-	public double probLgStr(int a,int b,int c,int d,int e,int userSimChoose)
-	{
+	public double probLgStr(int a,int b,int c,int d,int e,int userSimChoose) {
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5]; int []count= new int[6];
 		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
@@ -140,8 +139,7 @@ public class Player {
 		
 		return prob;
 	}
-	public double probFOAK(int a,int b,int c,int d,int e, int userSimChoose)
-	{
+	public double probFOAK(int a,int b,int c,int d,int e, int userSimChoose) {
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0; int []arr= new int[5];
 		arr[0]=a;arr[1]=b;arr[2]=c;arr[3]=d;arr[4]=e;
 		if(Math.floorDiv(userSimChoose,10)%2==1){arr[0]=0;numberofReroll++;}
@@ -592,7 +590,7 @@ public class Player {
 			score=0;
 			haveChoice = false;
 			roll_left=3;
-			valA = 0; valB = 0; valC = 0;  valD = 0; valE = 0;
+			arrVal[0] = 0; arrVal[1] = 0; arrVal[2] = 0;  arrVal[3] = 0; arrVal[4] = 0;
 			count1=0; count2=0; count3=0; count4=0; count5=0; count6=0;
 		} else if (life==0) {
 			System.out.print("(gone) --> ");
@@ -605,39 +603,33 @@ public class Player {
 			} else if(roll_left<3&&roll_left>=0) {
 				count1=0; count2=0; count3=0; count4=0; count5=0; count6=0;
 				if(Math.floorDiv(rollDecision,10)%2==1) {
-					valA = dice.roll();
-					arrVal[0]=valA;
+					arrVal[0] = dice.roll();
 				}
 				if(Math.floorDiv(rollDecision,20)%2==1) {
-					valB = dice.roll();
-					arrVal[1]=valB;
+					arrVal[1] = dice.roll();
 				}
 				if(Math.floorDiv(rollDecision,40)%2==1) {
-					valC = dice.roll();
-					arrVal[2]=valC;
+					arrVal[2] = dice.roll();
 				}
 				if(Math.floorDiv(rollDecision,80)%2==1) {
-					valD = dice.roll();
-					arrVal[3]=valD;
+					arrVal[3] = dice.roll();
 				}
 				if(Math.floorDiv(rollDecision,160)%2==1) {
-					valE = dice.roll();
-					arrVal[4]=valE;
+					arrVal[4] = dice.roll();
 				}
-				if(valA==1){count1++;}if(valA==2){count2++;}if(valA==3){count3++;}if(valA==4){count4++;}if(valA==5){count5++;}if(valA==6){count6++;}
-				if(valB==1){count1++;}if(valB==2){count2++;}if(valB==3){count3++;}if(valB==4){count4++;}if(valB==5){count5++;}if(valB==6){count6++;}
-				if(valC==1){count1++;}if(valC==2){count2++;}if(valC==3){count3++;}if(valC==4){count4++;}if(valC==5){count5++;}if(valC==6){count6++;}
-				if(valD==1){count1++;}if(valD==2){count2++;}if(valD==3){count3++;}if(valD==4){count4++;}if(valD==5){count5++;}if(valD==6){count6++;}
-				if(valE==1){count1++;}if(valE==2){count2++;}if(valE==3){count3++;}if(valE==4){count4++;}if(valE==5){count5++;}if(valE==6){count6++;}
+				if(arrVal[0]==1){count1++;}if(arrVal[0]==2){count2++;}if(arrVal[0]==3){count3++;}if(arrVal[0]==4){count4++;}if(arrVal[0]==5){count5++;}if(arrVal[0]==6){count6++;}
+				if(arrVal[1]==1){count1++;}if(arrVal[1]==2){count2++;}if(arrVal[1]==3){count3++;}if(arrVal[1]==4){count4++;}if(arrVal[1]==5){count5++;}if(arrVal[1]==6){count6++;}
+				if(arrVal[2]==1){count1++;}if(arrVal[2]==2){count2++;}if(arrVal[2]==3){count3++;}if(arrVal[2]==4){count4++;}if(arrVal[2]==5){count5++;}if(arrVal[2]==6){count6++;}
+				if(arrVal[3]==1){count1++;}if(arrVal[3]==2){count2++;}if(arrVal[3]==3){count3++;}if(arrVal[3]==4){count4++;}if(arrVal[3]==5){count5++;}if(arrVal[3]==6){count6++;}
+				if(arrVal[4]==1){count1++;}if(arrVal[4]==2){count2++;}if(arrVal[4]==3){count3++;}if(arrVal[4]==4){count4++;}if(arrVal[4]==5){count5++;}if(arrVal[4]==6){count6++;}
 			} else if(roll_left==3) {
-				valA = dice.roll(); valB = dice.roll(); valC = dice.roll(); valD = dice.roll(); valE = dice.roll();
+				arrVal[0] = dice.roll(); arrVal[1] = dice.roll(); arrVal[2] = dice.roll(); arrVal[3] = dice.roll(); arrVal[4] = dice.roll();
 				roll_left--;
-				arrVal[0]=valA; arrVal[1]=valB; arrVal[2]=valC; arrVal[3]=valD; arrVal[4]=valE;
-				if(valA==1){count1++;}if(valA==2){count2++;}if(valA==3){count3++;}if(valA==4){count4++;}if(valA==5){count5++;}if(valA==6){count6++;}
-				if(valB==1){count1++;}if(valB==2){count2++;}if(valB==3){count3++;}if(valB==4){count4++;}if(valB==5){count5++;}if(valB==6){count6++;}
-				if(valC==1){count1++;}if(valC==2){count2++;}if(valC==3){count3++;}if(valC==4){count4++;}if(valC==5){count5++;}if(valC==6){count6++;}
-				if(valD==1){count1++;}if(valD==2){count2++;}if(valD==3){count3++;}if(valD==4){count4++;}if(valD==5){count5++;}if(valD==6){count6++;}
-				if(valE==1){count1++;}if(valE==2){count2++;}if(valE==3){count3++;}if(valE==4){count4++;}if(valE==5){count5++;}if(valE==6){count6++;}
+				if(arrVal[0]==1){count1++;}if(arrVal[0]==2){count2++;}if(arrVal[0]==3){count3++;}if(arrVal[0]==4){count4++;}if(arrVal[0]==5){count5++;}if(arrVal[0]==6){count6++;}
+				if(arrVal[1]==1){count1++;}if(arrVal[1]==2){count2++;}if(arrVal[1]==3){count3++;}if(arrVal[1]==4){count4++;}if(arrVal[1]==5){count5++;}if(arrVal[1]==6){count6++;}
+				if(arrVal[2]==1){count1++;}if(arrVal[2]==2){count2++;}if(arrVal[2]==3){count3++;}if(arrVal[2]==4){count4++;}if(arrVal[2]==5){count5++;}if(arrVal[2]==6){count6++;}
+				if(arrVal[3]==1){count1++;}if(arrVal[3]==2){count2++;}if(arrVal[3]==3){count3++;}if(arrVal[3]==4){count4++;}if(arrVal[3]==5){count5++;}if(arrVal[3]==6){count6++;}
+				if(arrVal[4]==1){count1++;}if(arrVal[4]==2){count2++;}if(arrVal[4]==3){count3++;}if(arrVal[4]==4){count4++;}if(arrVal[4]==5){count5++;}if(arrVal[4]==6){count6++;}
 			}
 		}
 	}
@@ -732,31 +724,31 @@ public class Player {
 				}
 			}
 			if(maxDup >= 4 && foak > 0) {
-				System.out.print("4ofAK : "); System.out.print(valA+valB+valC+valD+valE); System.out.print(" points ");
+				System.out.print("4ofAK : "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
 				System.out.println(": type 8 to select");
 				haveChoice = true;
-				if(valA+valB+valC+valD+valE>maxPoint) {
-					maxPoint=valA+valB+valC+valD+valE;botDeci=8;
+				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint) {
+					maxPoint=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];botDeci=8;
 				}
 				
 			}
 			if(maxDup >= 3 && toak>0) {
-				System.out.print("3ofAK : "); System.out.print(valA+valB+valC+valD+valE); System.out.print(" points ");
+				System.out.print("3ofAK : "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
 				System.out.println(": type 9 to select");
 				haveChoice = true;
-				if(valA+valB+valC+valD+valE>maxPoint) {
-					maxPoint=valA+valB+valC+valD+valE;
+				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint) {
+					maxPoint=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					botDeci=9;
 				}
 				
 			}
 			if(chan>0) {
-				System.out.print("Chance: "); System.out.print(valA+valB+valC+valD+valE); System.out.print(" points ");
+				System.out.print("Chance: "); System.out.print(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]); System.out.print(" points ");
 				System.out.println(": type 11 to select");
 				haveChoice = true;
-				if(valA+valB+valC+valD+valE>maxPoint)
+				if(arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4]>maxPoint)
 				{
-					maxPoint=valA+valB+valC+valD+valE;
+					maxPoint=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					botDeci=11;
 				}
 			}
@@ -815,7 +807,7 @@ public class Player {
 					if(toak>0) {
 						System.out.print("max chance 3ofAK ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probTOAK(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probTOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -832,7 +824,7 @@ public class Player {
 					if(foak>0) {
 						System.out.print("max chance 4ofAK ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFOAK(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -849,7 +841,7 @@ public class Player {
 					if(fh>0) {
 						System.out.print("max chance FullHS ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFH(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFH(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -866,7 +858,7 @@ public class Player {
 					if(smstr>0) {
 						System.out.print("max chance SmStr ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probSmStr(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probSmStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -883,7 +875,7 @@ public class Player {
 					if(lgstr>0) {
 						System.out.print("max chance LgStr ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probLgStr(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probLgStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -900,7 +892,7 @@ public class Player {
 					if(yaht>0) {
 						System.out.print("max chance Yahtzee ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probYaht(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -916,7 +908,7 @@ public class Player {
 					} else {
 						System.out.print("max chance Yahtzee ---> "); maxProb=0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probYaht(valA,valB,valC,valD,valE,(10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],(10*i)); maxProb = maxofArray(simulProb);}
 						if(maxProb>0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]==maxProb) {
@@ -945,12 +937,12 @@ public class Player {
 				if (userSim%10==0) {
 					int userDecideReroll=1;
 					if(cheat) {
-						{System.out.print("Yahtzee prob with this re-roll= ");System.out.println(probYaht(valA,valB,valC,valD,valE,userSim));}
-						if(foak>0){System.out.print("4ofAK prob with this re-roll= ");System.out.println(probFOAK(valA,valB,valC,valD,valE,userSim));}
-						if(toak>0){System.out.print("3ofAK prob with this re-roll= ");System.out.println(probTOAK(valA,valB,valC,valD,valE,userSim));}
-						if(fh>0){System.out.print("FullHS prob with this re-roll= ");System.out.println(probFH(valA,valB,valC,valD,valE,userSim));}
-						if(smstr>0){System.out.print("SmStr prob with this re-roll= ");System.out.println(probSmStr(valA,valB,valC,valD,valE,userSim));}
-						if(lgstr>0){System.out.print("LgStr prob with this re-roll= ");System.out.println(probLgStr(valA,valB,valC,valD,valE,userSim));}
+						{System.out.print("Yahtzee prob with this re-roll= ");System.out.println(probYaht(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						if(foak>0){System.out.print("4ofAK prob with this re-roll= ");System.out.println(probFOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						if(toak>0){System.out.print("3ofAK prob with this re-roll= ");System.out.println(probTOAK(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						if(fh>0){System.out.print("FullHS prob with this re-roll= ");System.out.println(probFH(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						if(smstr>0){System.out.print("SmStr prob with this re-roll= ");System.out.println(probSmStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
+						if(lgstr>0){System.out.print("LgStr prob with this re-roll= ");System.out.println(probLgStr(arrVal[0],arrVal[1],arrVal[2],arrVal[3],arrVal[4],userSim));}
 						System.out.print("type 1 to confirm decision----");System.out.println("type other number to change decision");
 						Scanner rerollDecision = new Scanner(System.in);
 						if (bot) {
@@ -981,7 +973,7 @@ public class Player {
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
-				if(valA==valB&&valB==valC&&valC==valD&&valD==valE&&yaht>0&&userChoose==7) {
+				if(arrVal[0]==arrVal[1]&&arrVal[1]==arrVal[2]&&arrVal[2]==arrVal[3]&&arrVal[3]==arrVal[4]&&yaht>0&&userChoose==7) {
 					if(yaht>0) {
 						score+=50;
 						yaht--;
@@ -996,15 +988,15 @@ public class Player {
 					}
 				}
 				if(Math.max(count6,Math.max(count5,Math.max(count4,Math.max(count3,Math.max(count2,count1)))))>=4&&foak>0&&userChoose==8) {
-					pntsFoak=valA+valB+valC+valD+valE;
-					score+=valA+valB+valC+valD+valE;
+					pntsFoak=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
+					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					foak--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
 				}
 				if(Math.max(count6,Math.max(count5,Math.max(count4,Math.max(count3,Math.max(count2,count1)))))>=3&&toak>0&&userChoose==9) {
-					pntsToak=valA+valB+valC+valD+valE;
-					score+=valA+valB+valC+valD+valE;
+					pntsToak=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
+					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					toak--;
 					System.out.println("Score: " + score);
 					roll_left=-1;
@@ -1064,8 +1056,8 @@ public class Player {
 					roll_left=-1;
 				}
 				if(chan>0&&userChoose==11) {
-					pntsChan=valA+valB+valC+valD+valE;
-					score+=valA+valB+valC+valD+valE;
+					pntsChan=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
+					score+=arrVal[0]+arrVal[1]+arrVal[2]+arrVal[3]+arrVal[4];
 					chan--;
 					System.out.print("Score: "); System.out.println(score);
 					roll_left=-1;
