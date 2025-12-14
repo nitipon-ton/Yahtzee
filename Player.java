@@ -10,37 +10,18 @@ public class Player {
 	public boolean cheat = false;
 	private int yaht = 1; public int userChoose;
 	private int[] isAvailAdv = {1, 1, 1, 1, 1}; //toak foak fh smstr lgstr
-	private boolean chanAvail = true; private boolean[] isAvailBasic = {true, true, true, true, true, true};
-	double maxProb = 0; double[] simulProb = new double[31]; public int botDeci = 15;
+	private boolean chanAvail = true;
+	private boolean[] isAvailBasic = {true, true, true, true, true, true};
+	double maxProb = 0;
+	double[] simulProb = new double[31];
+	public int botDeci = 15;
 	public boolean gotbonus = false;
 	public int pntsToak=0; public int pntsFoak=0; public int pntsChan=0; public int bonus=0; public int yahtBo=0;
-	public int[] pntsBasic = {0, 0, 0, 0, 0, 0}; Dice dice = new Dice(6);
-	public int[] arrVal = new int[5]; public int[] faceCounter = new int[6];
-	public double maxofArray(double[] arr) {
-		double max=0;
-		for (double d: arr) {
-			if (d > max) {
-				max = d;
-			}
-		}
-		return max;
-	}
-	public int maxOfArr(int[] arr) {
-		int max = 0;
-		for (int i: arr) {
-			if (i > max) {
-				max = i;
-			}
-		}
-		return max;
-	}
-	public int sumOfArr(int[] arr) {
-		int sum = 0;
-		for (int i: arr) {
-			sum += i;
-		}
-		return sum;
-	}
+	public int[] pntsBasic = {0, 0, 0, 0, 0, 0};
+	Dice dice = new Dice(6);
+	public int[] arrVal = new int[5];
+	public int[] faceCounter = new int[6];
+	
 	public double probLgStr(int[] a, int userSimChoose) {
 		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
 		int[] count= new int[6];
@@ -57,56 +38,62 @@ public class Player {
 			}
 			digit /= 2;
 		}
-		for(int i=0;i<=4;i++) {
-			for(int j=0;j<=5;j++) {
-				if(arr[i]==j+1) {
+		for (int i = 0; i <= 4; i++) {
+			for (int j = 0;j <= 5; j++) {
+				if (arr[i] == j + 1) {
 					count[j]++; //count[0] = count number of 1
 				}
 			}
 		}
-		for(int i=0;i<=4;i++) {
-			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++) {
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
+		for (int i = 0; i <= 4; i++) {
+			sum += arr[i];
+			sumofsquare += arr[i] * arr[i];
+			for (int j = 0; j <= 4; j++) {
+				if (arr[i] * arr[j] > 0 && arr[i] != arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		if(numberofReroll==5) {
-			prob=40.0/1296.0;
-		} else if(numberofReroll==4) {
+		if (numberofReroll==5) {
+			prob = 40.0 / 1296.0;
+		} else if (numberofReroll == 4) {
 			if (sum == 1 || sum == 6) {
-				prob=4.0/216.0;
+				prob = 4.0 / 216.0;
 			} else {
-				prob=8.0/216.0;
+				prob = 8.0 / 216.0;
 			}
-		} else if(numberofReroll==3) {
-			if(diffpair==2) {
-				if(sumofsquare==37) {
-					prob=0.0;
-				} else if(sumofsquare==5||sumofsquare==10||sumofsquare==17||sumofsquare==26||sumofsquare==40||sumofsquare==45||sumofsquare==52||sumofsquare==61) {
-					prob=6.0/216.0;
+		} else if (numberofReroll == 3) {
+			if (diffpair == 2) {
+				if (sumofsquare == 37) {
+					prob = 0.0;
+				} else if (sumofsquare==5||sumofsquare==10||sumofsquare==17||sumofsquare==26||sumofsquare==40||sumofsquare==45||sumofsquare==52||sumofsquare==61) {
+					prob = 6.0 / 216.0;
 				} else {
-					prob=12.0/216.0;
+					prob = 12.0 / 216.0;
 				}
 			} else {
-				prob=0;
+				prob = 0;
 			}
-		} else if(numberofReroll==2) {
-			if(count[0]*count[5]>0) {
-				prob=0.0;
-			} else if(diffpair<6) {
-				prob=0.0;
-			} else if(count[0]+count[5]==1) {
-				prob=2.0/36.0;
+		} else if (numberofReroll == 2) {
+			if (count[0] * count[5] > 0 || diffpair < 6) {
+				prob = 0.0;
+			} else if (count[0] + count[5] == 1) {
+				prob = 2.0 / 36.0;
 			} else {
-				prob=4.0/36.0;
+				prob = 4.0 / 36.0;
+			}
+		} else if (numberofReroll == 1) {
+			if (diffpair < 12) {
+				prob = 0.0;
+			} else {
+				prob = 1.0 / 6.0;
 			}
 		}
 		return prob;
 	}
+
 	public double probFOAK(int[] a, int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		double prob = 0; double numberofReroll = 0.0; int sum = 0; int sumofsquare = 0; int diffpair = 0;
 		int[] arr = new int[5];
 		for (int i = 0; i < 5; i++) {
 			arr[i] = a[i];
@@ -120,46 +107,50 @@ public class Player {
 			}
 			digit /= 2;
 		}
-		for(int i=0;i<=4;i++) {
-			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++) {
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
+		for (int i = 0; i <= 4; i++) {
+			sum += arr[i];
+			sumofsquare += arr[i] * arr[i];
+			for (int j = 0; j <= 4; j++) {
+				if (arr[i] * arr[j] > 0 && arr[i] != arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		if(numberofReroll==5||numberofReroll==4) {
-			prob=26.0/1296.0;
+		if (numberofReroll == 5 || numberofReroll == 4) {
+			prob = 26.0 / 1296.0;
 		}
-		if(numberofReroll==3) {
-			if(sum*sum==2*sumofsquare) {
-				prob=16.0/216.0;
+		if (numberofReroll == 3) {
+			if (sum * sum == 2 * sumofsquare) {
+				prob = 16.0/216.0;
 			} else {
-				prob=2.0/216.0;
+				prob = 2.0/216.0;
 			}
 		}
-		if(numberofReroll==2) {
-			if(diffpair==0) {
-				prob=11.0/36.0;
-			} else if(diffpair==4) {
-				prob=1.0/36.0;
-			} else if(diffpair==6) {
-				prob=0.0;
+		if (numberofReroll == 2) {
+			if (diffpair == 0) {
+				prob = 11.0 / 36.0;
+			} else if (diffpair == 4) {
+				prob = 1.0 / 36.0;
+			} else if (diffpair == 6) {
+				prob = 0.0;
 			}
 		}
-		if(numberofReroll==1) {
-			if(diffpair==0) {
-				prob=1.0;
-			} else if(diffpair==6) {
-				prob=1.0/6.0;
-			} else if(diffpair>6) {
-				prob=0;
+		if (numberofReroll == 1) {
+			if (diffpair == 0) {
+				prob = 1.0;
+			} else if (diffpair == 6) {
+				prob = 1.0 / 6.0;
+			} else if (diffpair > 6) {
+				prob = 0.0;
 			}
 		}
 		return prob;
 	}
+
 	public double probYaht(int[] a, int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		double prob = 0.0;
+		double numberofReroll = 0.0;
+		int diffpair = 0;
 		int[] arr = new int[5];
 		for (int i = 0; i < 5; i++) {
 			arr[i] = a[i];
@@ -173,16 +164,15 @@ public class Player {
 			}
 			digit /= 2;
 		}
-		for(int i=0;i<=4;i++) {
-			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
-			for(int j=0;j<=4;j++) {
-				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
+		for (int i = 0; i <= 4; i++) {
+			for (int j = 0; j <= 4; j++) {
+				if (arr[i] * arr[j] > 0 && arr[i] != arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		if(numberofReroll==4||numberofReroll==5) {
-			prob=1.0/1296.0;
+		if (numberofReroll == 4 || numberofReroll == 5) {
+			prob = 1.0/1296.0;
 		} else {
 			if(diffpair==0) {
 				prob=Math.pow(1.0/6.0, numberofReroll);
@@ -193,7 +183,7 @@ public class Player {
 		return prob;
 	}
 	public double probTOAK(int[] a, int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		double prob=0; double numberofReroll=0.0; int diffpair=0;
 		int[] arr = new int[5];
 		for (int i = 0; i < 5; i++) {
 			arr[i] = a[i];
@@ -208,7 +198,6 @@ public class Player {
 			digit /= 2;
 		}
 		for(int i=0;i<=4;i++) {
-			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
 			for(int j=0;j<=4;j++) {
 				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
@@ -250,7 +239,7 @@ public class Player {
 		return prob;
 	}
 	public double probFH(int[] a, int userSimChoose) {
-		double prob=0; double numberofReroll=0.0; int sum=0; int sumofsquare=0; int diffpair=0;
+		double prob=0; double numberofReroll=0.0; int diffpair=0;
 		int[] arr = new int[5];
 		for (int i = 0; i < 5; i++) {
 			arr[i] = a[i];
@@ -265,7 +254,6 @@ public class Player {
 			digit /= 2;
 		}
 		for(int i=0;i<=4;i++) {
-			sum+=arr[i]; sumofsquare+=arr[i]*arr[i];
 			for(int j=0;j<=4;j++) {
 				if(arr[i]*arr[j]>0&&arr[i]!=arr[j]) {
 					diffpair++;
@@ -408,7 +396,7 @@ public class Player {
 		return prob;
 	}
 	public void checkScoreCard() {
-		if (sumOfArr(pntsBasic) >= 63 && !gotbonus) {
+		if (Helper.sumArr(pntsBasic) >= 63 && !gotbonus) {
 			bonus = 35;
 			totalscore += 35;
 			gotbonus = true;
@@ -434,7 +422,7 @@ public class Player {
 				break;
 			}
 		}
-		if(sumOfArr(isAvailAdv) == 0 && !chanAvail && basicDone && yaht <= 0) {
+		if(Helper.sumArr(isAvailAdv) == 0 && !chanAvail && basicDone && yaht <= 0) {
 			System.out.println("SCORE CARD COMPLETED\nTotal score = " + totalscore + "\n");
 			life = 2;
 		} else {
@@ -517,7 +505,7 @@ public class Player {
 					}
 				}
 			}
-			int maxDup = maxOfArr(faceCounter);
+			int maxDup = Helper.maxArr(faceCounter);
 			if (maxDup == 5) {
 				int yahtScore = 50;
 				if (yaht <= 0) {
@@ -531,35 +519,35 @@ public class Player {
 				}
 			}
 			if(maxDup >= 4 && isAvailAdv[1] > 0) {
-				System.out.println("4ofAK : " + sumOfArr(arrVal) + " points : type 8 to select");
+				System.out.println("4ofAK : " + Helper.sumArr(arrVal) + " points : type 8 to select");
 				haveChoice = true;
-				if(sumOfArr(arrVal) > maxPoint) {
-					maxPoint = sumOfArr(arrVal);
+				if(Helper.sumArr(arrVal) > maxPoint) {
+					maxPoint = Helper.sumArr(arrVal);
 					botDeci = 8;
 				}
 			}
 			if(maxDup >= 3 && isAvailAdv[0] > 0) {
-				System.out.println("3ofAK : " + sumOfArr(arrVal) + " points : type 9 to select");
+				System.out.println("3ofAK : " + Helper.sumArr(arrVal) + " points : type 9 to select");
 				haveChoice = true;
-				if(sumOfArr(arrVal) > maxPoint) {
-					maxPoint = sumOfArr(arrVal);
+				if(Helper.sumArr(arrVal) > maxPoint) {
+					maxPoint = Helper.sumArr(arrVal);
 					botDeci = 9;
 				}
 			}
 			if(chanAvail) {
-				System.out.println("Chance: " + sumOfArr(arrVal) + " points : type 11 to select");
+				System.out.println("Chance: " + Helper.sumArr(arrVal) + " points : type 11 to select");
 				haveChoice = true;
-				if(sumOfArr(arrVal)>maxPoint) {
-					maxPoint = sumOfArr(arrVal);
+				if(Helper.sumArr(arrVal) > maxPoint) {
+					maxPoint = Helper.sumArr(arrVal);
 					botDeci=11;
 				}
 			}
 			if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&isAvailAdv[3]>0) {
 				System.out.println("SmStrg: 30 points : type 12 to select");
 				haveChoice = true;
-				if(30>maxPoint) {
-					maxPoint=30;
-					botDeci=12;
+				if (30 > maxPoint) {
+					maxPoint = 30;
+					botDeci = 12;
 				}
 			}
 			if(1==faceCounter[1]&&faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&isAvailAdv[4]>0) {
@@ -606,7 +594,7 @@ public class Player {
                     if(isAvailAdv[0]>0) {
 						System.out.print("max chance 3ofAK ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probTOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probTOAK(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
 							for(int i = 1; i <= 31; i++) {
 								if(simulProb[i-1]== maxProb) {
@@ -630,7 +618,7 @@ public class Player {
 					if (isAvailAdv[1] > 0) {
 						System.out.print("max chance 4ofAK ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]== maxProb) {
@@ -654,7 +642,7 @@ public class Player {
 					if (isAvailAdv[2] > 0) {
 						System.out.print("max chance FullHS ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]== maxProb) {
@@ -678,7 +666,7 @@ public class Player {
 					if (isAvailAdv[3] > 0) {
 						System.out.print("max chance SmStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]== maxProb) {
@@ -702,7 +690,7 @@ public class Player {
 					if (isAvailAdv[4] > 0) {
 						System.out.print("max chance LgStr ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
-						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
 							for(int i=1;i<=31;i++) {
 								if(simulProb[i-1]== maxProb) {
@@ -724,8 +712,10 @@ public class Player {
 						}
 					}
 					System.out.print("max chance Yahtzee ---> "); maxProb =0;
-					for(int i=1;i<=31;i++)
-					{simulProb[i-1]=probYaht(arrVal, (10*i)); maxProb = maxofArray(simulProb);}
+					for (int i = 1; i <= 31; i++){	
+						simulProb[i - 1] = probYaht(arrVal, (10 * i));
+						maxProb = Helper.maxArr(simulProb);
+					}
 					if(maxProb >0) {
 						for(int i=1;i<=31;i++) {
 							if(simulProb[i-1]== maxProb) {
@@ -775,12 +765,12 @@ public class Player {
 				if (userSim % 10 == 0) {
 					int userDecideReroll = 1; //confirm the decision
 					if (cheat) {
-						System.out.println("Yahtzee prob with this re-roll= " + probYaht(arrVal, userSim));
-						if(isAvailAdv[0]>0){System.out.println("3ofAK prob with this re-roll= " + probTOAK(arrVal, userSim));}
-						if(isAvailAdv[1]>0){System.out.println("4ofAK prob with this re-roll= " + probFOAK(arrVal, userSim));}
-						if(isAvailAdv[2]>0){System.out.println("FullHS prob with this re-roll= " + probFH(arrVal, userSim));}
-						if(isAvailAdv[3]>0){System.out.println("SmStr prob with this re-roll= " + probSmStr(arrVal, userSim));}
-						if(isAvailAdv[4]>0){System.out.println("LgStr prob with this re-roll= " + probLgStr(arrVal, userSim));}
+						System.out.println("Yahtzee prob with this re-roll = " + probYaht(arrVal, userSim));
+						if(isAvailAdv[0]>0){System.out.println("3 of a kind prob with this re-roll = " + probTOAK(arrVal, userSim));}
+						if(isAvailAdv[1]>0){System.out.println("4 of a kind prob with this re-roll = " + probFOAK(arrVal, userSim));}
+						if(isAvailAdv[2]>0){System.out.println("Full House prob with this re-roll = " + probFH(arrVal, userSim));}
+						if(isAvailAdv[3]>0){System.out.println("Small Straight prob with this re-roll = " + probSmStr(arrVal, userSim));}
+						if(isAvailAdv[4]>0){System.out.println("Large Straight prob with this re-roll = " + probLgStr(arrVal, userSim));}
 						System.out.println("type 1 to confirm decision----type other number to change decision");
 						Scanner rerollDecision = new Scanner(System.in);
 						if (!bot) {
@@ -820,15 +810,15 @@ public class Player {
                     System.out.println("Score: " + score);
                     roll_left = -1;
                 }
-				if(maxOfArr(faceCounter) >= 4 && isAvailAdv[1] > 0 && userChoose == 8) {
-					pntsFoak = sumOfArr(arrVal);
+				if(Helper.maxArr(faceCounter) >= 4 && isAvailAdv[1] > 0 && userChoose == 8) {
+					pntsFoak = Helper.sumArr(arrVal);
 					score += pntsFoak;
 					isAvailAdv[1]--;
 					System.out.println("Score: " + score);
 					roll_left = -1;
 				}
-				if(maxOfArr(faceCounter) >= 3 && isAvailAdv[0] > 0 && userChoose == 9) {
-					pntsToak = sumOfArr(arrVal);
+				if(Helper.maxArr(faceCounter) >= 3 && isAvailAdv[0] > 0 && userChoose == 9) {
+					pntsToak = Helper.sumArr(arrVal);
 					score += pntsToak;
 					isAvailAdv[0]--;
 					System.out.println("Score: " + score);
@@ -856,7 +846,7 @@ public class Player {
 					roll_left = -1;
 				}
 				if (chanAvail && userChoose == 11) {
-					pntsChan = sumOfArr(arrVal);
+					pntsChan = Helper.sumArr(arrVal);
 					score += pntsChan;
 					chanAvail = false;
 					System.out.println("Score: " + score);

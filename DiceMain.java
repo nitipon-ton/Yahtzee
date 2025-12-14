@@ -1,12 +1,11 @@
 import java.util.Scanner;
-import java.lang.Exception;
 public class DiceMain {
 	public static void main(String[] args) {
-		Scanner ask = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		System.out.println("Type the number of players");
-		int numPlayer = ask.nextInt();
+		int numPlayer = scanner.nextInt();
 		while (numPlayer <= 0) {
-			numPlayer = ask.nextInt();
+			numPlayer = scanner.nextInt();
 		}
 		Player[] players = new Player[numPlayer];
 		int[] ranks = new int[numPlayer];
@@ -16,16 +15,16 @@ public class DiceMain {
 		for (int i = 0; i < numPlayer; i++) {
 			players[i] = new Player();
 			System.out.println("type 1 to let bot play character #" + (i + 1));
-			isBot[i] = ask.nextInt() == 1;
-			ask.nextLine(); // Consume the leftover newline character
+			isBot[i] = scanner.nextInt() == 1;
+			scanner.nextLine(); // Consume the leftover newline character
 			if (isBot[i]) {
 				usernames[i] = "bot " + ++botCount;
 				players[i].bot = true;
 				players[i].cheat = true;
 			} else {
-				//players[i].cheat = true;
+				players[i].cheat = true; // Enable cheat mode for human players
 				System.out.println("enter player name:");
-				usernames[i] = ask.nextLine(); // Now waits for actual input
+				usernames[i] = scanner.nextLine(); // Now waits for actual input
 			}
 		}
 		for (int a = 1; a <= 13; a++) {
@@ -61,7 +60,6 @@ public class DiceMain {
 				}
 			}
 		}
-		/*
 		int[] scoreInRange = new int[30];
 		//scoreInRange[0] = No. of player scoring 0-19
 		for (int rank = 1; rank <= numPlayer; rank++) {
@@ -86,20 +84,19 @@ public class DiceMain {
 			figSize = 1000;
 		}
 		for (int i = 4; i <= 16; i++) {
-			System.out.print("score" + 20 * i + "-" + (20 * i + 19) + "  ");
+			System.out.print("score " + 20 * i + "-" + (20 * i + 19) + "  ");
 			for (int j = 0; j < scoreInRange[i] / figSize; j++) {
 				System.out.print(fig);
 			}
 			System.out.print("\n");
 		}
-		*/
-		int totScore = 0;
+		int totalScore = 0;
 		for (Player p: players) {
-			totScore += p.totalscore;
+			totalScore += p.totalscore;
 		}
-		System.out.println("The average score is " + totScore / (numPlayer + 0.0));
+		System.out.println("The average score is " + totalScore / (numPlayer + 0.0));
 
 		System.out.println("GOOD GAME, WELL PLAYED!");
-		ask.close();
+		scanner.close();
 	}
 }
