@@ -14,7 +14,8 @@ public class DiceMain {
 		int botCount = 0;
 		for (int i = 0; i < numPlayer; i++) {
 			players[i] = new Player();
-			System.out.println("type 1 to let bot play character #" + (i + 1));
+			System.out.println("Type 1 to let bot play character #" + (i + 1));
+			System.out.println("Type 0 to let human play character #" + (i + 1));
 			isBot[i] = scanner.nextInt() == 1;
 			scanner.nextLine(); // Consume the leftover newline character
 			if (isBot[i]) {
@@ -23,7 +24,7 @@ public class DiceMain {
 				players[i].cheat = true;
 			} else {
 				players[i].cheat = true; // Enable cheat mode for human players
-				System.out.println("enter player name:");
+				System.out.println("Enter player name:");
 				usernames[i] = scanner.nextLine(); // Now waits for actual input
 			}
 		}
@@ -83,7 +84,7 @@ public class DiceMain {
 			fig = "(M)";
 			figSize = 1000;
 		}
-		for (int i = 4; i <= 16; i++) {
+		for (int i = 4; i <= 18; i++) {
 			System.out.print("score " + 20 * i + "-" + (20 * i + 19) + "  ");
 			for (int j = 0; j < scoreInRange[i] / figSize; j++) {
 				System.out.print(fig);
