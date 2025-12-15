@@ -1,4 +1,3 @@
-import java.util.Scanner;
 public class Player {
 	private int rollDecision; //decide to take point in which way or re-roll which dice
 	private boolean haveChoice = false; //to skip play when no play available
@@ -21,6 +20,14 @@ public class Player {
 	Dice dice = new Dice(6);
 	public int[] arrVal = new int[5];
 	public int[] faceCounter = new int[6];
+
+	public void printNormal(String s) {
+		System.out.print(s);
+	}
+
+	public void printHighlight(String s, String color) {
+    	System.out.print("<span style='color:" + color + "'>" + s + "</span>");
+	}
 	
 	public double probLgStr(int[] a, int userSimChoose) {
 		double prob = 0; int numberofReroll = 0; int sum = 0; int sumofsquare = 0; int diffpair = 0;
@@ -316,56 +323,56 @@ public class Player {
 		}
 		for(int i=0;i<=4;i++) {
 			sum += arr[i];
-			sumofsquare += arr[i]*arr[i];
+			sumofsquare += arr[i] * arr[i];
 			for (int j = 0; j <= 4; j++) {
-				if (arr[i] > 0 && arr[j]>0 && arr[i] != arr[j]) {
+				if (arr[i] > 0 && arr[j] > 0 && arr[i] != arr[j]) {
 					diffpair++;
 				}
 			}
 		}
-		if(numberofReroll==5) {
-			prob=200.0/1296.0;
-		} else if(numberofReroll==4) {
-			if(sum==1||sum==6) {
-				prob=132.0/1296.0;
-			} else if(sum==2||sum==5) {
-				prob=192.0/1296.0;
+		if (numberofReroll == 5) {
+			prob = 200.0 / 1296.0;
+		} else if (numberofReroll == 4) {
+			if (sum == 1 || sum == 6) {
+				prob = 132.0 / 1296.0;
+			} else if (sum == 2 || sum == 5) {
+				prob = 192.0 / 1296.0;
 			} else {
-				prob=276.0/1296.0;
+				prob = 276.0 / 1296.0;
 			}
-		} else if(numberofReroll==3) {
-			if(sumofsquare==2||sumofsquare==72) {
-				prob=6.0/216.0;
-			} else if(sumofsquare==8||sumofsquare==50||sumofsquare==40||sumofsquare==26||sumofsquare==37) {
-				prob=12.0/216.0;
-			} else if(sumofsquare==18||sumofsquare==32) {
-				prob=18.0/216.0;
-			} else if(sumofsquare==61||sumofsquare==5||sumofsquare==29) {
-				prob=30.0/216.0;
-			} else if(sumofsquare==52||sumofsquare==10||sumofsquare==45||sumofsquare==17) {
-				prob=36.0/216.0;
-			} else if(sumofsquare==41||sumofsquare==13||sumofsquare==34||sumofsquare==20) {
-				prob=54.0/216.0;
-			} else if(sumofsquare==25) {
-				prob=78.0/216.0;
+		} else if (numberofReroll==3) {
+			if (sumofsquare == 2 || sumofsquare == 72) {
+				prob = 6.0/216.0;
+			} else if (sumofsquare == 8 || sumofsquare == 50 || sumofsquare == 40 || sumofsquare == 26 || sumofsquare == 37) {
+				prob = 12.0/216.0;
+			} else if (sumofsquare==18||sumofsquare==32) {
+				prob = 18.0/216.0;
+			} else if (sumofsquare==61||sumofsquare==5||sumofsquare==29) {
+				prob = 30.0/216.0;
+			} else if (sumofsquare==52||sumofsquare==10||sumofsquare==45||sumofsquare==17) {
+				prob = 36.0/216.0;
+			} else if (sumofsquare==41||sumofsquare==13||sumofsquare==34||sumofsquare==20) {
+				prob = 54.0/216.0;
+			} else if (sumofsquare==25) {
+				prob = 78.0/216.0;
 			}
-		} else if(numberofReroll==2) {
-			if(diffpair==0) {
+		} else if (numberofReroll==2) {
+			if (diffpair==0) {
 				prob=0.0;
-			} else if(diffpair==4) {
+			} else if (diffpair==4) {
 				//count[0] counts the number of 1 (not included those we want to re-roll)
-				if(count[0]>0&&count[4]==0&&count[5]==0) {
-					prob=2.0/36.0;
-				} else if(count[5]>0&&count[1]==0&&count[0]==0) {
-					prob=2.0/36.0;
-				} else if(count[3]*count[4]>0||count[3]*count[4]>0||count[1]*count[3]>0||count[2]*count[4]>0) {
-					prob=4.0/36.0;
-				} else if(count[1]*count[4]>0) {
-					prob=2.0/36.0;
-				} else if(count[2]*count[3]>0) {
-					prob=6.0/36.0;
+				if (count[0]>0&&count[4]==0&&count[5]==0) {
+					prob = 2.0/36.0;
+				} else if (count[5] > 0 && count[1]==0 && count[0]==0) {
+					prob = 2.0/36.0;
+				} else if (count[3]*count[4]>0||count[3]*count[4]>0||count[1]*count[3]>0||count[2]*count[4]>0) {
+					prob = 4.0/36.0;
+				} else if (count[1] > 0 && count[4] > 0) {
+					prob = 2.0/36.0;
+				} else if (count[2] > 0 && count[3] > 0) {
+					prob = 6.0/36.0;
 				} else {
-					prob=0.0;
+					prob = 0.0;
 				}
 			} else if(sumofsquare==14||sumofsquare==77||sumofsquare==21||sumofsquare==70||sumofsquare==38||sumofsquare==45||sumofsquare==38||sumofsquare==45) {
 				prob=11.0/36.0;
@@ -447,10 +454,10 @@ public class Player {
 			}
 		}
 		if (advDone && !chanAvail && basicDone && yaht <= 0) {
-			System.out.println("SCORE CARD COMPLETED\nTotal score = " + totalscore + "\n");
+			System.out.println("\nSCORE CARD COMPLETED\nTotal score = " + totalscore + "\n");
 			life = 2;
 		} else {
-			System.out.println("total score = " + totalscore + "\n");
+			System.out.println("\ntotal score = " + totalscore + "\n");
 		}
 	}
 	public void resetfornextround() {
@@ -491,39 +498,26 @@ public class Player {
 			}
 		}
 	}
+
 	public void chooseScore() {
 		if (roll_left >= 0 && life == 1) {
-			System.out.println("-------------------------------\n A  B  C  D  E");
+			System.out.println("_________________________________________\n\n A  B  C  D  E");
 			for (int i = 0; i < 5; i++) {
 				System.out.print("[" + arrVal[i] + "]");
 			}
 			if (roll_left == 0) {
 				System.out.print("  No More Re-Roll Left!!!");
 			}
-			System.out.print("\nScoring(s) available this game: ");
-			String[] temp = {"3ofAK", "4ofAK", "FullHS", "SmStrg", "LgStrg"};
-			for (int i = 0; i < 5; i++) {
-				if (isAvailAdv[i] == 1) {
-					System.out.print(temp[i] + "   ");
-				}
-			}
-			if (yaht != 100) {
-				System.out.print("Yahtz   ");
-			}
-			for (int i = 1; i <=6; i++) {
-				if (isAvailBasic[i - 1]) {
-					System.out.print(i + "s   ");
-				}
-			}
-			if (chanAvail) {
-				System.out.print("Chance   ");
-			}
-			System.out.println("\nScoring(s) available this move");
+			System.out.println("\n\n   Scoring(s) available\n");
 			//code for each type of scoring
 			int maxPoint = -1; botDeci = 15;
 			for (int i = 1; i <= 6; i++) {
-				if(isAvailBasic[i - 1]) {
-					System.out.println("      " + i + "s      : " + i * faceCounter[i - 1] + " points : type " + i + " to select");
+				if (isAvailBasic[i - 1]) {
+					if (faceCounter[i - 1] > 0) {
+						System.out.println("      " + i + "s      : " + i * faceCounter[i - 1] + " points");
+					} else {
+						System.out.println("      " + i + "s      : " + 0 + " points");
+					}
 					haveChoice = true;
 					if(i * faceCounter[i - 1] > maxPoint) {
 						maxPoint = i * faceCounter[i - 1];
@@ -538,14 +532,14 @@ public class Player {
 				if (yaht <= 0) {
 					yahtScore = 100;
 				}
-				System.out.println("    YahtZee   : " + yahtScore + " points : type 7 to select");
+				System.out.println("    YahtZee   : " + yahtScore + " points");
 				haveChoice = true;
 				if (yahtScore > maxPoint) {
 					maxPoint = yahtScore;
 					botDeci = 7;
 				}
 			} else if (yaht != 100) {
-				System.out.println("    YahtZee   : " + 0 + " points : type 7 to select");
+				System.out.println("    YahtZee   : " + 0 + " points");
 				if (maxPoint == -1) {
 					maxPoint = 0;
 					botDeci = 7;
@@ -553,14 +547,14 @@ public class Player {
 			}
 
 			if (maxDup >= 4 && isAvailAdv[1] > 0) {
-				System.out.println(" 4 of a kind  : " + Helper.sumArr(arrVal) + " points : type 8 to select");
+				System.out.println(" 4 of a kind  : " + Helper.sumArr(arrVal) + " points");
 				haveChoice = true;
 				if(Helper.sumArr(arrVal) > maxPoint) {
 					maxPoint = Helper.sumArr(arrVal);
 					botDeci = 8;
 				}
 			} else if (isAvailAdv[1] > 0) {
-				System.out.println(" 4 of a kind  : " + 0 + " points : type 8 to select");
+				System.out.println(" 4 of a kind  : " + 0 + " points");
 				if (maxPoint <= 0) {
 					maxPoint = 0;
 					botDeci = 8;
@@ -568,14 +562,14 @@ public class Player {
 			}
 
 			if(maxDup >= 3 && isAvailAdv[0] > 0) {
-				System.out.println(" 3 of a kind  : " + Helper.sumArr(arrVal) + " points : type 9 to select");
+				System.out.println(" 3 of a kind  : " + Helper.sumArr(arrVal) + " points");
 				haveChoice = true;
 				if(Helper.sumArr(arrVal) > maxPoint) {
 					maxPoint = Helper.sumArr(arrVal);
 					botDeci = 9;
 				}
 			} else if (isAvailAdv[0] > 0) {
-				System.out.println(" 3 of a kind  : " + 0 + " points : type 9 to select");
+				System.out.println(" 3 of a kind  : " + 0 + " points");
 				if (maxPoint <= 0) {
 					maxPoint = 0;
 					botDeci = 9;
@@ -583,23 +577,23 @@ public class Player {
 			}
 
 			if(chanAvail) {
-				System.out.println("    Chance    : " + Helper.sumArr(arrVal) + " points : type 11 to select");
+				System.out.println("    Chance    : " + Helper.sumArr(arrVal) + " points");
 				haveChoice = true;
 				if(Helper.sumArr(arrVal) > maxPoint) {
 					maxPoint = Helper.sumArr(arrVal);
-					botDeci=11;
+					botDeci = 11;
 				}
 			}
 
 			if(faceCounter[0]*faceCounter[1]*faceCounter[2]*faceCounter[3]+faceCounter[1]*faceCounter[2]*faceCounter[3]*faceCounter[4]+faceCounter[2]*faceCounter[3]*faceCounter[4]*faceCounter[5]>0&&isAvailAdv[3]>0) {
-				System.out.println("Small Straight: 30 points : type 12 to select");
+				System.out.println("Small Straight: 30 points");
 				haveChoice = true;
 				if (30 > maxPoint) {
 					maxPoint = 30;
 					botDeci = 12;
 				}
 			} else if (isAvailAdv[3] > 0) {
-				System.out.println("Small Straight: 0 points : type 12 to select");
+				System.out.println("Small Straight: 0 points");
 				if (maxPoint <= 0) {
 					maxPoint = 0;
 					botDeci = 12;
@@ -607,14 +601,14 @@ public class Player {
 			}
 
 			if(1==faceCounter[1]&&faceCounter[1]==faceCounter[2]&&faceCounter[2]==faceCounter[3]&&faceCounter[3]==faceCounter[4]&&isAvailAdv[4]>0) {
-				System.out.println("Large Straight: 40 points : type 13 to select");
+				System.out.println("Large Straight: 40 points");
 				haveChoice = true;
 				if(40>maxPoint) {
-					maxPoint=40;
-					botDeci=13;
+					maxPoint = 40;
+					botDeci = 13;
 				}
 			} else if (isAvailAdv[4] > 0) {
-				System.out.println("Large Straight: 0 points : type 13 to select");
+				System.out.println("Large Straight: 0 points");
 				if (maxPoint <= 0) {
 					maxPoint = 0;
 					botDeci = 13;
@@ -622,14 +616,14 @@ public class Player {
 			}
 
 			if(faceCounter[0]*faceCounter[0]+faceCounter[1]*faceCounter[1]+faceCounter[2]*faceCounter[2]+faceCounter[3]*faceCounter[3]+faceCounter[4]*faceCounter[4]+faceCounter[5]*faceCounter[5]==13&&isAvailAdv[2]>0) {
-				System.out.println("  Full House  : 25 points : type 14 to select");
+				System.out.println("  Full House  : 25 points");
 				haveChoice = true;
-				if(25 > maxPoint) {
+				if (25 > maxPoint) {
 					maxPoint = 25;
 					botDeci = 14;
 				}
 			} else if (isAvailAdv[2] > 0) {
-				System.out.println("  Full House  : 0 points : type 14 to select");
+				System.out.println("  Full House  : 0 points");
 				if (maxPoint <= 0) {
 					maxPoint = 0;
 					botDeci = 14;
@@ -650,16 +644,14 @@ public class Player {
 					}
 				}
 			}
-			System.out.println("type 99 to delete this player");
 			if(roll_left>0) {
-				System.out.println("Which dice do you want TO RE ROLL?");
 				///start of cheat code
 				double maxProbAll=0;
 				if(cheat) {
-					System.out.println("SUGGESTION: ");
+					System.out.println("\nREROLL SUGGESTION WITH PROBABILITY:\n");
                     double maxProb = 0;
                     if(isAvailAdv[0]>0) {
-						System.out.print("max chance 3ofAK ---> "); maxProb =0;
+						System.out.print("Max chance Three of a kind ---> "); maxProb =0;
 						for (int i=1; i <= 31; i++) {
 							simulProb[i-1] = probTOAK(arrVal, (10*i));
 							maxProb = Helper.maxArr(simulProb);
@@ -685,7 +677,7 @@ public class Player {
 						}
 					}
 					if (isAvailAdv[1] > 0) {
-						System.out.print("max chance 4ofAK ---> "); maxProb =0;
+						System.out.print("Max chance Four of a kind ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFOAK(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
@@ -709,7 +701,7 @@ public class Player {
 						}
 					}
 					if (isAvailAdv[2] > 0) {
-						System.out.print("max chance FullHS ---> "); maxProb =0;
+						System.out.print("Max chance Full House ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probFH(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
@@ -733,7 +725,7 @@ public class Player {
 						}
 					}
 					if (isAvailAdv[3] > 0) {
-						System.out.print("max chance SmStr ---> "); maxProb =0;
+						System.out.print("Max chance Small Straight ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probSmStr(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
@@ -757,7 +749,7 @@ public class Player {
 						}
 					}
 					if (isAvailAdv[4] > 0) {
-						System.out.print("max chance LgStr ---> "); maxProb =0;
+						System.out.print("Max chance Large Straight ---> "); maxProb =0;
 						for(int i=1;i<=31;i++)
 						{simulProb[i-1]=probLgStr(arrVal, (10*i)); maxProb = Helper.maxArr(simulProb);}
 						if(maxProb >0) {
@@ -780,7 +772,7 @@ public class Player {
 							System.out.println("\nprobability = " + maxProb);
 						}
 					}
-					System.out.print("max chance Yahtzee ---> "); maxProb =0;
+					System.out.print("Max chance Yahtzee ---> "); maxProb =0;
 					for (int i = 1; i <= 31; i++){	
 						simulProb[i - 1] = probYaht(arrVal, (10 * i));
 						maxProb = Helper.maxArr(simulProb);
@@ -807,50 +799,26 @@ public class Player {
 				}
 				///end of cheat code
 			}
-			Scanner kboard = new Scanner(System.in);
 			boolean isDeciding = true;
 			while (isDeciding) {
 				int userSim;
-				if (!bot) {
-					String in = kboard.nextLine();
-					try {
-						userSim = Integer.parseInt(in);
-						while (userSim < 0 || userSim > 14) {
-							in = kboard.nextLine();
-							userSim = Integer.parseInt(in);
-						}
-					} catch (NumberFormatException e) {
-						boolean validInput = true;
-						for (int i = 0; i < in.length(); i++) {
-							char c = in.charAt(i);
-							if (c != 'A' && c != 'B' && c != 'C' && c != 'D' && c != 'E') {
-								validInput = false;
-							}
-						}
-						while (!validInput || in.length() == 0 || in.length() > 5) {
-							in = kboard.nextLine();
-							validInput = true;
-							for (int i = 0; i < in.length(); i++) {
-							char c = in.charAt(i);
-							if (c != 'A' && c != 'B' && c != 'C' && c != 'D' && c != 'E') {
-								validInput = false;
-							}
-						}
-						}
-						String ref = "ABCDE"; int digitVal = 10; int userSimRaw = 0;
-						for (int i = 0; i < 5; i++) {
-							if (in.contains(ref.substring(i, i + 1))) {
-								userSimRaw += digitVal;
-							}
-							digitVal *= 2;
-						}
-						userSim = userSimRaw;
-					}
-				} else {
-					userSim = botDeci;
-				}
+				userSim = botDeci;
 				if (userSim % 10 == 0) {
-					int userDecideReroll = 1; //confirm the decision
+					System.out.print("Bot Reroll Decision: ");
+					int tempI = userSim / 10;
+					for (int j = 0; j < 5; j++) {
+						if (tempI % 2 == 1) {
+							System.out.print("ABCDE".charAt(j));
+						}
+						tempI /= 2;
+					}
+					System.out.println(" ");
+				} else {
+					String[] scorings = new String[]{"1s", "2s", "3s", "4s", "5s", "6s", "YahtZee", "4 of a kind", "3 of a kind", "XXX", "Chance", "Small Straight", "Large Straight", "Full House"};
+					System.out.println("\nBot Score Decision: " + scorings[userSim - 1]);
+				}
+
+				if (userSim % 10 == 0) {
 					if (cheat) {
 						System.out.println("Yahtzee prob with this re-roll = " + probYaht(arrVal, userSim));
 						if(isAvailAdv[0]>0){System.out.println("3 of a kind prob with this re-roll = " + probTOAK(arrVal, userSim));}
@@ -858,18 +826,6 @@ public class Player {
 						if(isAvailAdv[2]>0){System.out.println("Full House prob with this re-roll = " + probFH(arrVal, userSim));}
 						if(isAvailAdv[3]>0){System.out.println("Small Straight prob with this re-roll = " + probSmStr(arrVal, userSim));}
 						if(isAvailAdv[4]>0){System.out.println("Large Straight prob with this re-roll = " + probLgStr(arrVal, userSim));}
-						System.out.println("Type 1 to confirm decision----type other number to change decision");
-						Scanner rerollDecision = new Scanner(System.in);
-						if (!bot) {
-							userDecideReroll = rerollDecision.nextInt();
-						}
-					}
-					if(userDecideReroll == 1) {
-						userChoose = userSim;
-						isDeciding = false;
-					} else {
-						System.out.println("choose the re-roll again");
-						userChoose = userSim;
 					}
 				} else {
 					isDeciding = false;
@@ -989,10 +945,6 @@ public class Player {
 				if (!haveChoice && roll_left == 0 && userChoose == 15) {
 					System.out.println("Score: " + score);
 					roll_left = -1;
-				}
-
-				if (userChoose == 99) {
-					life--;
 				}
 			}
 		}
