@@ -317,7 +317,7 @@ public class Player {
 		for(int i=0;i<=4;i++) {
 			for(int j=0;j<=5;j++) {
 				if(arr[i]==j+1) {
-					count[j]++; //count[0] = count number of 1
+					count[j]++;  // count[0] = count number of 1
 				}
 			}
 		}
@@ -360,7 +360,7 @@ public class Player {
 			if (diffpair==0) {
 				prob=0.0;
 			} else if (diffpair==4) {
-				//count[0] counts the number of 1 (not included those we want to re-roll)
+				// count[0] counts the number of 1 (not included those we want to re-roll)
 				if (count[0]>0&&count[4]==0&&count[5]==0) {
 					prob = 2.0/36.0;
 				} else if (count[5] > 0 && count[1]==0 && count[0]==0) {
@@ -501,7 +501,7 @@ public class Player {
 
 	public void chooseScore() {
 		if (roll_left >= 0 && life == 1) {
-			System.out.println("_________________________________________\n\n A  B  C  D  E");
+			System.out.println("----------------\n\n A  B  C  D  E");
 			for (int i = 0; i < 5; i++) {
 				System.out.print("[" + arrVal[i] + "]");
 			}
@@ -509,7 +509,7 @@ public class Player {
 				System.out.print("  No More Re-Roll Left!!!");
 			}
 			System.out.println("\n\n   Scoring(s) available\n");
-			//code for each type of scoring
+			// code for each type of scoring
 			int maxPoint = -1; botDeci = 15;
 			for (int i = 1; i <= 6; i++) {
 				if (isAvailBasic[i - 1]) {
@@ -525,7 +525,8 @@ public class Player {
 					}
 				}
 			}
-
+			
+			/* */
 			int maxDup = Helper.maxArr(faceCounter);
 			if (maxDup == 5 && yaht != 100) {
 				int yahtScore = 50;
@@ -644,14 +645,15 @@ public class Player {
 					}
 				}
 			}
-			if(roll_left>0) {
-				///start of cheat code
+			if (roll_left > 0) {
+				// start of cheat code
 				double maxProbAll=0;
 				if(cheat) {
 					System.out.println("\nREROLL SUGGESTION WITH PROBABILITY:\n");
                     double maxProb = 0;
                     if(isAvailAdv[0]>0) {
-						System.out.print("Max chance Three of a kind ---> "); maxProb =0;
+						System.out.print("Max chance Three of a kind ---> ");
+						maxProb =0;
 						for (int i=1; i <= 31; i++) {
 							simulProb[i-1] = probTOAK(arrVal, (10*i));
 							maxProb = Helper.maxArr(simulProb);
@@ -673,7 +675,7 @@ public class Player {
 									}
 								}
 						    }
-							System.out.println("\nprobability = " + maxProb);
+							System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 						}
 					}
 					if (isAvailAdv[1] > 0) {
@@ -697,7 +699,7 @@ public class Player {
 									}
 								}
 						    }
-							System.out.println("\nprobability = " + maxProb);
+							System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 						}
 					}
 					if (isAvailAdv[2] > 0) {
@@ -721,7 +723,7 @@ public class Player {
 									}
 								}
 							}
-							System.out.println("\nprobability = " + maxProb);
+							System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 						}
 					}
 					if (isAvailAdv[3] > 0) {
@@ -745,7 +747,7 @@ public class Player {
 									}
 								}
 							}
-							System.out.println("\nprobability = " + maxProb);
+							System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 						}
 					}
 					if (isAvailAdv[4] > 0) {
@@ -769,7 +771,7 @@ public class Player {
 									}
 								}
 							}
-							System.out.println("\nprobability = " + maxProb);
+							System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 						}
 					}
 					System.out.print("Max chance Yahtzee ---> "); maxProb =0;
@@ -794,10 +796,10 @@ public class Player {
 								}
 							}
 						}
-						System.out.println("\nprobability = " + maxProb);
+						System.out.println("\nprobability = " + maxProb * 100 + " %\n");
 					}
 				}
-				///end of cheat code
+				// end of cheat code
 			}
 			boolean isDeciding = true;
 			while (isDeciding) {
@@ -812,13 +814,14 @@ public class Player {
 						}
 						tempI /= 2;
 					}
-					System.out.println(" ");
+					System.out.println(" \n");
 				} else {
 					String[] scorings = new String[]{"1s", "2s", "3s", "4s", "5s", "6s", "YahtZee", "4 of a kind", "3 of a kind", "XXX", "Chance", "Small Straight", "Large Straight", "Full House"};
-					System.out.println("\nBot Score Decision: " + scorings[userSim - 1]);
+					System.out.println("\nBot Score Decision: " + scorings[userSim - 1] + "\n");
 				}
 
 				if (userSim % 10 == 0) {
+					int userDecideReroll = 1;
 					if (cheat) {
 						System.out.println("Yahtzee prob with this re-roll = " + probYaht(arrVal, userSim));
 						if(isAvailAdv[0]>0){System.out.println("3 of a kind prob with this re-roll = " + probTOAK(arrVal, userSim));}
@@ -827,6 +830,10 @@ public class Player {
 						if(isAvailAdv[3]>0){System.out.println("Small Straight prob with this re-roll = " + probSmStr(arrVal, userSim));}
 						if(isAvailAdv[4]>0){System.out.println("Large Straight prob with this re-roll = " + probLgStr(arrVal, userSim));}
 					}
+					if (userDecideReroll == 1) {
+						isDeciding = false;
+					}
+					userChoose = userSim;
 				} else {
 					isDeciding = false;
 					userChoose = userSim;
@@ -858,7 +865,7 @@ public class Player {
                     System.out.println("Score: " + score);
                     roll_left = -1;
                 } else if (userChoose == 7) {
-					yaht = 100; //to prevent re-choosing yahtzee again
+					yaht = 100; // To prevent re-choosing yahtzee again
 					System.out.println("Score: " + score);
 					roll_left = -1;
 				}

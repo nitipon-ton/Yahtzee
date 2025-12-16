@@ -16,7 +16,7 @@ public class DiceGame {
         for (int round = 1; round <= 13; round++) {
             players[0].printNormal("\n\n***************** ROUND " + round + " *****************\n\n");
             for (int i = 0; i < numBots; i++) {
-                players[i].printNormal("----------------" + usernames[i] + "'s turn ");
+                players[i].printNormal("-------------- " + usernames[i] + "'s turn ");
                 for (int roll = 0; roll < 3; roll++) {
                     players[i].rollDice();
                     players[i].chooseScore();

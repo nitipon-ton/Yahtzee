@@ -35,7 +35,7 @@ public class WebServer {
             }
 
             int bots = parseBots(exchange.getRequestURI());
-            bots = Math.max(1, Math.min(10, bots));
+            bots = Math.max(1, Math.min(1000, bots));
 
             // --- CHANGE: capture all System.out prints from DiceGame/Player ---
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -97,7 +97,7 @@ public class WebServer {
 
         server.start();
         System.out.println("Server running:");
-        System.out.println("  http://localhost:8080/play?bots=2");
+        System.out.println("  http://localhost:8080/play?bots=10");
         System.out.println("  http://localhost:8080/health");
     }
 
