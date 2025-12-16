@@ -102,6 +102,7 @@ public class WebServer {
         System.out.println("Server running:");
         System.out.println("  http://localhost:8080/play?bots=10");
         System.out.println("  http://localhost:8080/health");
+        Thread.currentThread().join();
     }
 
     // -------- helpers --------
