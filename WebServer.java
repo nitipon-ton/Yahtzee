@@ -35,23 +35,26 @@ public class WebServer {
             }
 
             int bots = parseBots(exchange.getRequestURI());
-            bots = Math.max(1, Math.min(1000, bots));
+            bots = Math.max(1, Math.min(100, bots));
 
             // --- CHANGE: capture all System.out prints from DiceGame/Player ---
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream oldOut = System.out;
-            System.setOut(new PrintStream(baos));
-
             GameResult result;
-            try {
-                result = DiceGame.playBots(bots);  // All prints inside Player.java are captured
-            } finally {
-                System.out.flush();
-                System.setOut(oldOut);
+            String gameLog;
+
+            synchronized (WebServer.class) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                PrintStream oldOut = System.out;
+                System.setOut(new PrintStream(baos));
+
+                try {
+                    result = DiceGame.playBots(bots);
+                } finally {
+                    System.out.flush();
+                    System.setOut(oldOut);
+                }
+                gameLog = baos.toString();
             }
 
-            // --- CHANGE: Escape HTML but preserve <span> for colored output ---
-            String gameLog = baos.toString();
 
             // Build HTML
             StringBuilder html = new StringBuilder();
@@ -83,7 +86,6 @@ public class WebServer {
             }
             html.append("</table>");
 
-            // Game logs with colors preserved
             html.append("<h2>Bot Game Logs (Including Full Probabilities Analysis!)</h2><pre>").append(gameLog).append("</pre>");
 
             html.append("</body></html>");
