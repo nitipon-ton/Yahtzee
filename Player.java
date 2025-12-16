@@ -823,12 +823,12 @@ public class Player {
 				if (userSim % 10 == 0) {
 					int userDecideReroll = 1;
 					if (cheat) {
-						System.out.println("Yahtzee prob with this re-roll = " + probYaht(arrVal, userSim));
-						if(isAvailAdv[0]>0){System.out.println("3 of a kind prob with this re-roll = " + probTOAK(arrVal, userSim));}
-						if(isAvailAdv[1]>0){System.out.println("4 of a kind prob with this re-roll = " + probFOAK(arrVal, userSim));}
-						if(isAvailAdv[2]>0){System.out.println("Full House prob with this re-roll = " + probFH(arrVal, userSim));}
-						if(isAvailAdv[3]>0){System.out.println("Small Straight prob with this re-roll = " + probSmStr(arrVal, userSim));}
-						if(isAvailAdv[4]>0){System.out.println("Large Straight prob with this re-roll = " + probLgStr(arrVal, userSim));}
+						System.out.println("Yahtzee prob with this re-roll = " + probYaht(arrVal, userSim) * 100 + " %");
+						if(isAvailAdv[0]>0){System.out.println("3 of a kind prob with this re-roll = " + probTOAK(arrVal, userSim) * 100 + " %");}
+						if(isAvailAdv[1]>0){System.out.println("4 of a kind prob with this re-roll = " + probFOAK(arrVal, userSim) * 100 + " %");}
+						if(isAvailAdv[2]>0){System.out.println("Full House prob with this re-roll = " + probFH(arrVal, userSim) * 100 + " %");}
+						if(isAvailAdv[3]>0){System.out.println("Small Straight prob with this re-roll = " + probSmStr(arrVal, userSim) * 100 + " %");}
+						if(isAvailAdv[4]>0){System.out.println("Large Straight prob with this re-roll = " + probLgStr(arrVal, userSim) * 100 + " %");}
 					}
 					if (userDecideReroll == 1) {
 						isDeciding = false;
