@@ -35,7 +35,7 @@ public class WebServer {
                 "body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;" +
                 "background:#0f172a; color:#e5e7eb; padding:40px; max-width:900px; margin:auto; }" +
                 "h1 { color:#7dd3fc; }" +
-                "h2 { color:#93c5fd; margin-top:30px; }" +
+                "h2 { color:#93c5fd; margin-top:0px; }" +
                 "p { line-height:1.6; }" +
                 "input { padding:8px; font-size:16px; width:120px; }" +
                 "button { padding:8px 14px; font-size:16px; margin-left:10px; cursor:pointer; }" +
