@@ -18,10 +18,84 @@ public class WebServer {
             exchange.close();
         });
 
-        // health
+        // health (landing page)
         server.createContext("/health", exchange -> {
-            byte[] response = "Yahtzee server running".getBytes();
-            exchange.getResponseHeaders().add("Content-Type", "text/plain; charset=utf-8");
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+                return;
+            }
+
+            String html =
+                "<!DOCTYPE html>" +
+                "<html><head>" +
+                "<title>Yahtzee Bot Simulator</title>" +
+                "<meta charset='utf-8'>" +
+                "<style>" +
+                "body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;" +
+                "background:#0f172a; color:#e5e7eb; padding:40px; max-width:900px; margin:auto; }" +
+                "h1 { color:#7dd3fc; }" +
+                "h2 { color:#93c5fd; margin-top:30px; }" +
+                "p { line-height:1.6; }" +
+                "input { padding:8px; font-size:16px; width:120px; }" +
+                "button { padding:8px 14px; font-size:16px; margin-left:10px; cursor:pointer; }" +
+                "a { color:#38bdf8; text-decoration:none; }" +
+                "a:hover { text-decoration:underline; }" +
+                ".box { background:#020617; padding:20px; border-radius:12px; margin-top:20px; }" +
+                "</style>" +
+                "</head><body>" +
+
+                "<h1>Yahtzee Bot Simulator</h1>" +
+
+                "<div class='box'>" +
+                "<h2>What is Yahtzee?</h2>" +
+                "<p>" +
+                "Yahtzee is a classic dice game where players roll five dice up to three times per round " +
+                "to maximize their score across 13 scoring categories such as Three-of-a-Kind, Full House, " +
+                "Straights, and Yahtzee itself. Each category can only be used once per game, making " +
+                "decision-making and probability trade-offs essential." +
+                "</p>" +
+                "</div>" +
+
+                "<div class='box'>" +
+                "<h2>What did I build?</h2>" +
+                "<p>" +
+                "This project simulates <strong>bots playing Yahtzee against each other</strong>. " +
+                "Each bot evaluates all possible reroll combinations using probability calculations " +
+                "to decide which dice to keep and which scoring category to select. " +
+                "The full decision process and probability analysis are logged so the game is " +
+                "completely transparent — nothing is random or hardcoded." +
+                "</p>" +
+                "</div>" +
+
+                "<div class='box'>" +
+                "<h2>Run a Simulation</h2>" +
+                "<p>Enter the number of bots (positive integer):</p>" +
+
+                "<input id='bots' type='number' min='1' step='1' placeholder='e.g. 10'>" +
+                "<button onclick='go()'>Play</button>" +
+
+                "<p style='margin-top:15px;'>" +
+                "<a id='link' href='#'></a>" +
+                "</p>" +
+
+                "</div>" +
+
+                "<script>" +
+                "function go() {" +
+                "  const x = document.getElementById('bots').value;" +
+                "  if (!x || x <= 0) return;" +
+                "  const url = 'https://yahtzee-production.up.railway.app/play?bots=' + x;" +
+                "  const link = document.getElementById('link');" +
+                "  link.href = url;" +
+                "  link.textContent = url;" +
+                "}" +
+                "</script>" +
+
+                "</body></html>";
+
+            byte[] response = html.getBytes();
+            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
             exchange.sendResponseHeaders(200, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
