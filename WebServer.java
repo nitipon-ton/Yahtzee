@@ -31,6 +31,8 @@ public class WebServer {
                 "<html><head>" +
                 "<title>Yahtzee Bot Simulator</title>" +
                 "<meta charset='utf-8'>" +
+                "<link rel='stylesheet' " +
+                "href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'>" +
                 "<style>" +
                 "body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;" +
                 "background:#0f172a; color:#e5e7eb; padding:40px; max-width:900px; margin:auto; }" +
@@ -44,6 +46,7 @@ public class WebServer {
                 ".box { background:#020617; padding:20px; border-radius:12px; margin-top:20px; }" +
                 "</style>" +
                 "</head><body>" +
+                "%s" +  // github icon
 
                 "<h1>Yahtzee Bot Simulator</h1>" +
 
@@ -87,6 +90,8 @@ public class WebServer {
                 "</script>" +
 
                 "</body></html>";
+            
+            html = html.formatted(githubIcon());
 
             byte[] response = html.getBytes();
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
@@ -104,7 +109,7 @@ public class WebServer {
             }
 
             int bots = parseBots(exchange.getRequestURI());
-            bots = Math.max(1, Math.min(100, bots));
+            bots = Math.max(1, Math.min(200, bots));
 
             // --- CHANGE: capture all System.out prints from DiceGame/Player ---
             GameResult result;
@@ -173,6 +178,29 @@ public class WebServer {
         Thread.currentThread().join();
     }
 
+    static String githubIcon() {
+        return """
+        <a href="https://github.com/nitipon-ton/Yahtzee"
+            target="_blank"
+            style="
+                position: fixed;
+                top: 24px;
+                right: 28px;
+                font-size: 36px;
+                color: #f8fafc;
+                background: rgba(255,255,255,0.08);
+                padding: 10px 12px;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+            "
+            onmouseover="this.style.transform='scale(1.1)';
+                        this.style.background='rgba(255,255,255,0.15)'"
+            onmouseout="this.style.transform='scale(1)';
+                        this.style.background='rgba(255,255,255,0.08)'">
+            <i class="fa-brands fa-github"></i>
+        </a>
+        """;
+    }
     // -------- helpers --------
     private static int parseBots(URI uri) {
         String query = uri.getQuery();
