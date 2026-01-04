@@ -75,20 +75,14 @@ public class WebServer {
                 "<input id='bots' type='number' min='1' step='1' placeholder='e.g. 10'>" +
                 "<button onclick='go()'>Play</button>" +
 
-                "<p style='margin-top:15px;'>" +
-                "<a id='link' href='#'></a>" +
-                "</p>" +
-
                 "</div>" +
 
                 "<script>" +
                 "function go() {" +
                 "  const x = document.getElementById('bots').value;" +
                 "  if (!x || x <= 0) return;" +
-                "  const url = 'https://yahtzee-production.up.railway.app/play?bots=' + x;" +
-                "  const link = document.getElementById('link');" +
-                "  link.href = url;" +
-                "  link.textContent = url;" +
+                "  window.location.href = " +
+                "  'https://yahtzee-production.up.railway.app/play?bots=' + x;" +
                 "}" +
                 "</script>" +
 
