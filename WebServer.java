@@ -35,7 +35,7 @@ public class WebServer {
                 "href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'>" +
                 "<style>" +
                 "body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;" +
-                "background:#0f172a; color:#e5e7eb; padding:40px; max-width:900px; margin:auto; }" +
+                "background:#0f172a; color:#e5e7eb; padding:20px 40px 40px; max-width:900px; margin:auto; }" +
                 "h1 { color:#7dd3fc; }" +
                 "h2 { color:#93c5fd; margin-top:0px; }" +
                 "p { line-height:1.6; }" +
@@ -184,12 +184,12 @@ public class WebServer {
             target="_blank"
             style="
                 position: fixed;
-                top: 24px;
-                right: 28px;
-                font-size: 36px;
+                top: 20px;
+                right: 36px;
+                font-size: 42px;
                 color: #f8fafc;
                 background: rgba(255,255,255,0.08);
-                padding: 10px 12px;
+                padding: 12px 18px;
                 border-radius: 12px;
                 transition: all 0.2s ease;
             "
