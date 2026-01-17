@@ -67,25 +67,36 @@ public class WebServer {
                 "Each bot evaluates all possible reroll combinations using probability calculations " +
                 "to decide which dice to keep and which scoring category to select. " +
                 "The full decision process and probability analysis are logged so the game is " +
-                "completely transparent — nothing is random or hardcoded." +
+                "completely transparent — nothing is random or hardcoded. " +
+                "I also built a demo interactive version where you can specify the number of players and bots and try to beat the bots!" +
                 "</p>" +
                 "</div>" +
 
                 "<div class='box'>" +
-                "<h2>Run a Simulation</h2>" +
+                "<h2>Run a bot simulation</h2>" +
                 "<p>Enter the number of bots (positive integer):</p>" +
 
                 "<input id='bots' type='number' min='1' step='1' placeholder='e.g. 10'>" +
-                "<button onclick='go()'>Play</button>" +
-
+                "<button onclick='runBots()'>Play</button>" +
                 "</div>" +
 
                 "<script>" +
-                "function go() {" +
+                "function runBots() {" +
                 "  const x = document.getElementById('bots').value;" +
                 "  if (!x || x <= 0) return;" +
+                "  window.location.href = '/play?bots=' + x; " +
+                "}" +
+                "</script>" +
+
+                "<div class='box'>" +
+                "<h2>Run an interactive game (Demo Version, no UI)</h2>" +
+                "<button onclick='runGame()'>Play</button>" +
+                "</div>" +
+
+                "<script>" +
+                "function runGame() {" +
                 "  window.location.href = " +
-                "  'https://yahtzee-production.up.railway.app/play?bots=' + x;" +
+                "  'https://onlinegdb.com/_v12KyTKj';" +
                 "}" +
                 "</script>" +
 
