@@ -880,11 +880,22 @@ class Game {
       return;
     }
 
-    this.currentIndex += 1;
-    if (this.currentIndex >= this.players.length) {
-      this.currentIndex = 0;
-      this.round += 1;
+    const totalPlayers = this.players.length;
+    let nextIndex = this.currentIndex;
+    do {
+      nextIndex += 1;
+      if (nextIndex >= totalPlayers) {
+        nextIndex = 0;
+        this.round += 1;
+      }
+    } while (this.players[nextIndex].life !== 1 && nextIndex !== this.currentIndex);
+
+    if (this.players[nextIndex].life !== 1) {
+      this.finished = true;
+      return;
     }
+
+    this.currentIndex = nextIndex;
     if (this.round > 13) {
       this.finished = true;
     }
@@ -1087,9 +1098,11 @@ function renderScoreboard() {
     const card = document.createElement('div');
     card.className = 'player-card';
     const nameBlock = document.createElement('div');
-    nameBlock.innerHTML = `<strong>${player.name}</strong><span>${player.bot ? 'Bot' : 'Human'}</span>`;
+    const statusLabel = player.life === 0 ? 'Forfeited' : player.bot ? 'Bot' : 'Human';
+    nameBlock.innerHTML = `<strong>${player.name}</strong><span>${statusLabel}</span>`;
     const scoreBlock = document.createElement('div');
-    scoreBlock.innerHTML = `<strong>${player.totalscore + player.score}</strong><span>current total</span>`;
+    const scoreLabel = player.life === 0 ? 'forfeited' : 'current total';
+    scoreBlock.innerHTML = `<strong>${player.totalscore + player.score}</strong><span>${scoreLabel}</span>`;
     card.append(nameBlock, scoreBlock);
     scoreboardTable.append(card);
   }
