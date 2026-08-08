@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yahtzee Web</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero-card">
+      <div>
+        <p class="eyebrow">Yahtzee Web</p>
+        <h1>Play the original Yahtzee game in your browser</h1>
+        <p>Same scoring logic, bot support, and polished UI. Start a multiplayer match and roll through 13 rounds.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="backToSetup" type="button" class="ghost-button hidden">Restart game</button>
+      </div>
+    </header>
+
+    <section id="setupScreen" class="panel-card">
+      <h2>Game setup</h2>
+      <div class="field-row">
+        <label for="playerCount">Number of players</label>
+        <input id="playerCount" type="number" min="1" max="10" value="2" />
+      </div>
+      <div id="playerOptions"></div>
+      <button id="startGameButton" class="primary-button">Start game</button>
+    </section>
+
+    <section id="gameScreen" class="panel-card hidden">
+      <div class="grid-2">
+        <div class="panel-card panel-banner">
+          <div>
+            <p class="eyebrow">Turn</p>
+            <h2 id="turnTitle">Player 1</h2>
+            <p id="gameStatus">Round 1 • 3 rolls available</p>
+          </div>
+          <div class="status-chip" id="playerType">HUMAN</div>
+        </div>
+        <div class="panel-card summary-card">
+          <div>
+            <p class="eyebrow">Score</p>
+            <p class="large-number" id="playerScore">0</p>
+          </div>
+          <div>
+            <p class="eyebrow">Total score</p>
+            <p class="large-number" id="playerTotal">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card dice-panel">
+        <p class="eyebrow">Dice</p>
+        <div class="dice-row" id="diceRow"></div>
+        <div class="controls-row">
+          <button id="rollButton" class="primary-button">Roll selected dice</button>
+          <button id="forfeitButton" class="ghost-button">Forfeit player</button>
+        </div>
+        <p class="hint-text">Dice are labeled A, B, C, D, E. Click a tile to mark it for reroll, then roll again.</p>
+      </div>
+
+      <div class="panel-card options-panel">
+        <p class="eyebrow">Available scoring options</p>
+        <div id="optionsList" class="options-grid"></div>
+      </div>
+
+      <div class="panel-card suggestion-panel">
+        <p class="eyebrow">Suggestion</p>
+        <p id="suggestionText">Build your first roll to see a recommendation.</p>
+      </div>
+
+      <section class="panel-card scoreboard-panel">
+        <p class="eyebrow">Player scoreboard</p>
+        <div id="scoreboardTable" class="scoreboard-table"></div>
+      </section>
+    </section>
+
+    <section id="gameOverScreen" class="panel-card hidden">
+      <h2>Game finished</h2>
+      <div id="finalSummary" class="summary-grid"></div>
+      <button id="newGameButton" class="primary-button">Start a new match</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
