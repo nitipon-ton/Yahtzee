@@ -15,6 +15,7 @@ public class Helper {
 		}
 		return max;
 	}
+	//trigger push
 	public static int sumArr(int[] arr) {
 		int sum = 0;
 		for (int i: arr) {
