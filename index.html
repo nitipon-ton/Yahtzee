@@ -15,9 +15,25 @@
         <p>Same scoring logic, bot support, and polished UI. Start a multiplayer match and roll through 13 rounds.</p>
       </div>
       <div class="hero-actions">
+        <button id="helpButton" type="button" class="ghost-button">How to play</button>
         <button id="backToSetup" type="button" class="ghost-button hidden">Restart game</button>
       </div>
     </header>
+
+    <section id="helpPanel" class="panel-card help-panel hidden">
+      <div class="help-panel-header">
+        <h2>How to play Yahtzee</h2>
+        <button id="closeHelpButton" type="button" class="ghost-button">Close</button>
+      </div>
+      <p>In Yahtzee, each player gets up to three rolls per turn to build one of 13 scoring categories.</p>
+      <ul>
+        <li>Roll all five dice, then choose which dice to reroll.</li>
+        <li>You can reroll selected dice up to two more times.</li>
+        <li>After rolling, choose a scoring category. Once a category is used, it cannot be chosen again.</li>
+        <li>Score categories include ones through sixes, three/four of a kind, full house, straights, Yahtzee, and chance.</li>
+        <li>The goal is to maximize your total score across 13 rounds.</li>
+      </ul>
+    </section>
 
     <section id="setupScreen" class="panel-card">
       <h2>Game setup</h2>

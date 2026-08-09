@@ -21,6 +21,9 @@ const roundBotLogPanel = document.getElementById('roundBotLogPanel');
 const roundBotLogContent = document.getElementById('roundBotLogContent');
 const scoreboardTable = document.getElementById('scoreboardTable');
 const finalSummary = document.getElementById('finalSummary');
+const helpButton = document.getElementById('helpButton');
+const closeHelpButton = document.getElementById('closeHelpButton');
+const helpPanel = document.getElementById('helpPanel');
 const backButtons = [backToSetupButton, newGameButton];
 
 let game = null;
@@ -65,6 +68,7 @@ const CATEGORY_LABELS = {
 };
 
 const DICE_LABELS = ['A', 'B', 'C', 'D', 'E'];
+const DICE_EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
 
 class Dice {
   roll() {
@@ -1046,9 +1050,10 @@ function renderDice(player) {
     tile.type = 'button';
     tile.className = `dice-tile${selectedDice[i] ? ' selected' : ''}`;
     tile.disabled = player.roll_left < 0 || player.life !== 1 || player.bot;
+    const value = player.arrVal[i] || 0;
     tile.innerHTML = `
       <span class="dice-label">${DICE_LABELS[i]}</span>
-      <span class="dice-value">${player.arrVal[i] || '-'}</span>
+      <span class="dice-value">${value ? DICE_EMOJI[value - 1] : '–'}</span>
     `;
     tile.addEventListener('click', () => {
       selectedDice[i] = !selectedDice[i];
@@ -1381,8 +1386,16 @@ showBotDetailsToggle.addEventListener('change', () => {
   if (game) return;
   showBotDetails = showBotDetailsToggle.checked;
 });
-backButtons.forEach((button) => {
 
+helpButton.addEventListener('click', () => {
+  helpPanel.classList.remove('hidden');
+});
+
+closeHelpButton.addEventListener('click', () => {
+  helpPanel.classList.add('hidden');
+});
+
+backButtons.forEach((button) => {
   button.addEventListener('click', () => {
     if (botTimeout) {
       clearTimeout(botTimeout);
