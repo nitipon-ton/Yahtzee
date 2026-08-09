@@ -833,6 +833,20 @@ class Player {
     return { suggestions, bestMask, bestMaskProb };
   }
 
+  getBestMaskForCategory(probFn) {
+    let bestMask = 0;
+    let bestProb = 0;
+    for (let i = 1; i <= 31; i += 1) {
+      const mask = this.getProbabilityMask(i);
+      const probability = probFn(this.arrVal, mask);
+      if (probability > bestProb) {
+        bestProb = probability;
+        bestMask = mask;
+      }
+    }
+    return { bestMask, bestProb };
+  }
+
   getBotAction() {
     const options = this.getAvailableOptions();
     let maxPoint = -1;
@@ -852,6 +866,13 @@ class Player {
     }
 
     if (this.roll_left >= 1) {
+      if (this.isAvailAdv[4] > 0 && this.smallStraightPresent() && !this.largeStraightPresent()) {
+        const largeStraightAdvice = this.getBestMaskForCategory(this.probLgStr.bind(this));
+        if (largeStraightAdvice.bestMask > 0) {
+          return largeStraightAdvice.bestMask;
+        }
+      }
+
       let rerollMask = 0;
       // Prefer basic-category reroll when best static choice is a basic or no positive static choice
       if (maxPoint === 0 || (bestChoice >= 1 && bestChoice <= 6)) {
