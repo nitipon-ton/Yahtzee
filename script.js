@@ -902,27 +902,6 @@ class Player {
           }
           return mask;
         };
-        // Specific case: if we have 5 5 5 5 4 (any order) and Yahtzee is available,
-        // and at least one of Sixes/Fives/Four/Three categories is relevant (bot
-        // might otherwise pick 5s/4k/3k), reroll the single 4 to try for Yahtzee.
-        if (
-          this.faceCounter[4] === 4 &&
-          this.arrVal.includes(4) &&
-          this.yaht !== 100 &&
-          (this.isAvailBasic[4] || this.isAvailAdv[0] > 0 || this.isAvailAdv[1] > 0)
-        ) {
-          let otherIndex = -1;
-          for (let i = 0; i < 5; i += 1) {
-            if (this.arrVal[i] !== 5) {
-              otherIndex = i;
-              break;
-            }
-          }
-          if (otherIndex >= 0) {
-            const mask = 10 * 2 ** otherIndex;
-            return mask;
-          }
-        }
         if (this.faceCounter[5] >= 2 && this.isAvailBasic[5] && !(this.smallStraightPresent() && this.isAvailAdv[3] > 0)) {
           return preservePriorityFace(6);
         }
