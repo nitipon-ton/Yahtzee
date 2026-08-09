@@ -474,6 +474,58 @@ select {
   border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
+.player-scorecard {
+  margin-bottom: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(15,23,42,0.78);
+}
+
+.player-scorecard-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(15,23,42,0.92);
+  border-bottom: 1px solid rgba(148,163,184,0.06);
+}
+
+.player-scorecard-content {
+  padding: 0.75rem 1rem 1rem;
+  color: #cbd5e1;
+}
+
+.score-section {
+  margin-bottom: 0.75rem;
+}
+
+.score-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.score-table {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 60px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-radius: 8px;
+}
+
+.score-row div:last-child {
+  text-align: right;
+  color: #94a3b8;
+}
+
 .hidden {
   display: none !important;
 }

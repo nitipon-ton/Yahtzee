@@ -1354,13 +1354,101 @@ function renderFinalSummary() {
   ) / 10;
 
   ranking.forEach((entry, index) => {
-    const row = document.createElement('div');
-    row.className = 'summary-row';
-    row.innerHTML = `
-      <strong>${index + 1}. ${entry.name}</strong>
-      <span>${entry.score} points</span>
-    `;
-    finalSummary.append(row);
+    const player = game.players.find((p) => p.name === entry.name);
+    const details = document.createElement('details');
+    details.className = 'player-scorecard';
+    if (index === 0) details.open = true;
+
+    const summary = document.createElement('summary');
+    summary.className = 'player-scorecard-summary';
+    summary.innerHTML = `<strong>${index + 1}. ${entry.name}</strong><span>${entry.score} points</span>`;
+    details.append(summary);
+
+    const content = document.createElement('div');
+    content.className = 'player-scorecard-content';
+
+    // Basic scores (Ones - Sixes)
+    const basicBlock = document.createElement('div');
+    basicBlock.className = 'score-section';
+    const basicTitle = document.createElement('h4');
+    basicTitle.textContent = 'Upper section';
+    basicBlock.append(basicTitle);
+    const basicTable = document.createElement('div');
+    basicTable.className = 'score-table';
+    for (let i = 0; i < 6; i += 1) {
+      const row = document.createElement('div');
+      row.className = 'score-row';
+      const label = document.createElement('div');
+      label.textContent = `${i + 1}s`;
+      const pts = document.createElement('div');
+      pts.textContent = player.pntsBasic[i] || 0;
+      const state = document.createElement('div');
+      state.textContent = player.isAvailBasic[i] ? 'FREE' : 'USED';
+      row.append(label, pts, state);
+      basicTable.append(row);
+    }
+    // Bonus
+    const bonusRow = document.createElement('div');
+    bonusRow.className = 'score-row';
+    const bonusLabel = document.createElement('div');
+    bonusLabel.textContent = 'Bonus';
+    const bonusPts = document.createElement('div');
+    bonusPts.textContent = player.bonus || 0;
+    bonusRow.append(bonusLabel, bonusPts, document.createElement('div'));
+    basicTable.append(bonusRow);
+    basicBlock.append(basicTable);
+    content.append(basicBlock);
+
+    // Advanced section
+    const advBlock = document.createElement('div');
+    advBlock.className = 'score-section';
+    const advTitle = document.createElement('h4');
+    advTitle.textContent = 'Lower section';
+    advBlock.append(advTitle);
+    const advTable = document.createElement('div');
+    advTable.className = 'score-table';
+
+    const pntsToak = player.pntsToak || 0;
+    const pntsFoak = player.pntsFoak || 0;
+    let pntsFull = 25 * (1 - (player.isAvailAdv[2] || 0));
+    if ((player.isAvailAdv[2] || 0) < 0) pntsFull = 0;
+    let pntsSm = 30 * (1 - (player.isAvailAdv[3] || 0));
+    if ((player.isAvailAdv[3] || 0) < 0) pntsSm = 0;
+    let pntsLg = 40 * (1 - (player.isAvailAdv[4] || 0));
+    if ((player.isAvailAdv[4] || 0) < 0) pntsLg = 0;
+    const pntsYaht = player.yaht <= 0 ? 50 : 0;
+    const pntsChan = player.pntsChan || 0;
+    const pntsYahtBo = player.yahtBo || 0;
+
+    const advRows = [
+      ['3 of a kind', pntsToak, player.isAvailAdv[0] > 0 ? 'FREE' : 'USED'],
+      ['4 of a kind', pntsFoak, player.isAvailAdv[1] > 0 ? 'FREE' : 'USED'],
+      ['Full House', pntsFull, (player.isAvailAdv[2] || 0) > 0 ? 'FREE' : 'USED'],
+      ['Small Straight', pntsSm, (player.isAvailAdv[3] || 0) > 0 ? 'FREE' : 'USED'],
+      ['Large Straight', pntsLg, (player.isAvailAdv[4] || 0) > 0 ? 'FREE' : 'USED'],
+      ['Yahtzee', pntsYaht, player.yaht !== 100 ? 'FREE' : 'USED'],
+      ['Chance', pntsChan, player.chanAvail ? 'FREE' : 'USED'],
+      ['Yahtz Bonus', pntsYahtBo, pntsYahtBo > 0 ? 'FREE' : 'USED'],
+    ];
+
+    advRows.forEach((r) => {
+      const row = document.createElement('div');
+      row.className = 'score-row';
+      const label = document.createElement('div');
+      label.textContent = r[0];
+      const pts = document.createElement('div');
+      pts.textContent = r[1];
+      const state = document.createElement('div');
+      state.textContent = r[2];
+      row.append(label, pts, state);
+      advTable.append(row);
+    });
+
+    advBlock.append(advTable);
+    content.append(advBlock);
+
+    details.append(content);
+    finalSummary.append(details);
   });
 
   const averageRow = document.createElement('div');
