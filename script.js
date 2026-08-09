@@ -892,7 +892,7 @@ class Player {
         }
       }
 
-      if ((Helper.sumArr(this.pntsBasic) < 63 || game.round > 10 && Helper.sumArr(this.pntsBasic) > 50) && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
+      if (Helper.sumArr(this.pntsBasic) < 63 && (game.round <= 9 || (game.round > 9 && Helper.sumArr(this.pntsBasic) > 50 + 0 * (game.round - 10))) && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
         const preservePriorityFace = (face) => {
           let mask = 0;
           for (let i = 0; i < 5; i += 1) {
@@ -970,7 +970,7 @@ class Player {
 
     if (
       typeof game !== 'undefined' &&
-      (Helper.sumArr(this.pntsBasic) < 63 || game.round > 10 && Helper.sumArr(this.pntsBasic) > 50) &&
+      (Helper.sumArr(this.pntsBasic) < 63 && (game.round <= 9 || (game.round > 9 && Helper.sumArr(this.pntsBasic) > 50 + 0 * (game.round - 10)))) &&
       this.roll_left === 0 &&
       !(this.isYahtzee() && this.yaht !== 100) &&
       !(this.fullHousePresent() && this.isAvailAdv[2] > 0)
