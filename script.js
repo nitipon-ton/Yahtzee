@@ -913,6 +913,20 @@ class Player {
       }
 
       if (this.isAvailAdv[4] > 0 && this.smallStraightPresent() && !this.largeStraightPresent()) {
+        if (this.faceCounter[0] === 1 && this.faceCounter[1] === 1 && this.faceCounter[2] === 1 && this.faceCounter[3] === 1 && this.faceCounter[4] === 0 && this.faceCounter[5] === 1) {
+          for (let i = 0; i < 5; i += 1) {
+            if (this.arrVal[i] === 6) {
+              return 10 * 2 ** i;
+            }
+          }
+        }
+        if (this.faceCounter[0] === 1 && this.faceCounter[1] === 0 && this.faceCounter[2] === 1 && this.faceCounter[3] === 1 && this.faceCounter[4] === 1 && this.faceCounter[5] === 1) {
+          for (let i = 0; i < 5; i += 1) {
+            if (this.arrVal[i] === 1) {
+              return 10 * 2 ** i;
+            }
+          }
+        }
         const largeStraightAdvice = this.getBestMaskForCategory(this.probLgStr.bind(this));
         if (largeStraightAdvice.bestMask > 0) {
           return largeStraightAdvice.bestMask;
