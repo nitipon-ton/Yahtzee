@@ -839,9 +839,15 @@ class Player {
     let bestChoice = CATEGORY.END_TURN;
 
     for (const option of options) {
+      if (option.id !== CATEGORY.END_TURN && !option.available) {
+        continue;
+      }
       if (option.id !== CATEGORY.END_TURN && option.points > maxPoint) {
         maxPoint = option.points;
         bestChoice = option.id;
+      }
+      if (option.id === CATEGORY.END_TURN && bestChoice === CATEGORY.END_TURN) {
+        bestChoice = CATEGORY.END_TURN;
       }
     }
 
