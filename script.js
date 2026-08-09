@@ -870,6 +870,28 @@ class Player {
     }
 
     if (this.roll_left >= 1) {
+      // Always apply: if the roll is four 5s + one 4 (any order), and Yahtzee
+      // is still available then
+      // reroll the single 4 to try for Yahtzee. This should run regardless of
+      // round or full-house gating.
+      if (
+        this.faceCounter[4] === 4 &&
+        this.arrVal.includes(4) &&
+        this.yaht !== 100
+      ) {
+        let otherIndex = -1;
+        for (let i = 0; i < 5; i += 1) {
+          if (this.arrVal[i] !== 5) {
+            otherIndex = i;
+            break;
+          }
+        }
+        if (otherIndex >= 0) {
+          const mask = 10 * 2 ** otherIndex;
+          return mask;
+        }
+      }
+
       if (game.round <= 10 && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
         const preservePriorityFace = (face) => {
           let mask = 0;
@@ -880,6 +902,27 @@ class Player {
           }
           return mask;
         };
+        // Specific case: if we have 5 5 5 5 4 (any order) and Yahtzee is available,
+        // and at least one of Sixes/Fives/Four/Three categories is relevant (bot
+        // might otherwise pick 5s/4k/3k), reroll the single 4 to try for Yahtzee.
+        if (
+          this.faceCounter[4] === 4 &&
+          this.arrVal.includes(4) &&
+          this.yaht !== 100 &&
+          (this.isAvailBasic[4] || this.isAvailAdv[0] > 0 || this.isAvailAdv[1] > 0)
+        ) {
+          let otherIndex = -1;
+          for (let i = 0; i < 5; i += 1) {
+            if (this.arrVal[i] !== 5) {
+              otherIndex = i;
+              break;
+            }
+          }
+          if (otherIndex >= 0) {
+            const mask = 10 * 2 ** otherIndex;
+            return mask;
+          }
+        }
         if (this.faceCounter[5] >= 2 && this.isAvailBasic[5] && !(this.smallStraightPresent() && this.isAvailAdv[3] > 0)) {
           return preservePriorityFace(6);
         }
@@ -1151,7 +1194,7 @@ function renderOptions(player) {
       player.bot;
     button.addEventListener('click', () => {
       if (game.finished) return;
-        player.performScore(option.id);
+      player.performScore(option.id);
       player.checkScoreCard();
       const previousRound = game.round;
       game.advanceTurn();
