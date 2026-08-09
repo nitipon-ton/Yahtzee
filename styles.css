@@ -224,6 +224,26 @@ select {
   flex-wrap: wrap;
 }
 
+.bot-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.toggle-label input {
+  width: 1rem;
+  height: 1rem;
+}
+
 .options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -281,6 +301,95 @@ select {
   white-space: pre-wrap;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   background: rgba(15, 23, 42, 0.85);
+}
+
+.bot-log-panel {
+  margin-top: 0.5rem;
+}
+
+.bot-log-content {
+  min-height: 4rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.bot-log-round {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  margin-bottom: 0.75rem;
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.bot-log-summary {
+  cursor: pointer;
+  padding: 0.9rem 1rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.bot-log-round-content {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.bot-log-player-block {
+  margin-bottom: 0.9rem;
+}
+
+.bot-log-player-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+  color: #e2e8f0;
+}
+
+.bot-log-label {
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.bot-log-dice-row,
+.bot-log-reroll-row {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.bot-log-die,
+.bot-log-reroll-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.bot-log-reroll-chip {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+}
+
+.bot-log-empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.bot-log-line {
+  margin: 0.3rem 0;
+}
+
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 16px;
   padding: 1rem;

@@ -16,6 +16,9 @@ const rollButton = document.getElementById('rollButton');
 const forfeitButton = document.getElementById('forfeitButton');
 const optionsList = document.getElementById('optionsList');
 const suggestionText = document.getElementById('suggestionText');
+const showBotDetailsToggle = document.getElementById('showBotDetailsToggle');
+const roundBotLogPanel = document.getElementById('roundBotLogPanel');
+const roundBotLogContent = document.getElementById('roundBotLogContent');
 const scoreboardTable = document.getElementById('scoreboardTable');
 const finalSummary = document.getElementById('finalSummary');
 const backButtons = [backToSetupButton, newGameButton];
@@ -23,6 +26,8 @@ const backButtons = [backToSetupButton, newGameButton];
 let game = null;
 let selectedDice = [false, false, false, false, false];
 let botTimeout = null;
+let showBotDetails = false;
+let roundBotLog = [];
 
 const CATEGORY = {
   BASIC_1: 1,
@@ -100,7 +105,12 @@ class Player {
     this.faceCounter = [0, 0, 0, 0, 0, 0];
     this.simulProb = new Array(31).fill(0);
     this.rollDecision = 0;
+    this.botLog = [];
     this.dice = new Dice();
+  }
+
+  logBot(message) {
+    this.botLog.push(message);
   }
 
   updateFaceCounter() {
@@ -113,7 +123,7 @@ class Player {
   }
 
   resetForNextRound() {
-    if (this.life === 1) {
+    if (this.life === 1 || this.life === 2) {
       this.totalscore += this.score;
       this.score = 0;
       this.roll_left = 3;
@@ -211,7 +221,7 @@ class Player {
       this.gotbonus = true;
     }
     const basicDone = this.pntsBasic.every((value) => value !== 0);
-    const advDone = this.isAvailAdv.every((value) => value === 0);
+    const advDone = this.isAvailAdv.every((value) => value <= 0);
     if (advDone && !this.chanAvail && basicDone && this.yaht <= 0) {
       this.life = 2;
     }
@@ -357,7 +367,7 @@ class Player {
         this.score += this.pntsFoak;
         this.isAvailAdv[1] -= 1;
       } else if (this.isAvailAdv[1] > 0) {
-        this.isAvailAdv[1] -= 2;
+        this.isAvailAdv[1] = Math.max(0, this.isAvailAdv[1] - 2);
       }
       this.roll_left = -1;
       return;
@@ -369,7 +379,7 @@ class Player {
         this.score += this.pntsToak;
         this.isAvailAdv[0] -= 1;
       } else if (this.isAvailAdv[0] > 0) {
-        this.isAvailAdv[0] -= 2;
+        this.isAvailAdv[0] = Math.max(0, this.isAvailAdv[0] - 2);
       }
       this.roll_left = -1;
       return;
@@ -770,6 +780,8 @@ class Player {
 
   getRerollSuggestion() {
     const suggestions = [];
+    let bestMask = 0;
+    let bestMaskProb = 0;
 
     const humanLabel = {
       '3 of a kind': 'Three of a Kind',
@@ -796,6 +808,10 @@ class Player {
         }
       }
       if (bestCategoryProb > 0) {
+        if (bestCategoryProb > bestMaskProb) {
+          bestMaskProb = bestCategoryProb;
+          bestMask = bestMasks[0];
+        }
         const letters = bestMasks
           .map((mask) => this.maskToDiceLetters(mask).join('') || 'None')
           .join(' ');
@@ -814,7 +830,7 @@ class Player {
     tryCategory(this.isAvailAdv[4] > 0, this.probLgStr.bind(this), 'Large straight');
     tryCategory(this.yaht !== 100, this.probYaht.bind(this), 'Yahtzee');
 
-    return { suggestions };
+    return { suggestions, bestMask, bestMaskProb };
   }
 
   getBotAction() {
@@ -823,29 +839,33 @@ class Player {
     let bestChoice = CATEGORY.END_TURN;
 
     for (const option of options) {
-      if (option.id !== CATEGORY.END_TURN && option.points >= maxPoint) {
+      if (option.id !== CATEGORY.END_TURN && option.points > maxPoint) {
         maxPoint = option.points;
         bestChoice = option.id;
       }
     }
 
-    if (this.roll_left >= 1 && maxPoint < 24) {
+    if (this.roll_left >= 1) {
       let rerollMask = 0;
-      for (let j = 5; j >= 1; j -= 1) {
-        if (this.isAvailBasic[j - 1]) {
-          let mask = 0;
-          for (let i = 0; i < 5; i += 1) {
-            if (this.arrVal[i] !== j) {
-              mask += 10 * 2 ** i;
+      // Prefer basic-category reroll when best static choice is a basic or no positive static choice
+      if (maxPoint === 0 || (bestChoice >= 1 && bestChoice <= 6)) {
+        for (let j = 5; j >= 1; j -= 1) {
+          if (this.isAvailBasic[j - 1]) {
+            let mask = 0;
+            for (let i = 0; i < 5; i += 1) {
+              if (this.arrVal[i] !== j) {
+                mask += 10 * 2 ** i;
+              }
             }
+            rerollMask = mask;
+            break;
           }
-          rerollMask = mask;
-          break;
         }
       }
 
+      // Also consider the probabilistic (cheat) suggestion for any roll when worthwhile
       const advice = this.getRerollSuggestion();
-      if (advice.bestMask > 0) {
+      if (advice.bestMask > 0 && maxPoint < 24) {
         rerollMask = advice.bestMask;
       }
 
@@ -874,11 +894,6 @@ class Game {
     const player = this.currentPlayer();
     player.checkScoreCard();
     player.resetForNextRound();
-
-    if (this.players.some((p) => p.life === 2)) {
-      this.finished = true;
-      return;
-    }
 
     const totalPlayers = this.players.length;
     let nextIndex = this.currentIndex;
@@ -963,6 +978,7 @@ function updateUI() {
     gameScreen.classList.add('hidden');
     gameOverScreen.classList.remove('hidden');
     renderFinalSummary();
+    renderRoundBotLog();
     return;
   }
 
@@ -982,6 +998,9 @@ function updateUI() {
   renderOptions(player);
   renderSuggestion(player);
   renderScoreboard();
+  renderRoundBotLog();
+
+  roundBotLogPanel.classList.add('hidden');
   rollButton.disabled = player.roll_left < 0 || player.life !== 1 || player.bot;
   forfeitButton.disabled = player.life !== 1;
   if (player.bot) {
@@ -1042,8 +1061,9 @@ function renderOptions(player) {
       player.bot;
     button.addEventListener('click', () => {
       if (game.finished) return;
-      player.performScore(option.id);
+        player.performScore(option.id);
       player.checkScoreCard();
+      const previousRound = game.round;
       game.advanceTurn();
       selectedDice = [false, false, false, false, false];
       updateUI();
@@ -1058,6 +1078,7 @@ function renderSuggestion(player) {
     suggestionText.textContent = 'No suggestion available.';
     return;
   }
+
   if (player.roll_left === 3) {
     suggestionText.textContent = 'Start the turn to get a tailored suggestion. Dice are labeled A B C D E.';
     return;
@@ -1108,6 +1129,119 @@ function renderScoreboard() {
   }
 }
 
+function renderRoundBotLog() {
+  if (!showBotDetails || !game?.finished || !roundBotLog.length) {
+    roundBotLogPanel.classList.add('hidden');
+    return;
+  }
+
+  roundBotLogPanel.classList.remove('hidden');
+  roundBotLogContent.innerHTML = '';
+
+  const rounds = new Map();
+  for (const entry of roundBotLog) {
+    if (!rounds.has(entry.round)) {
+      rounds.set(entry.round, []);
+    }
+    rounds.get(entry.round).push(entry);
+  }
+
+  for (let round = 1; round <= 13; round += 1) {
+    const details = document.createElement('details');
+    details.className = 'bot-log-round';
+    if (round === 1) details.open = true;
+
+    const summary = document.createElement('summary');
+    summary.className = 'bot-log-summary';
+    summary.textContent = `Round ${round}`;
+    details.append(summary);
+
+    const content = document.createElement('div');
+    content.className = 'bot-log-round-content';
+
+    const entries = rounds.get(round) || [];
+    if (!entries.length) {
+      const empty = document.createElement('div');
+      empty.className = 'bot-log-empty';
+      empty.textContent = 'No bot actions this round.';
+      content.append(empty);
+    } else {
+      entries.forEach((entry) => {
+        const playerBlock = document.createElement('div');
+        playerBlock.className = 'bot-log-player-block';
+
+        const playerTitle = document.createElement('div');
+        playerTitle.className = 'bot-log-player-title';
+        playerTitle.textContent = entry.name;
+        playerBlock.append(playerTitle);
+
+        entry.lines.forEach((line) => {
+          playerBlock.append(renderBotLogLine(line));
+        });
+
+        content.append(playerBlock);
+      });
+    }
+
+    details.append(content);
+    roundBotLogContent.append(details);
+  }
+}
+
+function renderBotLogLine(line) {
+  const row = document.createElement('div');
+  row.className = 'bot-log-line';
+
+  if (line.startsWith('Rolled:') || line.startsWith('New dice:')) {
+    const [label, values] = line.split(':');
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'bot-log-label';
+    labelSpan.textContent = `${label}: `;
+    row.append(labelSpan);
+
+    const diceRow = document.createElement('div');
+    diceRow.className = 'bot-log-dice-row';
+    values
+      .trim()
+      .split(' ')
+      .filter(Boolean)
+      .forEach((value) => {
+        const die = document.createElement('span');
+        die.className = 'bot-log-die';
+        die.textContent = value;
+        diceRow.append(die);
+      });
+    row.append(diceRow);
+    return row;
+  }
+
+  if (line.startsWith('Rerolling:')) {
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'bot-log-label';
+    labelSpan.textContent = 'Rerolling: ';
+    row.append(labelSpan);
+
+    const diceRow = document.createElement('div');
+    diceRow.className = 'bot-log-reroll-row';
+    line
+      .slice('Rerolling:'.length)
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .forEach((letter) => {
+        const chip = document.createElement('span');
+        chip.className = 'bot-log-reroll-chip';
+        chip.textContent = letter;
+        diceRow.append(chip);
+      });
+    row.append(diceRow);
+    return row;
+  }
+
+  row.textContent = line;
+  return row;
+}
+
 function playBotTurn() {
   if (!game || game.finished) {
     return;
@@ -1119,7 +1253,9 @@ function playBotTurn() {
   }
 
   if (player.roll_left === 3) {
+    player.botLog = [];
     player.rollDice();
+    player.logBot(`Rolled: ${player.arrVal.join(' ')}`);
     updateUI();
     botTimeout = setTimeout(playBotTurn, 350);
     return;
@@ -1128,17 +1264,31 @@ function playBotTurn() {
   if (player.roll_left >= 0) {
     const decision = player.getBotAction();
     if (decision > 0 && decision % 10 === 0 && player.roll_left > 0) {
+      const rerollMask = decision;
+      const rerollLabel = player.maskToDiceLetters(rerollMask).join(', ') || 'none';
+      player.logBot(`Rerolling: ${rerollLabel}`);
       player.rollDecision = decision;
       player.roll_left -= 1;
       player.rollDice();
+      player.logBot(`New dice: ${player.arrVal.join(' ')}`);
       updateUI();
       botTimeout = setTimeout(playBotTurn, 400);
       return;
     }
+
+    const choiceLabel = CATEGORY_LABELS[decision] || `Choice ${decision}`;
+    player.logBot(`Chooses: ${choiceLabel}`);
+    const finalBotLog = player.botLog.slice();
     player.performScore(decision);
     player.checkScoreCard();
+    const previousRound = game.round;
     game.advanceTurn();
     selectedDice = [false, false, false, false, false];
+
+    if (showBotDetails && finalBotLog.length) {
+      roundBotLog.push({ round: previousRound, name: player.name, lines: finalBotLog });
+    }
+
     updateUI();
   }
 }
@@ -1173,6 +1323,9 @@ playerCountInput.addEventListener('change', () => {
 startGameButton.addEventListener('click', () => {
   game = buildGame();
   selectedDice = [false, false, false, false, false];
+  showBotDetails = showBotDetailsToggle.checked;
+  showBotDetailsToggle.disabled = true;
+  roundBotLog = [];
   updateUI();
 });
 rollButton.addEventListener('click', () => {
@@ -1191,12 +1344,18 @@ rollButton.addEventListener('click', () => {
 forfeitButton.addEventListener('click', () => {
   if (!game) return;
   const player = game.currentPlayer();
+  const previousRound = game.round;
   player.performScore(CATEGORY.FORFEIT);
   game.advanceTurn();
   selectedDice = [false, false, false, false, false];
   updateUI();
 });
+showBotDetailsToggle.addEventListener('change', () => {
+  if (game) return;
+  showBotDetails = showBotDetailsToggle.checked;
+});
 backButtons.forEach((button) => {
+
   button.addEventListener('click', () => {
     if (botTimeout) {
       clearTimeout(botTimeout);
@@ -1205,6 +1364,7 @@ backButtons.forEach((button) => {
     setupScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
+    showBotDetailsToggle.disabled = false;
     game = null;
   });
 });

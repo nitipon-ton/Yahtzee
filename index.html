@@ -25,6 +25,12 @@
         <label for="playerCount">Number of players</label>
         <input id="playerCount" type="number" min="1" max="10" value="2" />
       </div>
+      <div class="field-row bot-detail-row">
+        <label for="showBotDetailsToggle" class="toggle-label">
+          <input id="showBotDetailsToggle" type="checkbox" />
+          Show bot decision details
+        </label>
+      </div>
       <div id="playerOptions"></div>
       <button id="startGameButton" class="primary-button">Start game</button>
     </section>
@@ -80,6 +86,10 @@
     <section id="gameOverScreen" class="panel-card hidden">
       <h2>Game finished</h2>
       <div id="finalSummary" class="summary-grid"></div>
+      <div id="roundBotLogPanel" class="panel-card bot-log-panel hidden">
+        <p class="eyebrow">Bot decision log</p>
+        <div id="roundBotLogContent" class="bot-log-content">Bot actions will appear here.</div>
+      </div>
       <button id="newGameButton" class="primary-button">Start a new match</button>
     </section>
   </main>
