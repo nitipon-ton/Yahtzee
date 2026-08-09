@@ -870,6 +870,26 @@ class Player {
     }
 
     if (this.roll_left >= 1) {
+      if (game.round <= 10 && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
+        const preservePriorityFace = (face) => {
+          let mask = 0;
+          for (let i = 0; i < 5; i += 1) {
+            if (this.arrVal[i] !== face) {
+              mask += 10 * 2 ** i;
+            }
+          }
+          return mask;
+        };
+        if (this.faceCounter[5] >= 2 && this.isAvailBasic[5] && !(this.smallStraightPresent() && this.isAvailAdv[3] > 0)) {
+          return preservePriorityFace(6);
+        }
+        for (const face of [5, 4, 3]) {
+          if (this.faceCounter[face - 1] >= 3 && this.isAvailBasic[face - 1]) {
+            return preservePriorityFace(face);
+          }
+        }
+      }
+
       if (this.isAvailAdv[4] > 0 && this.smallStraightPresent() && !this.largeStraightPresent()) {
         const largeStraightAdvice = this.getBestMaskForCategory(this.probLgStr.bind(this));
         if (largeStraightAdvice.bestMask > 0) {
@@ -923,6 +943,23 @@ class Player {
 
       if (rerollMask > 0) {
         return rerollMask;
+      }
+    }
+
+    if (
+      typeof game !== 'undefined' &&
+      game.round <= 10 &&
+      this.roll_left === 0 &&
+      !(this.isYahtzee() && this.yaht !== 100) &&
+      !(this.fullHousePresent() && this.isAvailAdv[2] > 0)
+    ) {
+      if (this.faceCounter[5] >= 3 && this.isAvailBasic[5]) {
+        return 6;
+      }
+      for (const face of [5, 4, 3]) {
+        if (this.faceCounter[face - 1] >= 3 && this.isAvailBasic[face - 1]) {
+          return face;
+        }
       }
     }
 
