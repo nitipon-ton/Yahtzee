@@ -877,6 +877,27 @@ class Player {
         }
       }
 
+      // Special case: four sixes + small odd (1-3) — try for Yahtzee / 4/3 of a kind
+      // If we have four sixes and the remaining die is 1/2/3 and one of 3k/4k/Yahtzee is still available,
+      // reroll only that small die to maximize chance of Yahtzee on sixes.
+      if (this.faceCounter[5] === 4) {
+        let otherIndex = -1;
+        let otherValue = 0;
+        for (let i = 0; i < 5; i += 1) {
+          if (this.arrVal[i] !== 6) {
+            otherIndex = i;
+            otherValue = this.arrVal[i];
+            break;
+          }
+        }
+        if (otherIndex >= 0 && otherValue >= 1 && otherValue <= 3) {
+          if (this.isAvailAdv[0] > 0 || this.isAvailAdv[1] > 0 || this.yaht !== 100) {
+            const mask = 10 * 2 ** otherIndex;
+            return mask;
+          }
+        }
+      }
+
       let rerollMask = 0;
       // Prefer basic-category reroll when best static choice is a basic or no positive static choice
       if (maxPoint === 0 || (bestChoice >= 1 && bestChoice <= 6)) {
