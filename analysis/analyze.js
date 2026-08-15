@@ -181,13 +181,14 @@ if (opts.compare) {
   const other = survey(opts.compare);
   const O = describe(other.totals);
   const ci = 1.96 * Math.hypot(T.se, O.se);
-  const delta = O.mean - T.mean;
+  // Positive means the current script.js is ahead of the file it was compared to.
+  const delta = T.mean - O.mean;
   const otherName = require('path').basename(opts.compare);
   const width = Math.max(9, otherName.length);
   console.log(`  ${'script.js'.padEnd(width)}  mean ${f(T.mean)}  median ${T.median}  sd ${f(T.sd)}`);
   console.log(`  ${otherName.padEnd(width)}  mean ${f(O.mean)}  median ${O.median}  sd ${f(O.sd)}`);
-  console.log(`\n  delta ${(delta >= 0 ? '+' : '') + f(delta, 2)} points, 95% CI +/-${f(ci, 2)}`);
-  console.log(`  ${Math.abs(delta) > ci ? 'SIGNIFICANT' : 'not distinguishable from noise'} at this sample size`);
+  console.log(`\n  script.js is ${(delta >= 0 ? '+' : '') + f(delta, 2)} points vs ${otherName}, 95% CI +/-${f(ci, 2)}`);
+  console.log(`  ${Math.abs(delta) > ci ? (delta > 0 ? 'SIGNIFICANT GAIN' : 'SIGNIFICANT LOSS') : 'not distinguishable from noise'} at this sample size`);
   console.log(`  integrity of the compared build: ${other.unfinished} unfinished, `
     + `${other.badBoxCount} cards not filling all 13 boxes`);
 }
