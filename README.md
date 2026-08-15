@@ -157,22 +157,22 @@ Everything here is reproducible — `node analysis/analyze.js` on the default se
 
 | | |
 |---|---|
-| mean | **209.8** |
+| mean | **210.3** |
 | median | 198 |
 | standard deviation | 50.2 |
-| min / max | 70 / 696 |
-| p5 / p25 / p75 / p95 / p99 | 151 / 180 / 232 / 320 / 394 |
+| min / max | 82 / 696 |
+| p5 / p25 / p75 / p95 / p99 | 151 / 180 / 233 / 318 / 395 |
 
 ```
-175-199 ####################################################################   34.0%
-200-224 #####################################                   18.5%
-225-249 ################################                        15.8%
-150-174 ###########################                             13.5%
-250-274 ############                                             6.2%
-125-149 ########                                                 4.0%
+175-199 ####################################################################   33.8%
+200-224 ####################################                    18.0%
+225-249 ################################                        16.2%
+150-174 ###########################                             13.3%
+250-274 #############                                            6.6%
+125-149 ########                                                 3.9%
 ```
 
-The mean sits 12 points above the median — a right skew driven entirely by multi-Yahtzee games. **52.5% of all games land in the 175–225 band**, and only 4.7% finish below 150.
+The mean sits 12 points above the median — a right skew driven entirely by multi-Yahtzee games. **51.8% of all games land in the 175–225 band**, and only 4.7% finish below 150.
 
 ## Where it stands
 
@@ -180,10 +180,10 @@ The mean sits 12 points above the median — a right skew driven entirely by mul
 |---|---|---|---|---|
 | Take best category, never reroll | 115.3 | 114 | 28.6 | 283 |
 | Keep the most common face, reroll the rest | 152.6 | 135 | 69.0 | 679 |
-| **This bot** | **209.8** | 198 | 50.2 | 696 |
+| **This bot** | **210.3** | 198 | 50.2 | 696 |
 | Published optimal solitaire Yahtzee | ~254.6 | — | — | — |
 
-+82% over never rerolling, +38% over the classic keep-the-common-face heuristic, and **82.4% of optimal**. For hand-derived probability tables, that's respectable.
++83% over never rerolling, +38% over the classic keep-the-common-face heuristic, and **82.6% of optimal**. For hand-derived probability tables, that's respectable.
 
 The 254.6 benchmark assumes standard rules including the joker rule, which the web version now implements, so this is a like-for-like comparison.
 
@@ -192,19 +192,19 @@ The 254.6 benchmark assumes standard rules including the joker rule, which the w
 Average contribution per card:
 
 ```
-Upper section     48.0  ################################################ 22.9%
+Upper section     48.1  ################################################ 22.9%
 Large straight    35.9  #################################### 17.1%
-Small straight    29.9  ############################## 14.3%
+Small straight    29.9  ############################## 14.2%
 Full house        24.4  ######################## 11.6%
 Chance            18.0  ################## 8.6%
 3 of a kind       16.0  ################ 7.6%
-Yahtzee box       15.6  ################ 7.4%
+Yahtzee box       15.5  ################ 7.4%
 4 of a kind       12.9  ############# 6.1%
-Yahtzee bonus      6.1  ###### 2.9%
-Upper bonus        2.9  ### 1.4%
+Yahtzee bonus      6.0  ###### 2.8%
+Upper bonus        3.6  #### 1.7%
 ```
 
-These sum to 209.8, which is the headline mean exactly — a useful check that nothing is double-counted or missing.
+These sum to 210.3, which is the headline mean exactly — a useful check that nothing is double-counted or missing.
 
 ## Per category
 
@@ -215,22 +215,22 @@ Every box is taken exactly once per card, so all thirteen show 120,000 picks. Po
 | Chance | 100.0% | 18.0 | 3.9 |
 | 3 of a kind | 99.9% | 16.0 | 4.8 |
 | Small straight | 99.7% | 30.0 | 4.2 |
-| Sixes | 98.7% | 16.5 | 5.2 |
-| Full house | 97.7% | 25.0 | 5.0 |
-| Fives | 96.1% | 11.8 | 6.7 |
-| Fours | 94.6% | 9.7 | 7.1 |
-| Threes | 93.0% | 7.5 | 7.3 |
+| Sixes | 98.8% | 16.5 | 5.2 |
+| Full house | 97.6% | 25.0 | 5.0 |
+| Fives | 96.2% | 11.8 | 6.7 |
+| Fours | 94.7% | 9.7 | 7.1 |
+| Threes | 93.2% | 7.5 | 7.3 |
 | Large straight | 89.7% | 40.0 | 6.6 |
-| 4 of a kind | 80.6% | 16.0 | 9.0 |
-| Twos | 80.4% | 3.8 | 9.9 |
+| 4 of a kind | 80.4% | 16.0 | 9.0 |
+| Twos | 81.0% | 3.9 | 9.9 |
 | Ones | 61.1% | 1.9 | 10.4 |
-| Yahtzee | 31.2% | 50.0 | 10.8 |
+| Yahtzee | 31.1% | 50.0 | 10.8 |
 
 ---
 
 ## Strengths
 
-**It almost never wastes a guaranteed-value box.** Small Straight 99.7%, Full House 97.7%, 3-of-a-kind 99.9%, Chance 100%. Large Straight — the hardest fixed-value box in the game — lands 89.7% of the time. This is the bot's real strength: when a fixed-value combo is achievable, it spots it and banks it. Plenty of casual human players scratch Large Straight far more often than 10%.
+**It almost never wastes a guaranteed-value box.** Small Straight 99.7%, Full House 97.6%, 3-of-a-kind 99.9%, Chance 100%. Large Straight — the hardest fixed-value box in the game — lands 89.7% of the time. This is the bot's real strength: when a fixed-value combo is achievable, it spots it and banks it. Plenty of casual human players scratch Large Straight far more often than 10%.
 
 **The probability engine is real, and its key constant is genuinely well-tuned.** The most important magic number in the bot is `maxPoint < 24` — the threshold that decides whether to abandon a guaranteed score and chase a probabilistic combo instead. Sweeping it, as a change against the current setting:
 
@@ -251,32 +251,32 @@ That is a clean optimum. Moving it 6 in *either* direction costs 4–6 points, w
 
 **1. The upper bonus is a structural blind spot — the single biggest leak.**
 
-The bot earns the 35-point bonus in **8.3% of games**. Mean upper section is 48.0 against the 63 required, and it is below par on *every single box*:
+The bot earns the 35-point bonus in **10.2% of games**. Mean upper section is 48.1 against the 63 required, and it is below par on *every single box*:
 
 | Box | Avg | Par (three of that face) | Gap |
 |---|---|---|---|
 | Ones | 1.2 | 3 | −1.8 |
 | Twos | 3.1 | 6 | −2.9 |
 | Threes | 7.0 | 9 | −2.0 |
-| Fours | 9.1 | 12 | −2.9 |
-| Fives | 11.3 | 15 | −3.7 |
+| Fours | 9.2 | 12 | −2.8 |
+| Fives | 11.4 | 15 | −3.6 |
 | Sixes | 16.3 | 18 | −1.7 |
 
-Only 12.6% of games get within 6 points of the bonus. Cards that earn it average **274.9**; cards that don't average **203.9**.
+Only 10.9% of games get within 6 points of the bonus. Cards that earn it average **271.7**; cards that don't average **203.3**.
 
 The cause is that the bot chooses categories **greedily by raw points**, and upper boxes almost always lose that comparison — three sixes is 18, but Small Straight is 30 and Full House is 25. The upper section perpetually comes second, and nothing in the decision logic ever asks "how close am I to 63?"
 
-**2. Ones and Twos are dump boxes, which kills the bonus before it starts.** Ones scores zero in 38.9% of games (average round 10.4); Twos in 19.6%. Dumping in Ones is normal Yahtzee practice — but conceding ~2 points in Ones and ~3 in Twos means every remaining box has to run *above* par to reach 63, and this bot runs below par everywhere. The bonus was never reachable.
+**2. Ones and Twos are dump boxes, which kills the bonus before it starts.** Ones scores zero in 38.9% of games (average round 10.4); Twos in 19.0%. Dumping in Ones is normal Yahtzee practice — but conceding ~2 points in Ones and ~3 in Twos means every remaining box has to run *above* par to reach 63, and this bot runs below par everywhere. The bonus was never reachable.
 
-**3. Yahtzee is the second dump box.** The box is scratched to zero in **68.8%** of games, at an average round of 10.8. Together with Ones, that produces **1.77 zero-scoring turns per card** (13.6% of all turns). Only 7.4% of cards escape with no zeros at all.
+**3. Yahtzee is the second dump box.** The box is scratched to zero in **68.8%** of games, at an average round of 10.8. Together with Ones, that produces **1.77 zero-scoring turns per card** (13.6% of all turns). Only 7.3% of cards escape with no zeros at all.
 
 **4. It fills boxes in descending point order, not by scarcity.** Chance goes at round **3.9** for **18.0 points** — barely above the 17.5 expected from five cold dice, and that's *after* rerolls. Chance is the one box that absorbs any hand; spending it in round 4 on a league-average roll throws away its insurance value. 3-of-a-kind goes at round 4.8 for 16.0, also roughly a random hand's sum. There is no notion of "which box will be hardest to fill later."
 
-**5. 4-of-a-kind underperforms.** Only 80.6% filled — the most-scratched box after Yahtzee, at 19.4% — and just 16.0 points when it does hit, about four 3s.
+**5. 4-of-a-kind underperforms.** Only 80.4% filled — the most-scratched box after Yahtzee, at 19.6% — and just 16.0 points when it does hit, about four 3s.
 
 **6. Safe but capped.** The distribution is tight and the tail is thin. Nothing in the logic responds to the score situation — the bot plays identically whether it's 80 points ahead or behind.
 
-## The one tuning change that did help
+## Tuning change A: it no longer gives up on the upper section
 
 The bot used to stop chasing the upper section after round 9 unless it had already banked more than 50:
 
@@ -302,6 +302,27 @@ For scale, the chase block as a whole is worth **8.6 points** — turning it off
 
 Confirmed at 60,000 games × 3 bots per arm: upper section 47.5 → 48.0, upper bonus 7.7% → 8.3%, lower section 153.1 → 152.8 (the chase does cost a little downstairs), for a net **+0.40 ±0.33**. Real, and worth about 0.2% of score.
 
+## Tuning change B: the bot now prices in the upper bonus
+
+The category choice used to rank purely by raw points, so Small Straight (30) always beat Sixes (18) — even when those 18 points were what completed 63 and unlocked 35. A box that finishes the upper section is now valued at **its points + 35**.
+
+One exception, up to round 11: that premium is not allowed to outrank a Yahtzee actually in hand. The Yahtzee box is the hardest on the card to refill, and without the exception the bot passes on enough of them to measurably drop its Yahtzee rate (31.2% → 30.7%). From round 12 there is little "later" left, so it becomes a straight points comparison.
+
+Full House (25) and Small Straight (30) need no exception — 35 already beats them, so the arithmetic sacrifices them on its own, which is the correct play.
+
+| Variant | Effect |
+|---|---|
+| no protection at all | +0.52 to +0.57 |
+| **protect Yahtzee only (shipped)** | **+0.54 to +0.69** |
+| protect Yahtzee + 4-of-a-kind | +0.19 to +0.58 |
+| protect Yahtzee + 4oak + Large Straight | +0.19 to +0.60 |
+
+Confirmed on **two independent seeds** beyond the one this report uses — significant on both, at +0.54 and +0.59. Protecting Yahtzee is never *distinguishable* from protecting nothing (+0.02 and +0.05, well inside the interval), but it is positive in every run and it preserves the Yahtzee rate, so it is kept as the cheaper-of-two-errors choice.
+
+Extending protection to 4-of-a-kind and Large Straight consistently did worse. Those boxes are refillable often enough (80% and 90%) that shielding them suppresses the premium too often.
+
+Effect on the upper section: bonus rate **8.3% → 10.2%**, upper average 48.0 → 48.1, and the upper bonus goes from 2.9 to 3.6 points per card.
+
 ## Things that were tested and did *not* help
 
 | Experiment | Effect |
@@ -314,6 +335,8 @@ The Chance result is the interesting negative: the greedy ordering isn't costing
 
 ## Summary
 
-The bot is a **solid combo-hunter with no long game**. Its probability tables are accurate and its risk threshold sits on a real optimum — that's what earns the 82% of optimal. What it lacks is any state beyond the current roll: no bonus tracking, no box-scarcity valuation, no endgame planning. Every decision is "what's worth the most points right now."
+The bot is a **solid combo-hunter with a very short planning horizon**. Its probability tables are exact and its risk threshold sits on a real optimum — that's what earns the 82% of optimal. What it lacks is state beyond the current roll: no box-scarcity valuation, no endgame planning, no response to the score situation. Almost every decision is still "what's worth the most points right now."
 
-The one change with real headroom is upper-bonus awareness — a bonus-progress premium on upper boxes when the card is on pace for 63. The ceiling on that alone is roughly **+15 to +30 points per game**, which would put the bot in the 225–240 range. Everything else probed is already at or near its local optimum.
+**A caution about the remaining headroom.** It's tempting to read "cards with the upper bonus average 271.7, cards without average 203.3" as a 68-point prize waiting to be claimed. It isn't. That gap is overwhelmingly *selection* — cards that earn the bonus are cards that rolled well, not cards that chose better. Pricing the bonus into the category choice, which is the direct causal version of that idea, was measured at **+0.5**, not +68.
+
+That pattern held for everything tried here. The two changes that survived are worth about **+1 point combined**, and every other plausible-sounding tweak — sliding give-up thresholds, reachability rules, Chance timing, protecting more categories — landed inside the noise or below it. The bot appears to be near a local optimum for its architecture, and the honest conclusion is that the remaining 45 points to optimal are not reachable by tuning constants. They would need a different kind of player: one that evaluates a move by what the rest of the scorecard is worth afterwards, rather than by what the move scores now.

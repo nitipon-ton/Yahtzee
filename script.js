@@ -92,6 +92,11 @@ const CATEGORY_LABELS = {
   15: 'End turn',
 };
 
+// Awarded once the upper section reaches 63. checkScoreCard applies it; the bot
+// also has to price it in when choosing a category, or it will take a 30-point
+// straight over the 18 points that would have unlocked 35.
+const UPPER_BONUS = 35;
+
 const DICE_LABELS = ['A', 'B', 'C', 'D', 'E'];
 const DICE_EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
 
@@ -1023,15 +1028,34 @@ class Player {
     const options = this.getAvailableOptions();
     const basicTotal = Helper.sumArr(this.pntsBasic);
     let maxPoint = -1;
+    let bestValue = -1;
     let bestChoice = CATEGORY.END_TURN;
+
+    // A box that pushes the upper section to 63 is worth 35 more than its own
+    // points, which the raw points column cannot express. One exception: up to
+    // round 11, don't let that premium outrank a Yahtzee actually in hand. The
+    // Yahtzee box is the hardest to refill, and without this the bot passes on
+    // enough of them to drop its Yahtzee rate. By round 12 there is little
+    // "later" left, so from then on it is a straight points comparison.
+    const holdingYahtzee =
+      typeof game !== 'undefined' && game && game.round <= 11
+      && options.some((o) => o.id === CATEGORY.YAHTZEE && o.available && o.points > 0);
 
     for (const option of options) {
       if (option.id !== CATEGORY.END_TURN && !option.available) {
         continue;
       }
-      if (option.id !== CATEGORY.END_TURN && option.points > maxPoint) {
-        maxPoint = option.points;
-        bestChoice = option.id;
+      if (option.id !== CATEGORY.END_TURN) {
+        const isUpper = option.id >= 1 && option.id <= 6;
+        const completesBonus = isUpper && basicTotal < 63 && basicTotal + option.points >= 63;
+        // bestValue ranks the options; maxPoint carries the same figure so the
+        // reroll gate below also treats a bonus-completing box as worth taking.
+        const value = option.points + (completesBonus && !holdingYahtzee ? UPPER_BONUS : 0);
+        if (value > bestValue) {
+          bestValue = value;
+          maxPoint = value;
+          bestChoice = option.id;
+        }
       }
       if (option.id === CATEGORY.END_TURN && bestChoice === CATEGORY.END_TURN) {
         bestChoice = CATEGORY.END_TURN;
