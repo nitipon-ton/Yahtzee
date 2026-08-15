@@ -41,11 +41,14 @@
         <label for="playerCount">Number of players</label>
         <input id="playerCount" type="number" min="1" max="10" value="2" />
       </div>
-      <div class="field-row bot-detail-row">
-        <label for="showBotDetailsToggle" class="toggle-label">
-          <input id="showBotDetailsToggle" type="checkbox" />
-          Show bot decision details
-        </label>
+      <div class="field-row">
+        <label for="botModeSelect">Bot playback</label>
+        <select id="botModeSelect">
+          <option value="watch">Watch bots think — show every roll, then the log</option>
+          <option value="fast" selected>Play bots quickly — show the log at the end</option>
+          <option value="silent">Play bots quickly — no log</option>
+        </select>
+        <p class="hint-text" id="botModeHint"></p>
       </div>
       <div id="playerOptions"></div>
       <button id="startGameButton" class="primary-button">Start game</button>

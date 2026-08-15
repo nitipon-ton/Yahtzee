@@ -255,26 +255,6 @@ select {
   flex-wrap: wrap;
 }
 
-.bot-detail-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 0.75rem;
-}
-
-.toggle-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.toggle-label input {
-  width: 1rem;
-  height: 1rem;
-}
-
 .options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -419,13 +399,6 @@ select {
 
 .bot-log-line {
   margin: 0.3rem 0;
-}
-
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 16px;
-  padding: 1rem;
-  margin: 0;
-  color: #cbd5e1;
 }
 
 .hint-text {

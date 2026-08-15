@@ -16,7 +16,8 @@ const rollButton = document.getElementById('rollButton');
 const forfeitButton = document.getElementById('forfeitButton');
 const optionsList = document.getElementById('optionsList');
 const suggestionText = document.getElementById('suggestionText');
-const showBotDetailsToggle = document.getElementById('showBotDetailsToggle');
+const botModeSelect = document.getElementById('botModeSelect');
+const botModeHint = document.getElementById('botModeHint');
 const roundBotLogPanel = document.getElementById('roundBotLogPanel');
 const roundBotLogContent = document.getElementById('roundBotLogContent');
 const scoreboardTable = document.getElementById('scoreboardTable');
@@ -26,11 +27,35 @@ const closeHelpButton = document.getElementById('closeHelpButton');
 const helpPanel = document.getElementById('helpPanel');
 const backButtons = [backToSetupButton, newGameButton];
 
+const BOT_MODE = {
+  // Pause between every single bot action, so each roll and reroll is readable.
+  WATCH: 'watch',
+  // Pause once per whole bot turn: quick, but you still see the turns land.
+  FAST: 'fast',
+  // Same pacing as FAST, but nothing is logged and no log is shown afterwards.
+  SILENT: 'silent',
+};
+
+const BOT_STEP_DELAY_MS = 400;
+// Per-turn beat, tuned for a 3-bot table and scaled down for bigger ones so a
+// full round takes about the same time no matter how many bots are playing.
+const BOT_TURN_DELAY_MS = 140;
+const BOT_TURN_MIN_DELAY_MS = 45;
+
+const BOT_MODE_HINTS = {
+  [BOT_MODE.WATCH]: 'Every roll and reroll is shown as it happens. Slowest, but you can follow the reasoning.',
+  [BOT_MODE.FAST]: 'Each bot turn lands in one beat. The full decision log is available once the game ends.',
+  [BOT_MODE.SILENT]: 'Same speed as above, with no decision log recorded.',
+};
+
 let game = null;
 let selectedDice = [false, false, false, false, false];
+let botMode = BOT_MODE.FAST;
 let botTimeout = null;
-let showBotDetails = false;
 let roundBotLog = [];
+
+// A bot turn is at most 3 steps; this is a runaway guard, not a real limit.
+const MAX_BOT_STEPS = 1000;
 
 const CATEGORY = {
   BASIC_1: 1,
@@ -70,6 +95,33 @@ const CATEGORY_LABELS = {
 const DICE_LABELS = ['A', 'B', 'C', 'D', 'E'];
 const DICE_EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
 
+const HUMAN_LABELS = {
+  '3 of a kind': 'Three of a Kind',
+  '4 of a kind': 'Four of a Kind',
+  'Full house': 'Full House',
+  'Small straight': 'Small Straight',
+  'Large straight': 'Large Straight',
+  Yahtzee: 'Yahtzee',
+};
+
+const LGSTR_SUMSQ_6 = new Set([5, 10, 17, 26, 40, 45, 52, 61]);
+const SMSTR_SUMSQ_6 = new Set([2, 72]);
+const SMSTR_SUMSQ_12 = new Set([8, 50, 40, 26, 37]);
+const SMSTR_SUMSQ_18 = new Set([18, 32]);
+const SMSTR_SUMSQ_30 = new Set([61, 5, 29]);
+const SMSTR_SUMSQ_36 = new Set([52, 10, 45, 17]);
+const SMSTR_SUMSQ_54 = new Set([41, 13, 34, 20]);
+const SMSTR_R2_11 = new Set([14, 77, 21, 70, 38, 45]);
+const SMSTR_R2_4 = new Set([35, 42, 49, 56, 46, 53]);
+const SMSTR_R2_13 = new Set([26, 61]);
+const SMSTR_R2_2 = new Set([30, 65, 41, 62]);
+const SMSTR_R2_20 = new Set([29, 50]);
+
+// Reused across probability evaluations to avoid per-call allocations; never
+// held across calls, so a single shared buffer is safe.
+const decodeScratch = [0, 0, 0, 0, 0];
+const countScratch = [0, 0, 0, 0, 0, 0];
+
 class Dice {
   roll() {
     return Math.floor(Math.random() * 6) + 1;
@@ -78,10 +130,20 @@ class Dice {
 
 const Helper = {
   sumArr(arr) {
-    return arr.reduce((sum, value) => sum + value, 0);
+    let sum = 0;
+    for (let i = 0; i < arr.length; i += 1) {
+      sum += arr[i];
+    }
+    return sum;
   },
   maxArr(arr) {
-    return arr.reduce((max, value) => Math.max(max, value), 0);
+    let max = 0;
+    for (let i = 0; i < arr.length; i += 1) {
+      if (arr[i] > max) {
+        max = arr[i];
+      }
+    }
+    return max;
   },
 };
 
@@ -95,7 +157,6 @@ class Player {
     this.score = 0;
     this.roll_left = 3;
     this.yaht = 1;
-    this.userChoose = 0;
     this.isAvailAdv = [1, 1, 1, 1, 1];
     this.chanAvail = true;
     this.isAvailBasic = [true, true, true, true, true, true];
@@ -107,7 +168,6 @@ class Player {
     this.pntsBasic = [0, 0, 0, 0, 0, 0];
     this.arrVal = [0, 0, 0, 0, 0];
     this.faceCounter = [0, 0, 0, 0, 0, 0];
-    this.simulProb = new Array(31).fill(0);
     this.rollDecision = 0;
     this.botLog = [];
     this.dice = new Dice();
@@ -252,6 +312,8 @@ class Player {
 
   getAvailableOptions() {
     const options = [];
+    const diceSum = Helper.sumArr(this.arrVal);
+    const maxDup = Helper.maxArr(this.faceCounter);
     for (let i = 1; i <= 6; i += 1) {
       options.push({
         id: i,
@@ -272,27 +334,21 @@ class Player {
     options.push({
       id: CATEGORY.FOUR_KIND,
       label: CATEGORY_LABELS[8],
-      points:
-        this.isAvailAdv[1] > 0 && Helper.maxArr(this.faceCounter) >= 4
-          ? Helper.sumArr(this.arrVal)
-          : 0,
+      points: this.isAvailAdv[1] > 0 && maxDup >= 4 ? diceSum : 0,
       available: this.isAvailAdv[1] > 0,
     });
 
     options.push({
       id: CATEGORY.THREE_KIND,
       label: CATEGORY_LABELS[9],
-      points:
-        this.isAvailAdv[0] > 0 && Helper.maxArr(this.faceCounter) >= 3
-          ? Helper.sumArr(this.arrVal)
-          : 0,
+      points: this.isAvailAdv[0] > 0 && maxDup >= 3 ? diceSum : 0,
       available: this.isAvailAdv[0] > 0,
     });
 
     options.push({
       id: CATEGORY.CHANCE,
       label: CATEGORY_LABELS[11],
-      points: this.chanAvail ? Helper.sumArr(this.arrVal) : 0,
+      points: this.chanAvail ? diceSum : 0,
       available: this.chanAvail,
     });
 
@@ -437,7 +493,10 @@ class Player {
   }
 
   computeDecode(arrVal, userSimChoose) {
-    const arr = arrVal.slice();
+    const arr = decodeScratch;
+    for (let i = 0; i < 5; i += 1) {
+      arr[i] = arrVal[i];
+    }
     let digit = 160;
     let count = 0;
     for (let i = 4; i >= 0; i -= 1) {
@@ -448,15 +507,15 @@ class Player {
       }
       digit /= 2;
     }
-    return { arr, count };
+    return count;
   }
 
   probLgStr(a, userSimChoose) {
     let prob = 0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
-    const count = [0, 0, 0, 0, 0, 0];
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
+    const count = countScratch;
+    count.fill(0);
     let sum = 0;
     let sumofsquare = 0;
     let diffpair = 0;
@@ -486,7 +545,7 @@ class Player {
       if (diffpair === 2) {
         if (sumofsquare === 37) {
           prob = 0.0;
-        } else if ([5, 10, 17, 26, 40, 45, 52, 61].includes(sumofsquare)) {
+        } else if (LGSTR_SUMSQ_6.has(sumofsquare)) {
           prob = 6.0 / 216.0;
         } else {
           prob = 12.0 / 216.0;
@@ -514,9 +573,8 @@ class Player {
 
   probFOAK(a, userSimChoose) {
     let prob = 0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
     let sum = 0;
     let sumofsquare = 0;
     let diffpair = 0;
@@ -562,9 +620,8 @@ class Player {
 
   probYaht(a, userSimChoose) {
     let prob = 0.0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
     let diffpair = 0;
     for (let i = 0; i <= 4; i += 1) {
       for (let j = 0; j <= 4; j += 1) {
@@ -587,9 +644,8 @@ class Player {
 
   probTOAK(a, userSimChoose) {
     let prob = 0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
     let diffpair = 0;
     for (let i = 0; i <= 4; i += 1) {
       for (let j = 0; j <= 4; j += 1) {
@@ -635,9 +691,8 @@ class Player {
 
   probFH(a, userSimChoose) {
     let prob = 0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
     let diffpair = 0;
     for (let i = 0; i <= 4; i += 1) {
       for (let j = 0; j <= 4; j += 1) {
@@ -679,21 +734,18 @@ class Player {
 
   probSmStr(a, userSimChoose) {
     let prob = 0;
-    const info = this.computeDecode(a, userSimChoose);
-    const arr = info.arr;
-    const numberofReroll = info.count;
-    const count = [0, 0, 0, 0, 0, 0];
+    const numberofReroll = this.computeDecode(a, userSimChoose);
+    const arr = decodeScratch;
+    const count = countScratch;
+    count.fill(0);
     let sum = 0;
     let sumofsquare = 0;
     let diffpair = 0;
     let forbash = 0;
     for (let i = 0; i <= 4; i += 1) {
-      if (arr[i] === 1) count[0] += 1;
-      if (arr[i] === 2) count[1] += 1;
-      if (arr[i] === 3) count[2] += 1;
-      if (arr[i] === 4) count[3] += 1;
-      if (arr[i] === 5) count[4] += 1;
-      if (arr[i] === 6) count[5] += 1;
+      if (arr[i] > 0) {
+        count[arr[i] - 1] += 1;
+      }
     }
     for (let i = 0; i <= 4; i += 1) {
       sum += arr[i];
@@ -715,17 +767,17 @@ class Player {
         prob = 276.0 / 1296.0;
       }
     } else if (numberofReroll === 3) {
-      if ([2, 72].includes(sumofsquare)) {
+      if (SMSTR_SUMSQ_6.has(sumofsquare)) {
         prob = 6.0 / 216.0;
-      } else if ([8, 50, 40, 26, 37].includes(sumofsquare)) {
+      } else if (SMSTR_SUMSQ_12.has(sumofsquare)) {
         prob = 12.0 / 216.0;
-      } else if ([18, 32].includes(sumofsquare)) {
+      } else if (SMSTR_SUMSQ_18.has(sumofsquare)) {
         prob = 18.0 / 216.0;
-      } else if ([61, 5, 29].includes(sumofsquare)) {
+      } else if (SMSTR_SUMSQ_30.has(sumofsquare)) {
         prob = 30.0 / 216.0;
-      } else if ([52, 10, 45, 17].includes(sumofsquare)) {
+      } else if (SMSTR_SUMSQ_36.has(sumofsquare)) {
         prob = 36.0 / 216.0;
-      } else if ([41, 13, 34, 20].includes(sumofsquare)) {
+      } else if (SMSTR_SUMSQ_54.has(sumofsquare)) {
         prob = 54.0 / 216.0;
       } else if (sumofsquare === 25) {
         prob = 78.0 / 216.0;
@@ -747,15 +799,15 @@ class Player {
         } else {
           prob = 0.0;
         }
-      } else if ([14, 77, 21, 70, 38, 45, 38, 45].includes(sumofsquare)) {
+      } else if (SMSTR_R2_11.has(sumofsquare)) {
         prob = 11.0 / 36.0;
-      } else if ([35, 42, 49, 56, 46, 53].includes(sumofsquare)) {
+      } else if (SMSTR_R2_4.has(sumofsquare)) {
         prob = 4.0 / 36.0;
-      } else if ([26, 61].includes(sumofsquare)) {
+      } else if (SMSTR_R2_13.has(sumofsquare)) {
         prob = 13.0 / 36.0;
-      } else if ([30, 65, 41, 62].includes(sumofsquare)) {
+      } else if (SMSTR_R2_2.has(sumofsquare)) {
         prob = 2.0 / 36.0;
-      } else if ([29, 50].includes(sumofsquare)) {
+      } else if (SMSTR_R2_20.has(sumofsquare)) {
         prob = 20.0 / 36.0;
       }
     } else if (numberofReroll === 1) {
@@ -787,22 +839,13 @@ class Player {
     let bestMask = 0;
     let bestMaskProb = 0;
 
-    const humanLabel = {
-      '3 of a kind': 'Three of a Kind',
-      '4 of a kind': 'Four of a Kind',
-      'Full house': 'Full House',
-      'Small straight': 'Small Straight',
-      'Large straight': 'Large Straight',
-      Yahtzee: 'Yahtzee',
-    };
-
     const tryCategory = (available, probFn, label) => {
       if (!available) return;
       let bestCategoryProb = 0;
       const bestMasks = [];
       for (let i = 1; i <= 31; i += 1) {
         const mask = this.getProbabilityMask(i);
-        const probability = probFn(this.arrVal, mask);
+        const probability = probFn.call(this, this.arrVal, mask);
         if (probability > bestCategoryProb) {
           bestCategoryProb = probability;
           bestMasks.length = 0;
@@ -820,19 +863,19 @@ class Player {
           .map((mask) => this.maskToDiceLetters(mask).join('') || 'None')
           .join(' ');
         suggestions.push({
-          category: humanLabel[label] || label,
+          category: HUMAN_LABELS[label] || label,
           probability: bestCategoryProb,
           letters,
         });
       }
     };
 
-    tryCategory(this.isAvailAdv[0] > 0, this.probTOAK.bind(this), '3 of a kind');
-    tryCategory(this.isAvailAdv[1] > 0, this.probFOAK.bind(this), '4 of a kind');
-    tryCategory(this.isAvailAdv[2] > 0, this.probFH.bind(this), 'Full house');
-    tryCategory(this.isAvailAdv[3] > 0, this.probSmStr.bind(this), 'Small straight');
-    tryCategory(this.isAvailAdv[4] > 0, this.probLgStr.bind(this), 'Large straight');
-    tryCategory(this.yaht !== 100, this.probYaht.bind(this), 'Yahtzee');
+    tryCategory(this.isAvailAdv[0] > 0, this.probTOAK, '3 of a kind');
+    tryCategory(this.isAvailAdv[1] > 0, this.probFOAK, '4 of a kind');
+    tryCategory(this.isAvailAdv[2] > 0, this.probFH, 'Full house');
+    tryCategory(this.isAvailAdv[3] > 0, this.probSmStr, 'Small straight');
+    tryCategory(this.isAvailAdv[4] > 0, this.probLgStr, 'Large straight');
+    tryCategory(this.yaht !== 100, this.probYaht, 'Yahtzee');
 
     return { suggestions, bestMask, bestMaskProb };
   }
@@ -842,7 +885,7 @@ class Player {
     let bestProb = 0;
     for (let i = 1; i <= 31; i += 1) {
       const mask = this.getProbabilityMask(i);
-      const probability = probFn(this.arrVal, mask);
+      const probability = probFn.call(this, this.arrVal, mask);
       if (probability > bestProb) {
         bestProb = probability;
         bestMask = mask;
@@ -853,6 +896,7 @@ class Player {
 
   getBotAction() {
     const options = this.getAvailableOptions();
+    const basicTotal = Helper.sumArr(this.pntsBasic);
     let maxPoint = -1;
     let bestChoice = CATEGORY.END_TURN;
 
@@ -892,7 +936,7 @@ class Player {
         }
       }
 
-      if (Helper.sumArr(this.pntsBasic) < 63 && (game.round <= 9 || (game.round > 9 && Helper.sumArr(this.pntsBasic) > 50 + 0 * (game.round - 10))) && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
+      if (basicTotal < 63 && (game.round <= 9 || (game.round > 9 && basicTotal > 50 + 0 * (game.round - 10))) && !(this.fullHousePresent() && this.isAvailAdv[2] > 0)) {
         const preservePriorityFace = (face) => {
           let mask = 0;
           for (let i = 0; i < 5; i += 1) {
@@ -902,12 +946,21 @@ class Player {
           }
           return mask;
         };
+        // A mask of 0 means every die already shows that face, so there is
+        // nothing to reroll. Fall through and let the scoring logic below pick
+        // the category instead of returning a decision that means nothing.
         if (this.faceCounter[5] >= 2 && this.isAvailBasic[5] && !(this.smallStraightPresent() && this.isAvailAdv[3] > 0)) {
-          return preservePriorityFace(6);
+          const mask = preservePriorityFace(6);
+          if (mask > 0) {
+            return mask;
+          }
         }
         for (const face of [5, 4, 3]) {
           if (this.faceCounter[face - 1] >= 3 && this.isAvailBasic[face - 1]) {
-            return preservePriorityFace(face);
+            const mask = preservePriorityFace(face);
+            if (mask > 0) {
+              return mask;
+            }
           }
         }
       }
@@ -927,7 +980,7 @@ class Player {
             }
           }
         }
-        const largeStraightAdvice = this.getBestMaskForCategory(this.probLgStr.bind(this));
+        const largeStraightAdvice = this.getBestMaskForCategory(this.probLgStr);
         if (largeStraightAdvice.bestMask > 0) {
           return largeStraightAdvice.bestMask;
         }
@@ -957,7 +1010,7 @@ class Player {
       let rerollMask = 0;
       // Prefer basic-category reroll when best static choice is a basic or no positive static choice
       if (maxPoint === 0 || (bestChoice >= 1 && bestChoice <= 6)) {
-        for (let j = 5; j >= 1; j -= 1) {
+        for (let j = 6; j >= 1; j -= 1) {
           if (this.isAvailBasic[j - 1]) {
             let mask = 0;
             for (let i = 0; i < 5; i += 1) {
@@ -984,7 +1037,7 @@ class Player {
 
     if (
       typeof game !== 'undefined' &&
-      (Helper.sumArr(this.pntsBasic) < 63 && (game.round <= 9 || (game.round > 9 && Helper.sumArr(this.pntsBasic) > 50 + 0 * (game.round - 10)))) &&
+      (basicTotal < 63 && (game.round <= 9 || (game.round > 9 && basicTotal > 50 + 0 * (game.round - 10)))) &&
       this.roll_left === 0 &&
       !(this.isYahtzee() && this.yaht !== 100) &&
       !(this.fullHousePresent() && this.isAvailAdv[2] > 0)
@@ -1044,6 +1097,7 @@ class Game {
   getRanking() {
     const ranks = this.players
       .map((player) => ({
+        player,
         name: player.name,
         score: player.totalscore + player.score,
       }))
@@ -1054,6 +1108,7 @@ class Game {
 
 function renderSetupOptions() {
   playerOptions.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   const count = Number(playerCountInput.value) || 1;
   for (let i = 1; i <= count; i += 1) {
     const option = document.createElement('div');
@@ -1071,8 +1126,9 @@ function renderSetupOptions() {
         </select>
       </div>
     `;
-    playerOptions.append(option);
+    fragment.append(option);
   }
+  playerOptions.append(fragment);
 }
 
 function normalizePlayerCount() {
@@ -1131,7 +1187,6 @@ function updateUI() {
   if (player.bot) {
     rollButton.textContent = 'Bot is playing...';
     rollButton.disabled = true;
-    setTimeout(playBotTurn, 450);
   } else {
     rollButton.textContent = player.roll_left === 3 ? 'Start turn' : 'Roll selected dice';
   }
@@ -1139,11 +1194,13 @@ function updateUI() {
 
 function renderDice(player) {
   diceRow.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+  const disabled = player.roll_left < 0 || player.life !== 1 || player.bot;
   for (let i = 0; i < 5; i += 1) {
     const tile = document.createElement('button');
     tile.type = 'button';
     tile.className = `dice-tile${selectedDice[i] ? ' selected' : ''}`;
-    tile.disabled = player.roll_left < 0 || player.life !== 1 || player.bot;
+    tile.disabled = disabled;
     const value = player.arrVal[i] || 0;
     tile.innerHTML = `
       <span class="dice-label">${DICE_LABELS[i]}</span>
@@ -1153,14 +1210,17 @@ function renderDice(player) {
       selectedDice[i] = !selectedDice[i];
       updateUI();
     });
-    diceRow.append(tile);
+    fragment.append(tile);
   }
+  diceRow.append(fragment);
 }
 
 function renderOptions(player) {
   optionsList.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   const options = player.getAvailableOptions();
   const showNeon = player.roll_left < 3;
+  const buttonsDisabled = player.roll_left === 3 || player.life !== 1 || player.bot;
 
   for (const option of options) {
     const card = document.createElement('div');
@@ -1180,23 +1240,19 @@ function renderOptions(player) {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = option.available ? 'Select' : 'Used';
-    button.disabled =
-      !option.available ||
-      player.roll_left === 3 ||
-      player.life !== 1 ||
-      player.bot;
+    button.disabled = !option.available || buttonsDisabled;
     button.addEventListener('click', () => {
       if (game.finished) return;
       player.performScore(option.id);
       player.checkScoreCard();
-      const previousRound = game.round;
       game.advanceTurn();
       selectedDice = [false, false, false, false, false];
-      updateUI();
+      advanceBotsAndRender();
     });
     card.append(button);
-    optionsList.append(card);
+    fragment.append(card);
   }
+  optionsList.append(fragment);
 }
 
 function renderSuggestion(player) {
@@ -1241,28 +1297,40 @@ function renderSuggestion(player) {
 
 function renderScoreboard() {
   scoreboardTable.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   for (const player of game.players) {
     const card = document.createElement('div');
     card.className = 'player-card';
-    const nameBlock = document.createElement('div');
     const statusLabel = player.life === 0 ? 'Forfeited' : player.bot ? 'Bot' : 'Human';
-    nameBlock.innerHTML = `<strong>${player.name}</strong><span>${statusLabel}</span>`;
-    const scoreBlock = document.createElement('div');
     const scoreLabel = player.life === 0 ? 'forfeited' : 'current total';
-    scoreBlock.innerHTML = `<strong>${player.totalscore + player.score}</strong><span>${scoreLabel}</span>`;
-    card.append(nameBlock, scoreBlock);
-    scoreboardTable.append(card);
+    card.append(
+      buildLabelledBlock(player.name, statusLabel),
+      buildLabelledBlock(String(player.totalscore + player.score), scoreLabel),
+    );
+    fragment.append(card);
   }
+  scoreboardTable.append(fragment);
+}
+
+function buildLabelledBlock(strongText, spanText) {
+  const block = document.createElement('div');
+  const strong = document.createElement('strong');
+  strong.textContent = strongText;
+  const span = document.createElement('span');
+  span.textContent = spanText;
+  block.append(strong, span);
+  return block;
 }
 
 function renderRoundBotLog() {
-  if (!showBotDetails || !game?.finished || !roundBotLog.length) {
+  if (!botLogEnabled() || !game?.finished || !roundBotLog.length) {
     roundBotLogPanel.classList.add('hidden');
     return;
   }
 
   roundBotLogPanel.classList.remove('hidden');
   roundBotLogContent.innerHTML = '';
+  const fragment = document.createDocumentFragment();
 
   const rounds = new Map();
   for (const entry of roundBotLog) {
@@ -1310,8 +1378,9 @@ function renderRoundBotLog() {
     }
 
     details.append(content);
-    roundBotLogContent.append(details);
+    fragment.append(details);
   }
+  roundBotLogContent.append(fragment);
 }
 
 function renderBotLogLine(line) {
@@ -1368,73 +1437,168 @@ function renderBotLogLine(line) {
   return row;
 }
 
-function playBotTurn() {
-  if (!game || game.finished) {
-    return;
-  }
+function botLogEnabled() {
+  return botMode !== BOT_MODE.SILENT;
+}
 
-  const player = game.currentPlayer();
-  if (!player.bot || player.life !== 1) {
-    return;
-  }
+// Plays one step of the current bot's turn: the opening roll, a reroll, or the
+// scoring decision. Returns true when that step ended the turn. Does no
+// rendering — the scheduler decides when the board is drawn.
+function playBotStep(player) {
+  const logging = botLogEnabled();
 
   if (player.roll_left === 3) {
-    player.botLog = [];
+    player.botLog.length = 0;
     player.rollDice();
-    player.logBot(`Rolled: ${player.arrVal.join(' ')}`);
+    if (logging) {
+      player.logBot(`Rolled: ${player.arrVal.join(' ')}`);
+    }
+    return false;
+  }
+
+  const decision = player.getBotAction();
+  if (decision > 0 && decision % 10 === 0 && player.roll_left > 0) {
+    if (logging) {
+      const rerollLabel = player.maskToDiceLetters(decision).join(', ') || 'none';
+      player.logBot(`Rerolling: ${rerollLabel}`);
+    }
+    player.rollDecision = decision;
+    player.roll_left -= 1;
+    player.rollDice();
+    if (logging) {
+      player.logBot(`New dice: ${player.arrVal.join(' ')}`);
+    }
+    return false;
+  }
+
+  let finalBotLog = null;
+  if (logging) {
+    player.logBot(`Chooses: ${CATEGORY_LABELS[decision] || `Choice ${decision}`}`);
+    finalBotLog = player.botLog.slice();
+  }
+  player.performScore(decision);
+  player.checkScoreCard();
+  const previousRound = game.round;
+  game.advanceTurn();
+  selectedDice = [false, false, false, false, false];
+
+  if (finalBotLog && finalBotLog.length) {
+    roundBotLog.push({ round: previousRound, name: player.name, lines: finalBotLog });
+  }
+  return true;
+}
+
+// Plays one bot's entire turn at once. The scoring branch of playBotStep always
+// calls advanceTurn, so this is guaranteed to terminate.
+function playBotTurn(player) {
+  for (let steps = 0; steps < MAX_BOT_STEPS; steps += 1) {
+    if (playBotStep(player)) {
+      return;
+    }
+  }
+}
+
+function clearBotTimer() {
+  if (botTimeout !== null) {
+    clearTimeout(botTimeout);
+    botTimeout = null;
+  }
+}
+
+function botIsWaiting() {
+  if (!game || game.finished) {
+    return null;
+  }
+  const player = game.currentPlayer();
+  if (!player.bot || player.life !== 1 || player.roll_left < 0) {
+    return null;
+  }
+  return player;
+}
+
+// Only a human still in the game can be kept waiting, so only then is pacing
+// worth anything.
+function humanStillPlaying() {
+  for (const player of game.players) {
+    if (!player.bot && player.life === 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function botTurnDelay() {
+  let bots = 0;
+  for (const player of game.players) {
+    if (player.bot) {
+      bots += 1;
+    }
+  }
+  const scaled = Math.round((BOT_TURN_DELAY_MS * 3) / Math.max(bots, 1));
+  return Math.max(BOT_TURN_MIN_DELAY_MS, Math.min(BOT_TURN_DELAY_MS, scaled));
+}
+
+// Draws the board, then — if a bot is up — schedules its next move. Exactly one
+// timer is ever pending, and it is always cleared before a new one is set.
+function advanceBotsAndRender() {
+  clearBotTimer();
+
+  // Bots only, and not in watch mode: nobody is waiting for a turn, so there is
+  // no one to pace for. Play the rest of the game out and draw the result once.
+  if (game && botMode !== BOT_MODE.WATCH && !humanStillPlaying()) {
+    let turns = 0;
+    let player = botIsWaiting();
+    while (player && turns < MAX_BOT_STEPS) {
+      playBotTurn(player);
+      player = botIsWaiting();
+      turns += 1;
+    }
     updateUI();
-    botTimeout = setTimeout(playBotTurn, 350);
     return;
   }
 
-  if (player.roll_left >= 0) {
-    const decision = player.getBotAction();
-    if (decision > 0 && decision % 10 === 0 && player.roll_left > 0) {
-      const rerollMask = decision;
-      const rerollLabel = player.maskToDiceLetters(rerollMask).join(', ') || 'none';
-      player.logBot(`Rerolling: ${rerollLabel}`);
-      player.rollDecision = decision;
-      player.roll_left -= 1;
-      player.rollDice();
-      player.logBot(`New dice: ${player.arrVal.join(' ')}`);
+  updateUI();
+  if (!botIsWaiting()) {
+    return;
+  }
+  const delay = botMode === BOT_MODE.WATCH ? BOT_STEP_DELAY_MS : botTurnDelay();
+  botTimeout = setTimeout(() => {
+    botTimeout = null;
+    const player = botIsWaiting();
+    if (!player) {
       updateUI();
-      botTimeout = setTimeout(playBotTurn, 400);
       return;
     }
-
-    const choiceLabel = CATEGORY_LABELS[decision] || `Choice ${decision}`;
-    player.logBot(`Chooses: ${choiceLabel}`);
-    const finalBotLog = player.botLog.slice();
-    player.performScore(decision);
-    player.checkScoreCard();
-    const previousRound = game.round;
-    game.advanceTurn();
-    selectedDice = [false, false, false, false, false];
-
-    if (showBotDetails && finalBotLog.length) {
-      roundBotLog.push({ round: previousRound, name: player.name, lines: finalBotLog });
+    if (botMode === BOT_MODE.WATCH) {
+      playBotStep(player);
+    } else {
+      playBotTurn(player);
     }
-
-    updateUI();
-  }
+    advanceBotsAndRender();
+  }, delay);
 }
 
 function renderFinalSummary() {
   finalSummary.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   const ranking = game.getRanking();
   const average = Math.round(
     (game.players.reduce((sum, player) => sum + player.totalscore + player.score, 0) / game.players.length) * 10,
   ) / 10;
 
   ranking.forEach((entry, index) => {
-    const player = game.players.find((p) => p.name === entry.name);
+    const player = entry.player;
     const details = document.createElement('details');
     details.className = 'player-scorecard';
     if (index === 0) details.open = true;
 
     const summary = document.createElement('summary');
     summary.className = 'player-scorecard-summary';
-    summary.innerHTML = `<strong>${index + 1}. ${entry.name}</strong><span>${entry.score} points</span>`;
+    const summaryName = document.createElement('strong');
+    summaryName.textContent = `${index + 1}. ${entry.name}`;
+    const summaryScore = document.createElement('span');
+    summaryScore.textContent = `${entry.score} points`;
+    summary.append(summaryName, summaryScore);
     details.append(summary);
 
     const content = document.createElement('div');
@@ -1521,13 +1685,13 @@ function renderFinalSummary() {
     content.append(advBlock);
 
     details.append(content);
-    finalSummary.append(details);
+    fragment.append(details);
   });
 
-  const averageRow = document.createElement('div');
+  const averageRow = buildLabelledBlock('Average score', String(average));
   averageRow.className = 'summary-row';
-  averageRow.innerHTML = `<strong>Average score</strong><span>${average}</span>`;
-  finalSummary.append(averageRow);
+  fragment.append(averageRow);
+  finalSummary.append(fragment);
 }
 
 playerCountInput.addEventListener('change', () => {
@@ -1537,10 +1701,10 @@ playerCountInput.addEventListener('change', () => {
 startGameButton.addEventListener('click', () => {
   game = buildGame();
   selectedDice = [false, false, false, false, false];
-  showBotDetails = showBotDetailsToggle.checked;
-  showBotDetailsToggle.disabled = true;
+  botMode = botModeSelect.value;
+  botModeSelect.disabled = true;
   roundBotLog = [];
-  updateUI();
+  advanceBotsAndRender();
 });
 rollButton.addEventListener('click', () => {
   if (!game) return;
@@ -1558,15 +1722,19 @@ rollButton.addEventListener('click', () => {
 forfeitButton.addEventListener('click', () => {
   if (!game) return;
   const player = game.currentPlayer();
-  const previousRound = game.round;
   player.performScore(CATEGORY.FORFEIT);
   game.advanceTurn();
   selectedDice = [false, false, false, false, false];
-  updateUI();
+  advanceBotsAndRender();
 });
-showBotDetailsToggle.addEventListener('change', () => {
+function renderBotModeHint() {
+  botModeHint.textContent = BOT_MODE_HINTS[botModeSelect.value] || '';
+}
+
+botModeSelect.addEventListener('change', () => {
+  renderBotModeHint();
   if (game) return;
-  showBotDetails = showBotDetailsToggle.checked;
+  botMode = botModeSelect.value;
 });
 
 helpButton.addEventListener('click', () => {
@@ -1579,16 +1747,14 @@ closeHelpButton.addEventListener('click', () => {
 
 backButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    if (botTimeout) {
-      clearTimeout(botTimeout);
-      botTimeout = null;
-    }
+    clearBotTimer();
     setupScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
-    showBotDetailsToggle.disabled = false;
+    botModeSelect.disabled = false;
     game = null;
   });
 });
 
+renderBotModeHint();
 renderSetupOptions();
