@@ -228,7 +228,7 @@ class Player {
     if (this.chanAvail) {
       return true;
     }
-    if (this.yaht !== 100) {
+    if (this.yaht === 1) {
       return true;
     }
     for (let i = 0; i < 6; i += 1) {
@@ -246,6 +246,122 @@ class Player {
 
   isYahtzee() {
     return this.arrVal.every((value) => value === this.arrVal[0]);
+  }
+
+  // isYahtzee() also reports true for the unrolled [0,0,0,0,0] hand, which is
+  // harmless where it is already used but would wrongly trigger the joker path.
+  isYahtzeeHand() {
+    return this.arrVal[0] > 0 && this.isYahtzee();
+  }
+
+  // A joker turn is a Yahtzee rolled when the Yahtzee box is already filled —
+  // with 50 (bonus applies) or with a scratched 0 (no bonus, joker still does).
+  isJokerTurn() {
+    return this.isYahtzeeHand() && this.yaht !== 1;
+  }
+
+  // Official joker placement, in priority order:
+  //   'upper-forced' - the matching upper box is open, so it must be used
+  //   'lower-free'   - that box is taken; any open lower box accepts the joker
+  //   'upper-zero'   - lower section full too, so a zero goes in an upper box
+  jokerStage() {
+    if (this.isAvailBasic[this.arrVal[0] - 1]) {
+      return 'upper-forced';
+    }
+    if (this.chanAvail || this.isAvailAdv.some((value) => value > 0)) {
+      return 'lower-free';
+    }
+    return 'upper-zero';
+  }
+
+  // Rewrites the option list for a joker turn: restricts it to legal placements
+  // and prices the lower boxes at their joker value rather than their pattern.
+  applyJokerRules(options) {
+    const face = this.arrVal[0];
+    const stage = this.jokerStage();
+    const sum = Helper.sumArr(this.arrVal);
+    const jokerValue = {
+      [CATEGORY.THREE_KIND]: sum,
+      [CATEGORY.FOUR_KIND]: sum,
+      [CATEGORY.FULL_HOUSE]: 25,
+      [CATEGORY.SMALL_STRAIGHT]: 30,
+      [CATEGORY.LARGE_STRAIGHT]: 40,
+      [CATEGORY.CHANCE]: sum,
+    };
+
+    for (const option of options) {
+      if (option.id === CATEGORY.END_TURN) {
+        continue;
+      }
+      if (option.id === CATEGORY.YAHTZEE) {
+        option.available = false;
+        option.points = 0;
+      } else if (stage === 'upper-forced') {
+        option.available = option.id === face;
+        option.points = option.id === face ? sum : 0;
+      } else if (stage === 'lower-free') {
+        const value = jokerValue[option.id];
+        if (value === undefined) {
+          option.available = false;
+          option.points = 0;
+        } else {
+          option.points = option.available ? value : 0;
+        }
+      } else {
+        option.available = option.id >= 1 && option.id <= 6 && this.isAvailBasic[option.id - 1];
+        option.points = 0;
+      }
+    }
+    return options;
+  }
+
+  // Scores a joker turn. The bonus is awarded for the turn itself, then the
+  // dice are placed in the chosen box at joker value.
+  scoreJoker(choice) {
+    const face = this.arrVal[0];
+    const stage = this.jokerStage();
+    const sum = Helper.sumArr(this.arrVal);
+
+    // Only a Yahtzee box holding 50 earns the bonus; a scratched 0 earns nothing.
+    if (this.yaht === 0) {
+      this.score += 100;
+      this.yahtBo += 100;
+    }
+
+    if (stage === 'upper-forced') {
+      if (choice === face) {
+        this.pntsBasic[face - 1] = sum;
+        this.score += sum;
+        this.isAvailBasic[face - 1] = false;
+      }
+    } else if (stage === 'lower-free') {
+      if (choice === CATEGORY.THREE_KIND && this.isAvailAdv[0] > 0) {
+        this.pntsToak = sum;
+        this.score += sum;
+        this.isAvailAdv[0] -= 1;
+      } else if (choice === CATEGORY.FOUR_KIND && this.isAvailAdv[1] > 0) {
+        this.pntsFoak = sum;
+        this.score += sum;
+        this.isAvailAdv[1] -= 1;
+      } else if (choice === CATEGORY.FULL_HOUSE && this.isAvailAdv[2] > 0) {
+        this.score += 25;
+        this.isAvailAdv[2] -= 1;
+      } else if (choice === CATEGORY.SMALL_STRAIGHT && this.isAvailAdv[3] > 0) {
+        this.score += 30;
+        this.isAvailAdv[3] -= 1;
+      } else if (choice === CATEGORY.LARGE_STRAIGHT && this.isAvailAdv[4] > 0) {
+        this.score += 40;
+        this.isAvailAdv[4] -= 1;
+      } else if (choice === CATEGORY.CHANCE && this.chanAvail) {
+        this.pntsChan = sum;
+        this.score += sum;
+        this.chanAvail = false;
+      }
+    } else if (choice >= 1 && choice <= 6 && this.isAvailBasic[choice - 1]) {
+      this.isAvailBasic[choice - 1] = false;
+    }
+
+    this.roll_left = -1;
   }
 
   smallStraightPresent() {
@@ -286,7 +402,7 @@ class Player {
     }
     const basicDone = this.pntsBasic.every((value) => value !== 0);
     const advDone = this.isAvailAdv.every((value) => value <= 0);
-    if (advDone && !this.chanAvail && basicDone && this.yaht <= 0) {
+    if (advDone && !this.chanAvail && basicDone && this.yaht !== 1) {
       this.life = 2;
     }
   }
@@ -323,12 +439,13 @@ class Player {
       });
     }
 
-    const yahtScore = this.isYahtzee() ? (this.yaht > 0 ? 50 : 100) : 0;
+    // The box itself is a one-shot: 50 or a scratched 0, then closed for good.
+    // Further Yahtzees are worth 100 through the joker path, not through here.
     options.push({
       id: CATEGORY.YAHTZEE,
       label: CATEGORY_LABELS[7],
-      points: this.yaht !== 100 ? yahtScore : 0,
-      available: this.yaht !== 100,
+      points: this.yaht === 1 && this.isYahtzeeHand() ? 50 : 0,
+      available: this.yaht === 1,
     });
 
     options.push({
@@ -381,7 +498,7 @@ class Player {
         available: true,
       });
     }
-    return options;
+    return this.isJokerTurn() ? this.applyJokerRules(options) : options;
   }
 
   performScore(choice) {
@@ -392,6 +509,11 @@ class Player {
 
     if (choice === CATEGORY.END_TURN) {
       this.roll_left = -1;
+      return;
+    }
+
+    if (this.isJokerTurn()) {
+      this.scoreJoker(choice);
       return;
     }
 
@@ -406,14 +528,14 @@ class Player {
     }
 
     if (choice === CATEGORY.YAHTZEE) {
-      if (this.isYahtzee()) {
-        if (this.yaht > 0) {
-          this.score += 50;
-        } else {
-          this.score += 100;
-          this.yahtBo += 100;
-        }
-        this.yaht -= 1;
+      // The box is filled exactly once. Reaching here with it already filled
+      // would be a caller bug, so refuse rather than score it twice.
+      if (this.yaht !== 1) {
+        return;
+      }
+      if (this.isYahtzeeHand()) {
+        this.score += 50;
+        this.yaht = 0;
       } else {
         this.yaht = 100;
       }
@@ -916,7 +1038,12 @@ class Player {
       }
     }
 
-    if (this.roll_left >= 1) {
+    // Holding a bonus Yahtzee is 100 guaranteed points that the option list
+    // cannot express, since the bonus is the same whichever box takes the dice.
+    // Rerolling would throw it away, so skip straight to placing it.
+    const holdingBonusYahtzee = this.isJokerTurn() && this.yaht === 0;
+
+    if (this.roll_left >= 1 && !holdingBonusYahtzee) {
       // Always apply: if the roll is four 5s + one 4 (any order), and Yahtzee
       // is still available then
       // reroll the single 4 to try for Yahtzee. This should run regardless of
@@ -1261,6 +1388,25 @@ function renderOptions(player) {
 function renderSuggestion(player) {
   if (!player.cheat || player.life !== 1) {
     suggestionText.textContent = 'No suggestion available.';
+    return;
+  }
+
+  if (player.isJokerTurn()) {
+    const face = player.arrVal[0];
+    const stage = player.jokerStage();
+    const bonus =
+      player.yaht === 0
+        ? 'It scores the 100 point Yahtzee bonus.'
+        : 'The Yahtzee box was scratched, so there is no bonus.';
+    let placement;
+    if (stage === 'upper-forced') {
+      placement = `${CATEGORY_LABELS[face]} is still open, so the dice must go there.`;
+    } else if (stage === 'lower-free') {
+      placement = 'Any open box in the lower section will take it as a joker, at full value.';
+    } else {
+      placement = 'The lower section is full, so a zero has to go in an open upper box.';
+    }
+    suggestionText.textContent = `Joker turn: five ${face}s with the Yahtzee box already filled.\n${bonus}\n${placement}`;
     return;
   }
 
@@ -1656,7 +1802,7 @@ function renderFinalSummary() {
     if ((player.isAvailAdv[3] || 0) < 0) pntsSm = 0;
     let pntsLg = 40 * (1 - (player.isAvailAdv[4] || 0));
     if ((player.isAvailAdv[4] || 0) < 0) pntsLg = 0;
-    const pntsYaht = player.yaht <= 0 ? 50 : 0;
+    const pntsYaht = player.yaht === 0 ? 50 : 0;
     const pntsChan = player.pntsChan || 0;
     const pntsYahtBo = player.yahtBo || 0;
 
@@ -1666,7 +1812,7 @@ function renderFinalSummary() {
       ['Full House', pntsFull, (player.isAvailAdv[2] || 0) > 0 ? 'FREE' : 'USED'],
       ['Small Straight', pntsSm, (player.isAvailAdv[3] || 0) > 0 ? 'FREE' : 'USED'],
       ['Large Straight', pntsLg, (player.isAvailAdv[4] || 0) > 0 ? 'FREE' : 'USED'],
-      ['Yahtzee', pntsYaht, player.yaht !== 100 ? 'FREE' : 'USED'],
+      ['Yahtzee', pntsYaht, player.yaht === 1 ? 'FREE' : 'USED'],
       ['Chance', pntsChan, player.chanAvail ? 'FREE' : 'USED'],
       ['Yahtz Bonus', pntsYahtBo, pntsYahtBo > 0 ? 'FREE' : 'USED'],
     ];
