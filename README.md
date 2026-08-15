@@ -1,6 +1,6 @@
 # Yahtzee
 
-A full Yahtzee implementation with a probability-driven bot opponent — originally a Grade 12 AP Computer Science project, later ported to the browser.
+A full Yahtzee implementation with a probability-driven bot opponent — originally a Grade 12 AP Computer Science A project, later ported to the browser.
 
 The interesting part isn't the game. It's the bot: it evaluates every one of the 31 possible reroll combinations against hand-derived probability tables for six different scoring patterns, and picks the one with the best odds. Those tables were worked out by hand on paper, not simulated.
 
@@ -8,10 +8,11 @@ The interesting part isn't the game. It's the bot: it evaluates every one of the
 
 | | |
 |---|---|
-| **Nov 2023** | Java console version written for Grade 12 AP Computer Science. This is where ~95% of the game and bot logic comes from, and it has barely changed since. |
+| **Late 2022** | Java console version written for Grade 12 AP Computer Science A. This is where ~95% of the game and bot logic comes from, and it has barely changed since. |
+| **Nov 2023** | First pushed to GitHub, once I'd figured out how to use it. The initial commit is the 2022 coursework, not new work. |
 | **Aug 2026** | Browser port (`index.html` / `script.js` / `styles.css`), deployed as a static site. Same logic, translated to JavaScript, plus a UI and a bot decision log. |
 
-Everything since 2023 has been tweaks, bug fixes and the web front-end. The core decision-making is the original coursework.
+Everything after 2022 has been tweaks, bug fixes and the web front-end. The core decision-making is the original coursework — so the git history starts about a year after the interesting part was written.
 
 ## What's in here
 
@@ -43,10 +44,23 @@ This is not quite tournament Yahtzee. Worth knowing before comparing scores to a
 - Upper bonus: **35 points at 63+** in the upper section.
 - 3-of-a-kind, 4-of-a-kind and Chance all score the **sum of all five dice**.
 - Small Straight 30, Large Straight 40, Full House 25.
-- First Yahtzee is **50**. Every Yahtzee after that is **100** — and unlike standard rules, taking one **does not require filling another box**. There is no joker rule. A bonus Yahtzee simply consumes the turn.
+- First Yahtzee is **50**. Every Yahtzee after that is **100**, and taking one simply ends the turn.
 - Choosing a category you don't actually have **scratches** it to zero, as normal.
+- **No joker rule** — this is the one real deviation, explained below.
 
-That last Yahtzee rule makes this variant slightly more generous than standard Yahtzee, which matters when reading the benchmark below.
+### The joker rule, and what its absence costs
+
+In standard Yahtzee, rolling a second Yahtzee does two things at once. You collect the 100-point bonus, **and** you must still enter that roll somewhere on the scorecard for the turn. The five matching dice act as a wildcard — a *joker* — that can fill a box it wouldn't normally qualify for:
+
+1. If the matching upper box is open (five 6s → Sixes), you must use it, scoring the sum of the dice — 30.
+2. If that upper box is already filled, any open **lower** box will take it at full face value: Full House 25, Small Straight 30, Large Straight 40, even though five 6s is obviously none of those.
+3. Only if the entire lower section is full do you have to write a zero into an open upper box.
+
+So under standard rules a bonus Yahtzee is worth **100 plus whatever box it fills**, and you still finish the game with all 13 boxes used.
+
+This implementation has no such rule. A bonus Yahtzee is worth 100 and nothing else, and it consumes the turn without filling anything — so each one leaves a box permanently blank. Across 36,000 simulated scorecards the bot took 4,875 bonus Yahtzees, forfeiting **0.135 boxes per card** on average.
+
+That makes this variant slightly **harsher** than standard Yahtzee, not more forgiving. The bot still takes the bonus, correctly: 100 points beats any single box it could fill instead.
 
 ### Two encodings that look like bugs but aren't
 
@@ -97,45 +111,22 @@ Because the functions depend only on the *multiset* of kept dice and the number 
 
 **210 of 210 exact, in both the Java and the JavaScript.** Cross-checking the two implementations against each other and against enumeration — 1,260 values across 210 states — gives zero disagreements anywhere.
 
-### The three entries that were wrong
+### Accuracy is not the same as strength
 
-The original hand-derived tables got **207 of 210** right, with four of the six functions perfect across their whole domain. The three misses, all underestimates, have since been fixed:
-
-| Function | Kept dice | Rerolled | Table said | Truth |
-|---|---|---|---|---|
-| `probSmStr` | 2 2 3 | 2 | 0.0000 | 0.1111 |
-| `probSmStr` | 2 3 3 | 2 | 0.0000 | 0.1111 |
-| `probLgStr` | 2 3 4 5 | 1 | 0.1667 | 0.3333 |
-
-The last one is the classic large-straight draw — holding 2-3-4-5 with one reroll left. Either a 1 or a 6 completes it, so the real chance is 2/6; the table claimed 1/6 and halved it.
-
-The `probSmStr` pair traced to a copy-paste slip:
-
-```js
-count[3] * count[4] > 0 || count[3] * count[4] > 0 || count[1] * count[3] > 0 || count[2] * count[4] > 0
-//                         ^^^^^^^^^^^^^^^^^^^^^^^ same term twice
-```
-
-That branch enumerates which *pairs* of kept faces can still grow into a small straight — 4s&5s, 2s&4s, 3s&5s — but the 2s&3s pair is missing, which is exactly the pair in both failing states. The duplicate was almost certainly meant to be `count[1] * count[2] > 0`; substituting it makes `probSmStr` exact everywhere. `probLgStr` needed one extra branch for the 2-3-4-5 case.
-
-Both bugs were present in the original `Player.java` too — the JavaScript port inherited them faithfully — and both files are now fixed and verified against each other.
-
-### Fixing them changed nothing measurable
-
-Worth stating plainly: this was a correctness fix, not a strength fix. Replaying 8,000 games × 3 bots before and after:
+The audit turned up a handful of incorrect entries in the two straight functions, since corrected in both implementations. Replaying 8,000 games × 3 bots before and after the correction:
 
 | Variant | Mean | Median | SD | Lg straight filled |
 |---|---|---|---|---|
-| Before the fix | 208.4 | 197 | 46.4 | 89.4% |
-| After the fix | 208.4 | 197 | 46.4 | 89.4% |
+| Before | 208.4 | 197 | 46.4 | 89.4% |
+| After | 208.4 | 197 | 46.4 | 89.4% |
 
-**+0.00 points (±0.83 at 95% confidence)** across 24,000 scorecards, and no measurable change in speed (23.3 µs per analysis).
+**+0.00 points (±0.83 at 95% confidence)** across 24,000 scorecards, and no measurable change in speed.
 
-The reason is that the bot only ever uses these numbers to *rank* things — it picks the mask with the highest probability, then compares the best-per-category across categories. All three wrong entries sat in states that were never the argmax, so the ranking was unchanged even though the magnitudes were off. Being wrong about 2-3-4-5 didn't matter, because rerolling the odd die is the best move for a large straight whether you think it's 1/6 or 2/6.
+That is not a surprise once you look at how the numbers are used. The bot only ever *ranks* with them — it picks the mask with the highest probability, then compares the best-per-category across categories. A probability that is wrong in magnitude but still the largest in its comparison changes nothing. Getting the tables exact is worth doing because a probability function should be right, not because it wins games.
 
 ## If this is ever revisited
 
-A precomputed exact table is the best of both: **462 entries** covering every keep-multiset × reroll-count combination, built at startup with ~23,000 enumerations in about 2 ms, then O(1) lookups. It benchmarks at 1.10× the current cost — statistically the same speed — while being exact by construction and replacing roughly 400 lines of hand-derived branching. The hand-derived tables were the right call for a 2023 coursework project; a lookup table is the easier thing to trust now.
+A precomputed exact table is the best of both: **462 entries** covering every keep-multiset × reroll-count combination, built at startup with ~23,000 enumerations in about 2 ms, then O(1) lookups. It benchmarks at 1.10× the current cost — statistically the same speed — while being exact by construction and replacing roughly 400 lines of hand-derived branching. The hand-derived tables were the right call for a 2022 coursework project; a lookup table is the easier thing to trust now.
 
 ---
 
@@ -175,7 +166,7 @@ The mean sits 10 points above the median — a right skew driven entirely by mul
 
 +81% over never rerolling, +44% over the classic keep-the-common-face heuristic, and **81.9% of optimal**. For hand-derived probability tables, that's respectable.
 
-One caveat that makes 81.9% flattering: the house rules above pay 100 per bonus Yahtzee with no obligation to fill another box. Across 36,000 cards the bot took 4,875 extra Yahtzee picks and correspondingly ended those games with a box unfilled — correctly, since 100 beats any box. It is scoring under more generous rules than the 254.6 benchmark assumes, so the true gap is somewhat wider.
+One caveat, in the bot's favour: the 254.6 benchmark assumes standard rules, which include the joker rule described above. Without it, every bonus Yahtzee here costs a box that a standard game would have filled — about 0.135 boxes per scorecard. The bot is playing a slightly harsher variant than the benchmark, so 81.9% is a mild understatement rather than a flattering one. The effect is small either way, on the order of a couple of points.
 
 ## Where the points come from
 

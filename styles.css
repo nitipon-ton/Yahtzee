@@ -181,6 +181,13 @@ select {
   background: rgba(148, 163, 184, 0.14);
 }
 
+/* The same chrome when the control is a link rather than a button. */
+a.ghost-button {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1.7fr 1fr;
