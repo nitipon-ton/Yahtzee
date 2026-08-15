@@ -83,6 +83,9 @@ public class Player {
 		} else if (numberofReroll == 1) {
 			if (diffpair < 12 || (count[0] > 0 && count[5] > 0)) {
 				prob = 0.0;
+			} else if (count[0] == 0 && count[5] == 0) {
+				//holding 2-3-4-5: either a 1 or a 6 completes the straight, not just one of them
+				prob = 2.0 / 6.0;
 			} else {
 				prob = 1.0 / 6.0;
 			}
@@ -358,7 +361,7 @@ public class Player {
 					prob=2.0/36.0;
 				} else if(count[5]>0&&count[1]==0&&count[0]==0) {
 					prob=2.0/36.0;
-				} else if(count[3]*count[4]>0||count[3]*count[4]>0||count[1]*count[3]>0||count[2]*count[4]>0) {
+				} else if(count[3]*count[4]>0||count[1]*count[2]>0||count[1]*count[3]>0||count[2]*count[4]>0) {
 					prob=4.0/36.0;
 				} else if(count[1]*count[4]>0) {
 					prob=2.0/36.0;
