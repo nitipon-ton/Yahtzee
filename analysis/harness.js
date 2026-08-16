@@ -44,6 +44,9 @@ function seededMath(seed) {
 // two versions of the algorithm against each other.
 function loadGame(seed, scriptPath = DEFAULT_SCRIPT) {
   const source = fs.readFileSync(scriptPath, 'utf8');
+  // index.html loads this before script.js; hard mode needs it present.
+  const hardBotPath = path.join(REPO_ROOT, 'hard-bot.js');
+  const hardBot = fs.existsSync(hardBotPath) ? fs.readFileSync(hardBotPath, 'utf8') : null;
   const document = {
     getElementById: () => stubElement(),
     createElement: () => stubElement(),
@@ -56,6 +59,7 @@ function loadGame(seed, scriptPath = DEFAULT_SCRIPT) {
     setTimeout: () => 0,
     clearTimeout: () => {},
   });
+  if (hardBot) vm.runInContext(hardBot, context, { filename: 'hard-bot.js' });
   vm.runInContext(source, context, { filename: path.basename(scriptPath) });
 
   // Wrap performScore so every scoring decision is recorded. The joker bonus

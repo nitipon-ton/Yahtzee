@@ -18,6 +18,8 @@ const optionsList = document.getElementById('optionsList');
 const suggestionText = document.getElementById('suggestionText');
 const botModeSelect = document.getElementById('botModeSelect');
 const botModeHint = document.getElementById('botModeHint');
+const difficultySelect = document.getElementById('difficultySelect');
+const difficultyHint = document.getElementById('difficultyHint');
 const roundBotLogPanel = document.getElementById('roundBotLogPanel');
 const roundBotLogContent = document.getElementById('roundBotLogContent');
 const scoreboardTable = document.getElementById('scoreboardTable');
@@ -48,8 +50,21 @@ const BOT_MODE_HINTS = {
   [BOT_MODE.SILENT]: 'Same speed as above, with no decision log recorded.',
 };
 
+const DIFFICULTY = {
+  // The original coursework logic: probability tables and pattern chasing.
+  EASY: 'easy',
+  // hard-bot.js: expectimax over rerolls, categories priced by opportunity cost.
+  HARD: 'hard',
+};
+
+const DIFFICULTY_HINTS = {
+  [DIFFICULTY.EASY]: 'Chases whichever scoring pattern is most likely, using the hand-derived probability tables.',
+  [DIFFICULTY.HARD]: 'Searches every reroll two rolls deep and values a box by what it would be worth if saved. Averages about 27 points more per game.',
+};
+
 let game = null;
 let selectedDice = [false, false, false, false, false];
+let difficulty = DIFFICULTY.EASY;
 let botMode = BOT_MODE.FAST;
 let botTimeout = null;
 let roundBotLog = [];
@@ -1027,6 +1042,20 @@ class Player {
   getBotAction() {
     const options = this.getAvailableOptions();
     const basicTotal = Helper.sumArr(this.pntsBasic);
+
+    // Hard mode hands the decision to hard-bot.js. Anything it returns is
+    // checked against the legal option list first, so a bad answer falls back
+    // to the easy logic below rather than wasting the turn.
+    if (difficulty === DIFFICULTY.HARD && typeof HardBot !== 'undefined') {
+      const hard = HardBot.decide(this, typeof game !== 'undefined' && game ? game.round : 1);
+      if (hard > 0) {
+        const isRerollMask = hard % 10 === 0 && this.roll_left > 0;
+        const isLegalCategory = options.some((o) => o.id === hard && o.available);
+        if (isRerollMask || isLegalCategory) {
+          return hard;
+        }
+      }
+    }
     let maxPoint = -1;
     let bestValue = -1;
     let bestChoice = CATEGORY.END_TURN;
@@ -1878,7 +1907,9 @@ startGameButton.addEventListener('click', () => {
   game = buildGame();
   selectedDice = [false, false, false, false, false];
   botMode = botModeSelect.value;
+  difficulty = difficultySelect.value;
   botModeSelect.disabled = true;
+  difficultySelect.disabled = true;
   roundBotLog = [];
   advanceBotsAndRender();
 });
@@ -1905,12 +1936,19 @@ forfeitButton.addEventListener('click', () => {
 });
 function renderBotModeHint() {
   botModeHint.textContent = BOT_MODE_HINTS[botModeSelect.value] || '';
+  difficultyHint.textContent = DIFFICULTY_HINTS[difficultySelect.value] || '';
 }
 
 botModeSelect.addEventListener('change', () => {
   renderBotModeHint();
   if (game) return;
   botMode = botModeSelect.value;
+});
+
+difficultySelect.addEventListener('change', () => {
+  renderBotModeHint();
+  if (game) return;
+  difficulty = difficultySelect.value;
 });
 
 helpButton.addEventListener('click', () => {
@@ -1928,6 +1966,7 @@ backButtons.forEach((button) => {
     gameScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     botModeSelect.disabled = false;
+    difficultySelect.disabled = false;
     game = null;
   });
 });

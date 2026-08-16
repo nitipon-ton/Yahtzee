@@ -49,6 +49,14 @@
         <input id="playerCount" type="number" min="1" max="10" value="2" />
       </div>
       <div class="field-row">
+        <label for="difficultySelect">Bot difficulty</label>
+        <select id="difficultySelect">
+          <option value="easy" selected>Easy — the original coursework bot</option>
+          <option value="hard">Hard — expectimax with opportunity costs</option>
+        </select>
+        <p class="hint-text" id="difficultyHint"></p>
+      </div>
+      <div class="field-row">
         <label for="botModeSelect">Bot playback</label>
         <select id="botModeSelect">
           <option value="watch">Watch bots think — show every roll, then the log</option>
@@ -120,6 +128,7 @@
     </section>
   </main>
 
+  <script src="hard-bot.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -22,6 +22,7 @@ Everything after 2022 has been tweaks, bug fixes and the web front-end. The core
 | `DiceMain.java` | Console entry point: player setup, 13-round loop, ranking, score histogram. |
 | `Dice.java`, `Helper.java` | Die roll; array sum/max helpers. |
 | `script.js` | The web port. Same `Player` logic plus a `Game` class, rendering, and bot scheduling. |
+| `hard-bot.js` | Hard-mode bot: expectimax over rerolls, categories priced by opportunity cost. |
 | `index.html`, `styles.css` | UI. |
 | `analysis/` | Simulation harness that produces the report at the bottom of this file. |
 | `vercel.json` | Static deploy config. |
@@ -145,7 +146,7 @@ A precomputed exact table is the best of both: **462 entries** covering every ke
 
 # Bot performance diagnostic
 
-**Method.** Every figure below comes from a **single run of one harness with one seed** — 40,000 games × 3 bots = **120,000 completed scorecards**, standard error ±0.14. The baselines are measured in the same run against the same scoring engine. Category statistics come from an instrumented `performScore` (a move log) rather than end-of-game state, which is unreliable for 3-/4-of-a-kind for the reason given above, and which also credits the joker bonus to whichever box received the dice.
+**Method.** This measures the **Easy** bot — the original coursework logic. Every figure below comes from a **single run of one harness with one seed** — 40,000 games × 3 bots = **120,000 completed scorecards**, standard error ±0.14. The baselines are measured in the same run against the same scoring engine. Category statistics come from an instrumented `performScore` (a move log) rather than end-of-game state, which is unreliable for 3-/4-of-a-kind for the reason given above, and which also credits the joker bonus to whichever box received the dice.
 
 Experiments are a separate matched-seed sweep of 20,000 games per variant and are reported as **deltas only**, so there is exactly one absolute mean in this document.
 
@@ -276,62 +277,29 @@ The cause is that the bot chooses categories **greedily by raw points**, and upp
 
 **6. Safe but capped.** The distribution is tight and the tail is thin. Nothing in the logic responds to the score situation — the bot plays identically whether it's 80 points ahead or behind.
 
-## Tuning change A: it no longer gives up on the upper section
+## Two tuning changes that stuck
 
-The bot used to stop chasing the upper section after round 9 unless it had already banked more than 50:
+Both were found by matched-seed comparison and confirmed on independent seeds.
 
-```js
-basicTotal < 63 && (game.round <= 9 || (game.round > 9 && basicTotal > 50 + 0 * (game.round - 10)))
-```
+**1. It no longer gives up on the upper section.** The old rule stopped chasing after round 9 unless the upper total was already past 50 (`basicTotal > 50 + 0 * (game.round - 10)` — the `0 *` neutralised what was meant to be a sliding threshold). Every version of quitting early measured worse, monotonically: quit after round 5 is −2.2 to −3.6, after round 7 is −0.6 to −1.8, after round 9 is ~0, never quitting is **+0.40** ±0.33. Scorecard-based rules lose too, including "stop once par on the remaining boxes can't reach 63" at −0.78.
 
-That condition is gone. Every version of "give up early" measured worse than not giving up at all:
+Reachability is simply the wrong question: chasing sixes pays even when the bonus is dead, because three 6s is 18 points regardless. For scale, the chase block as a whole is worth **8.6 points** — deciding *when* to stop moves things by well under 1. It is an on/off feature, not a tunable one.
 
-| When to stop chasing the upper section | Effect |
-|---|---|
-| after round 5 | −2.2 to −3.6 |
-| after round 7 | −0.6 to −1.8 |
-| after round 9 (the old rule) | ~0.0 |
-| after round 11 | +0.1 to +0.2 |
-| **never** | **+0.40** ±0.33 |
+**2. It prices in the upper bonus.** Category choice used to rank on raw points, so Small Straight (30) always beat Sixes (18) even when those 18 completed 63 and unlocked 35. A box that finishes the upper section is now worth **points + 35**. Up to round 11 that premium may not outrank a Yahtzee in hand — the hardest box to refill, and without the exception the Yahtzee rate drops 31.2% → 30.7%. Full House and Small Straight need no exception; 35 already beats them.
 
-Perfectly monotonic: the later it quits, the better it does. Rules that decide from the scorecard instead of a round number lose too — "stop once par on the remaining boxes can't reach 63" costs −0.78, and assuming four rather than three of the 5s and 6s (a better model of what the bot actually lands) improves that to −0.20 but still trails simply never quitting. Every one of these is the same knob: the less often it fires, the better it does.
-
-The reason is that reachability is the wrong question. Chasing sixes pays even when the bonus is mathematically dead — three 6s is 18 points in the Sixes box regardless, and four feeds four-of-a-kind. "The bonus is gone" does not imply "stop chasing", which is exactly what every give-up rule assumes.
-
-For scale, the chase block as a whole is worth **8.6 points** — turning it off entirely drops the bot to 200.9 with the upper section at 37.2. Deciding *when* to stop moves things by well under 1. It is an on/off feature, not a tunable one.
-
-Confirmed at 60,000 games × 3 bots per arm: upper section 47.5 → 48.0, upper bonus 7.7% → 8.3%, lower section 153.1 → 152.8 (the chase does cost a little downstairs), for a net **+0.40 ±0.33**. Real, and worth about 0.2% of score.
-
-## Tuning change B: the bot now prices in the upper bonus
-
-The category choice used to rank purely by raw points, so Small Straight (30) always beat Sixes (18) — even when those 18 points were what completed 63 and unlocked 35. A box that finishes the upper section is now valued at **its points + 35**.
-
-One exception, up to round 11: that premium is not allowed to outrank a Yahtzee actually in hand. The Yahtzee box is the hardest on the card to refill, and without the exception the bot passes on enough of them to measurably drop its Yahtzee rate (31.2% → 30.7%). From round 12 there is little "later" left, so it becomes a straight points comparison.
-
-Full House (25) and Small Straight (30) need no exception — 35 already beats them, so the arithmetic sacrifices them on its own, which is the correct play.
-
-| Variant | Effect |
-|---|---|
-| no protection at all | +0.52 to +0.57 |
-| **protect Yahtzee only (shipped)** | **+0.54 to +0.69** |
-| protect Yahtzee + 4-of-a-kind | +0.19 to +0.58 |
-| protect Yahtzee + 4oak + Large Straight | +0.19 to +0.60 |
-
-Confirmed on **two independent seeds** beyond the one this report uses — significant on both, at +0.54 and +0.59. Protecting Yahtzee is never *distinguishable* from protecting nothing (+0.02 and +0.05, well inside the interval), but it is positive in every run and it preserves the Yahtzee rate, so it is kept as the cheaper-of-two-errors choice.
-
-Extending protection to 4-of-a-kind and Large Straight consistently did worse. Those boxes are refillable often enough (80% and 90%) that shielding them suppresses the premium too often.
-
-Effect on the upper section: bonus rate **8.3% → 10.2%**, upper average 48.0 → 48.1, and the upper bonus goes from 2.9 to 3.6 points per card.
+Worth **+0.54 to +0.69**, significant on two independent seeds. Protecting Yahtzee is never *distinguishable* from protecting nothing (+0.02, +0.05) but is positive in every run, so it is kept as the cheaper of two errors. Extending protection to 4-of-a-kind and Large Straight consistently did worse — those refill 80% and 90% of the time, so shielding them suppresses the premium too often. Bonus rate went **8.3% → 10.2%**.
 
 ## Things that were tested and did *not* help
 
 | Experiment | Effect |
 |---|---|
-| Hold Chance until round 10 unless the roll is ≥23 | **−0.6** ±0.55 — nothing |
-| Give up on the upper section once par can't reach 63 | **−0.78** ±0.42 |
-| Same, weighting 5s and 6s at four rather than three | **−0.20** ±0.42 — nothing |
+| Hold Chance until round 10 unless the roll is ≥23 | −0.6 ±0.55 |
+| Give up on the upper once par can't reach 63 | −0.78 ±0.42 |
+| Same, weighting 5s and 6s at four rather than three | −0.20 ±0.42 |
+| Protect 4-of-a-kind / Large Straight from the bonus premium | −0.1 to −0.4 |
 
 The Chance result is the interesting negative: the greedy ordering isn't costing points *given the rest of the strategy*, because the bot has no plan to exploit a saved Chance box either. The symptom can't be fixed without fixing the model.
+
 
 ## Summary
 
