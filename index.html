@@ -59,7 +59,7 @@
       <div class="field-row">
         <label for="botModeSelect">Bot playback</label>
         <select id="botModeSelect">
-          <option value="watch">Watch bots think — show every roll, then the log</option>
+          <option value="watch">Watch bots think — live rolls, rerolls and choices</option>
           <option value="fast" selected>Play bots quickly — show the log at the end</option>
           <option value="silent">Play bots quickly — no log</option>
         </select>
@@ -92,13 +92,22 @@
       </div>
 
       <div class="panel-card dice-panel">
-        <p class="eyebrow">Dice</p>
-        <div class="dice-row" id="diceRow"></div>
-        <div class="controls-row">
-          <button id="rollButton" class="primary-button">Roll selected dice</button>
-          <button id="forfeitButton" class="ghost-button">Forfeit player</button>
+        <div class="dice-panel-body">
+          <div class="dice-main">
+            <p class="eyebrow">Dice</p>
+            <div class="dice-row" id="diceRow"></div>
+            <div class="controls-row">
+              <button id="rollButton" class="primary-button">Roll selected dice</button>
+              <button id="forfeitButton" class="ghost-button">Forfeit player</button>
+            </div>
+            <p class="hint-text">Dice are labeled A, B, C, D, E. Click a tile to mark it for reroll, then roll again.</p>
+          </div>
+          <aside id="botLivePanel" class="bot-live-panel hidden">
+            <p class="eyebrow">Bot thinking</p>
+            <p class="bot-live-name" id="botLiveName"></p>
+            <div class="bot-live-steps" id="botLiveSteps"></div>
+          </aside>
         </div>
-        <p class="hint-text">Dice are labeled A, B, C, D, E. Click a tile to mark it for reroll, then roll again.</p>
       </div>
 
       <div class="panel-card options-panel">

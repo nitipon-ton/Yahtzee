@@ -1,2 +1,6 @@
 .vercel
 .env*
+
+# Local notes and throwaway scripts — never pushed.
+TUNING.md
+*.local.js

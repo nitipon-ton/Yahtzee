@@ -22,6 +22,9 @@ const difficultySelect = document.getElementById('difficultySelect');
 const difficultyHint = document.getElementById('difficultyHint');
 const roundBotLogPanel = document.getElementById('roundBotLogPanel');
 const roundBotLogContent = document.getElementById('roundBotLogContent');
+const botLivePanel = document.getElementById('botLivePanel');
+const botLiveName = document.getElementById('botLiveName');
+const botLiveSteps = document.getElementById('botLiveSteps');
 const scoreboardTable = document.getElementById('scoreboardTable');
 const finalSummary = document.getElementById('finalSummary');
 const helpButton = document.getElementById('helpButton');
@@ -39,13 +42,17 @@ const BOT_MODE = {
 };
 
 const BOT_STEP_DELAY_MS = 400;
+// The scoring decision closes the turn, and its points are the one line worth
+// reading, so it holds well past a normal step before the next player wipes the
+// live feed.
+const BOT_RESULT_DELAY_MS = 2200;
 // Per-turn beat, tuned for a 3-bot table and scaled down for bigger ones so a
 // full round takes about the same time no matter how many bots are playing.
 const BOT_TURN_DELAY_MS = 140;
 const BOT_TURN_MIN_DELAY_MS = 45;
 
 const BOT_MODE_HINTS = {
-  [BOT_MODE.WATCH]: 'Every roll and reroll is shown as it happens. Slowest, but you can follow the reasoning.',
+  [BOT_MODE.WATCH]: 'Every roll, reroll and scoring choice is shown beside the dice as it happens. Slowest, but you can follow the reasoning.',
   [BOT_MODE.FAST]: 'Each bot turn lands in one beat. The full decision log is available once the game ends.',
   [BOT_MODE.SILENT]: 'Same speed as above, with no decision log recorded.',
 };
@@ -68,6 +75,27 @@ let difficulty = DIFFICULTY.EASY;
 let botMode = BOT_MODE.FAST;
 let botTimeout = null;
 let roundBotLog = [];
+
+// ---------------------------------------------------------------------------
+// Watch-mode live view.
+//
+// In watch mode a bot turn is played as announce/execute pairs: one tick draws
+// the decision (the dice it marked for reroll, or the category it picked), the
+// next tick carries it out. Without that split, a reroll and its result land in
+// the same frame and there is nothing to watch.
+//
+// botPending  - the announced-but-not-yet-executed action
+// botTrace    - the steps of the turn currently on screen
+// botMarked   - dice the bot has marked for the reroll it is about to make
+// botChanged  - dice whose value arrived on this tick
+// ---------------------------------------------------------------------------
+let botPending = null;
+let botTrace = [];
+let botTraceName = '';
+let botTraceRound = 0;
+let botMarkedDice = [false, false, false, false, false];
+let botChangedDice = [false, false, false, false, false];
+let nextBotStepDelay = BOT_STEP_DELAY_MS;
 
 // A bot turn is at most 3 steps; this is a runaway guard, not a real limit.
 const MAX_BOT_STEPS = 1000;
@@ -1362,6 +1390,7 @@ function updateUI() {
   backToSetupButton.classList.remove('hidden');
 
   renderDice(player);
+  renderBotLive();
   renderOptions(player);
   renderSuggestion(player);
   renderScoreboard();
@@ -1385,7 +1414,19 @@ function renderDice(player) {
   for (let i = 0; i < 5; i += 1) {
     const tile = document.createElement('button');
     tile.type = 'button';
-    tile.className = `dice-tile${selectedDice[i] ? ' selected' : ''}`;
+    // On a bot's turn the marks come from the bot's own decision, not from the
+    // human's click selection.
+    const classes = ['dice-tile'];
+    if (player.bot) {
+      if (botMarkedDice[i]) {
+        classes.push('bot-marked');
+      } else if (botChangedDice[i]) {
+        classes.push('bot-changed');
+      }
+    } else if (selectedDice[i]) {
+      classes.push('selected');
+    }
+    tile.className = classes.join(' ');
     tile.disabled = disabled;
     const value = player.arrVal[i] || 0;
     tile.innerHTML = `
@@ -1693,6 +1734,259 @@ function playBotStep(player) {
   return true;
 }
 
+function noDiceMarked() {
+  return [false, false, false, false, false];
+}
+
+function maskToDiceFlags(mask) {
+  const flags = noDiceMarked();
+  let digit = 160;
+  for (let i = 4; i >= 0; i -= 1) {
+    if (mask >= digit) {
+      flags[i] = true;
+      mask -= digit;
+    }
+    digit /= 2;
+  }
+  return flags;
+}
+
+function resetBotWatchState() {
+  botPending = null;
+  botTrace = [];
+  botTraceName = '';
+  botTraceRound = 0;
+  botMarkedDice = noDiceMarked();
+  botChangedDice = noDiceMarked();
+  nextBotStepDelay = BOT_STEP_DELAY_MS;
+}
+
+// What the bot expects from the box it just picked. The figure is replaced with
+// the points actually banked once the choice is executed.
+function botScorePreview(player, decision) {
+  const option = player.getAvailableOptions().find((entry) => entry.id === decision);
+  return {
+    label: CATEGORY_LABELS[decision] || (option ? option.label : `Choice ${decision}`),
+    points: option ? option.points : 0,
+  };
+}
+
+// Carries out a scoring choice announced on the previous tick, and fills the
+// live entry in with what the turn actually banked.
+function executeBotScore(player, pending) {
+  const entry = pending.entry;
+  const scoreBefore = player.score;
+  const bonusBefore = player.bonus;
+  const yahtzeeBonusBefore = player.yahtBo;
+
+  player.performScore(pending.decision);
+  player.checkScoreCard();
+
+  entry.pending = false;
+  entry.points = player.score - scoreBefore;
+  entry.upperBonus = player.bonus - bonusBefore;
+  entry.yahtzeeBonus = player.yahtBo - yahtzeeBonusBefore;
+
+  const finalBotLog = botLogEnabled() ? player.botLog.slice() : null;
+  const previousRound = game.round;
+  game.advanceTurn();
+  // resetForNextRound has folded the turn's score into the running total.
+  entry.total = player.totalscore + player.score;
+
+  selectedDice = noDiceMarked();
+  botMarkedDice = noDiceMarked();
+  botChangedDice = noDiceMarked();
+
+  if (finalBotLog && finalBotLog.length) {
+    roundBotLog.push({ round: previousRound, name: player.name, lines: finalBotLog });
+  }
+  nextBotStepDelay = BOT_RESULT_DELAY_MS;
+  return true;
+}
+
+// One watch-mode tick: either execute the action announced last tick, or take
+// the next roll/decision and announce it. Returns true when the turn ended.
+function playBotWatchStep(player) {
+  const logging = botLogEnabled();
+  nextBotStepDelay = BOT_STEP_DELAY_MS;
+
+  // A forfeit or restart can strand a decision that belongs to nobody now.
+  if (botPending && botPending.player !== player) {
+    botPending = null;
+  }
+
+  if (botPending) {
+    const pending = botPending;
+    botPending = null;
+    if (pending.type !== 'reroll') {
+      return executeBotScore(player, pending);
+    }
+    player.rollDecision = pending.mask;
+    player.roll_left -= 1;
+    player.rollDice();
+    pending.entry.pending = false;
+    botChangedDice = maskToDiceFlags(pending.mask);
+    botMarkedDice = noDiceMarked();
+    if (logging) {
+      player.logBot(`New dice: ${player.arrVal.join(' ')}`);
+    }
+    botTrace.push({
+      kind: 'roll',
+      title: `Roll ${3 - player.roll_left}`,
+      dice: player.arrVal.slice(),
+      changed: botChangedDice.slice(),
+    });
+    return false;
+  }
+
+  if (player.roll_left === 3) {
+    botTrace = [];
+    botTraceName = player.name;
+    botTraceRound = game.round;
+    botMarkedDice = noDiceMarked();
+    botChangedDice = noDiceMarked();
+    player.botLog.length = 0;
+    player.rollDice();
+    if (logging) {
+      player.logBot(`Rolled: ${player.arrVal.join(' ')}`);
+    }
+    botTrace.push({
+      kind: 'roll',
+      title: 'Roll 1',
+      dice: player.arrVal.slice(),
+      changed: noDiceMarked(),
+    });
+    return false;
+  }
+
+  const decision = player.getBotAction();
+
+  if (decision > 0 && decision % 10 === 0 && player.roll_left > 0) {
+    const flags = maskToDiceFlags(decision);
+    const letters = player.maskToDiceLetters(decision);
+    if (logging) {
+      player.logBot(`Rerolling: ${letters.join(', ') || 'none'}`);
+    }
+    const entry = {
+      kind: 'reroll',
+      pending: true,
+      dice: flags
+        .map((marked, index) => ({ letter: DICE_LABELS[index], value: player.arrVal[index], marked }))
+        .filter((die) => die.marked),
+      keep: player.arrVal.filter((value, index) => !flags[index]).join(' '),
+    };
+    botTrace.push(entry);
+    botMarkedDice = flags;
+    botChangedDice = noDiceMarked();
+    botPending = { type: 'reroll', mask: decision, player, entry };
+    return false;
+  }
+
+  const preview = botScorePreview(player, decision);
+  if (logging) {
+    player.logBot(`Chooses: ${CATEGORY_LABELS[decision] || `Choice ${decision}`}`);
+  }
+  const entry = { kind: 'score', pending: true, label: preview.label, points: preview.points };
+  botTrace.push(entry);
+  botMarkedDice = noDiceMarked();
+  botChangedDice = noDiceMarked();
+  botPending = { type: 'score', decision, player, entry };
+  return false;
+}
+
+function renderBotLive() {
+  if (botMode !== BOT_MODE.WATCH || !botTrace.length) {
+    botLivePanel.classList.add('hidden');
+    return;
+  }
+
+  botLivePanel.classList.remove('hidden');
+  botLiveName.textContent = botTraceRound
+    ? `${botTraceName} • Round ${botTraceRound}`
+    : botTraceName;
+
+  botLiveSteps.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+  for (const step of botTrace) {
+    fragment.append(renderBotLiveStep(step));
+  }
+  botLiveSteps.append(fragment);
+  botLiveSteps.scrollTop = botLiveSteps.scrollHeight;
+}
+
+function buildBotLiveDice(dice) {
+  const row = document.createElement('div');
+  row.className = 'bot-live-dice';
+  for (const die of dice) {
+    const chip = document.createElement('span');
+    chip.className = `bot-live-die${die.changed ? ' changed' : ''}${die.marked ? ' marked' : ''}`;
+    const letter = document.createElement('em');
+    letter.textContent = die.letter;
+    const value = document.createElement('span');
+    value.textContent = die.value || '–';
+    chip.append(letter, value);
+    row.append(chip);
+  }
+  return row;
+}
+
+function buildBotLiveNote(text) {
+  const note = document.createElement('div');
+  note.className = 'bot-live-note';
+  note.textContent = text;
+  return note;
+}
+
+function renderBotLiveStep(step) {
+  const row = document.createElement('div');
+  row.className = `bot-live-step bot-live-step-${step.kind}${step.pending ? ' pending' : ''}`;
+
+  const tag = document.createElement('span');
+  tag.className = 'bot-live-tag';
+  const body = document.createElement('div');
+  body.className = 'bot-live-body';
+
+  if (step.kind === 'roll') {
+    tag.textContent = step.title;
+    body.append(
+      buildBotLiveDice(
+        step.dice.map((value, index) => ({
+          letter: DICE_LABELS[index],
+          value,
+          changed: step.changed[index],
+        })),
+      ),
+    );
+  } else if (step.kind === 'reroll') {
+    tag.textContent = step.pending ? 'Rerolling' : 'Rerolled';
+    body.append(buildBotLiveDice(step.dice));
+    body.append(buildBotLiveNote(step.keep ? `Keeps ${step.keep}` : 'Keeps nothing'));
+  } else {
+    tag.textContent = step.pending ? 'Picking' : 'Scored';
+    const head = document.createElement('div');
+    head.className = 'bot-live-score-head';
+    const label = document.createElement('strong');
+    label.textContent = step.label;
+    const points = document.createElement('span');
+    points.className = `bot-live-points${step.points > 0 ? '' : ' zero'}`;
+    points.textContent = `+${step.points}`;
+    head.append(label, points);
+    body.append(head);
+    if (step.yahtzeeBonus > 0) {
+      body.append(buildBotLiveNote(`Includes the ${step.yahtzeeBonus} point Yahtzee bonus`));
+    }
+    if (step.upperBonus > 0) {
+      body.append(buildBotLiveNote(`Upper bonus unlocked: +${step.upperBonus}`));
+    }
+    if (step.total !== undefined) {
+      body.append(buildBotLiveNote(`Running total: ${step.total}`));
+    }
+  }
+
+  row.append(tag, body);
+  return row;
+}
+
 // Plays one bot's entire turn at once. The scoring branch of playBotStep always
 // calls advanceTurn, so this is guaranteed to terminate.
 function playBotTurn(player) {
@@ -1766,7 +2060,7 @@ function advanceBotsAndRender() {
   if (!botIsWaiting()) {
     return;
   }
-  const delay = botMode === BOT_MODE.WATCH ? BOT_STEP_DELAY_MS : botTurnDelay();
+  const delay = botMode === BOT_MODE.WATCH ? nextBotStepDelay : botTurnDelay();
   botTimeout = setTimeout(() => {
     botTimeout = null;
     const player = botIsWaiting();
@@ -1775,7 +2069,7 @@ function advanceBotsAndRender() {
       return;
     }
     if (botMode === BOT_MODE.WATCH) {
-      playBotStep(player);
+      playBotWatchStep(player);
     } else {
       playBotTurn(player);
     }
@@ -1911,6 +2205,7 @@ startGameButton.addEventListener('click', () => {
   botModeSelect.disabled = true;
   difficultySelect.disabled = true;
   roundBotLog = [];
+  resetBotWatchState();
   advanceBotsAndRender();
 });
 rollButton.addEventListener('click', () => {
@@ -1932,6 +2227,7 @@ forfeitButton.addEventListener('click', () => {
   player.performScore(CATEGORY.FORFEIT);
   game.advanceTurn();
   selectedDice = [false, false, false, false, false];
+  resetBotWatchState();
   advanceBotsAndRender();
 });
 function renderBotModeHint() {
@@ -1962,6 +2258,7 @@ closeHelpButton.addEventListener('click', () => {
 backButtons.forEach((button) => {
   button.addEventListener('click', () => {
     clearBotTimer();
+    resetBotWatchState();
     setupScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');

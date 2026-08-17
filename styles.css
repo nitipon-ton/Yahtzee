@@ -216,6 +216,22 @@ a.ghost-button {
   gap: 1rem;
 }
 
+/* Dice on the left, the watch-mode bot feed in the space beside them. Flex
+   rather than grid so the row collapses cleanly when the feed is hidden. */
+.dice-panel-body {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.dice-main {
+  flex: 1 1 22rem;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
 .dice-row {
   display: flex;
   gap: 0.85rem;
@@ -254,6 +270,162 @@ a.ghost-button {
   background: rgba(59, 130, 246, 0.25);
   border-color: rgba(96, 165, 250, 0.45);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Marked by the bot for the reroll it is about to make. */
+.dice-tile.bot-marked {
+  background: rgba(234, 179, 8, 0.16);
+  border: 1px dashed rgba(250, 204, 21, 0.7);
+  box-shadow: 0 0 18px rgba(234, 179, 8, 0.22);
+  animation: bot-mark-pulse 800ms ease-in-out infinite;
+}
+
+/* Landed on this tick: the value in front of you is brand new. */
+.dice-tile.bot-changed {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(74, 222, 128, 0.5);
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.2);
+}
+
+@keyframes bot-mark-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.62; }
+}
+
+.bot-live-panel {
+  flex: 1 1 19rem;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.bot-live-panel .eyebrow {
+  margin-bottom: 0.35rem;
+}
+
+.bot-live-name {
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+.bot-live-steps {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  max-height: 15rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.bot-live-step {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr;
+  gap: 0.6rem;
+  align-items: start;
+  padding: 0.4rem 0.5rem;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.bot-live-step.pending {
+  background: rgba(234, 179, 8, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.28);
+}
+
+.bot-live-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  padding-top: 0.35rem;
+}
+
+.bot-live-step-reroll .bot-live-tag {
+  color: #fcd34d;
+}
+
+.bot-live-step-score .bot-live-tag {
+  color: #6ee7b7;
+}
+
+.bot-live-body {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.bot-live-dice {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.bot-live-die {
+  display: grid;
+  place-items: center;
+  min-width: 1.9rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 9px;
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.1;
+}
+
+.bot-live-die em {
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+}
+
+.bot-live-die.changed {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(74, 222, 128, 0.45);
+  color: #dcfce7;
+}
+
+.bot-live-die.marked {
+  background: rgba(234, 179, 8, 0.18);
+  border-color: rgba(250, 204, 21, 0.5);
+  color: #fef9c3;
+}
+
+.bot-live-note {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.bot-live-score-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bot-live-score-head strong {
+  font-size: 0.95rem;
+}
+
+.bot-live-points {
+  font-weight: 700;
+  color: #6ee7b7;
+  white-space: nowrap;
+}
+
+.bot-live-points.zero {
+  color: #fca5a5;
 }
 
 .controls-row {
